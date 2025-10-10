@@ -1,0 +1,26 @@
+{
+  "name": "@x-filter/utils",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "pnpm exec jest --selectProjects utils",
+    "lint": "pnpm exec eslint src --ext .ts",
+    "format": "pnpm exec prettier \"src/**/*.ts\" --check",
+    "format:write": "pnpm exec prettier \"src/**/*.ts\" --write",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@x-filter/core": "workspace:*"
+  }
+}

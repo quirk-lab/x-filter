@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm format
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Detect circular dependencies
+        run: pnpm dlx madge --circular --extensions ts,tsx packages apps
+
+      - name: Test
+        run: pnpm test -- --runInBand --ci
+
+      - name: Build
+        run: pnpm build
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-${{ matrix.node-version }}
+          path: coverage
+
+      - name: Publish coverage summary
+        if: always()
+        run: |
+          if [ -f coverage/lcov.info ]; then
+            pnpm dlx coverage-summary-cli coverage/lcov.info >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Coverage report missing" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Playwright/visual regression artifacts (if any)
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: visual-regression-artifacts
+          path: apps/playground/test-results
+          if-no-files-found: ignore

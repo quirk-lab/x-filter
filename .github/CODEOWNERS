@@ -1,0 +1,8 @@
+# Require review from maintainers for every change
+* @x-filter/maintainers
+
+# Feature packages
+packages/core/ @x-filter/core-maintainers
+packages/utils/ @x-filter/core-maintainers
+packages/react/ @x-filter/react-maintainers
+apps/playground/ @x-filter/react-maintainers
