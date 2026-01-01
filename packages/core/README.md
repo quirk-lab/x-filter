@@ -1,32 +1,31 @@
 # @x-filter/core
 
-Core query builder primitives for the X-Filter headless UI library. The package exposes type-safe
-constructs for defining fields and manipulating rules without any UI dependencies.
+核心逻辑库，提供过滤和验证功能。
 
-## Usage
+## 安装
 
-```ts
-import {
-  createQueryDefinition,
-  addRule,
-  serializeQuery
-} from '@x-filter/core';
-
-const definition = createQueryDefinition('issues', [
-  { key: 'status', label: 'Status', type: 'string' },
-  { key: 'priority', label: 'Priority', type: 'number' }
-]);
-
-const updated = addRule(definition, { field: 'status', operator: 'equals', value: 'open' });
-const payload = serializeQuery(updated);
+```bash
+pnpm add @x-filter/core
 ```
 
-## Edge Cases & Guidance
+## 使用
 
-- Unknown fields throw by default; pass `{ allowUnknownFields: true }` when interop with downstream
-  systems that enrich rules.
-- Attach validators created via `createValidator` to enforce policy (e.g., disallow `status=closed`).
-- `replaceRules` copies incoming rules to avoid accidental mutation; prefer it when syncing with
-  remote state.
-- `serializeQuery` produces stable JSON suitable for signatures or caching—metadata is included even
-  if empty to ease signature generation.
+```typescript
+import { filterDefined, validateInput } from '@x-filter/core';
+
+const array = [1, null, 2, undefined, 3];
+console.log(filterDefined(array)); // [1, 2, 3]
+
+console.log(validateInput('hello')); // true
+console.log(validateInput('')); // false
+```
+
+## API
+
+### `filterDefined<T>(array: (T | null | undefined)[]): T[]`
+
+过滤数组中的 `null` 和 `undefined` 值。
+
+### `validateInput(input: unknown): boolean`
+
+验证输入是否为非空字符串。

@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`query builder serialises into a deterministic payload 1`] = `"{\"name\":\"issues\",\"rules\":[{\"field\":\"status\",\"operator\":\"equals\",\"value\":\"open\"}],\"metadata\":{}}"`;

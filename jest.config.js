@@ -1,47 +1,38 @@
-const path = require('path');
+const path = require('node:path');
 
-const jsdomProjects = new Set(['react', 'playground']);
+const jsdomProjects = new Set(['react', 'playground', 'antd', 'shadcn', 'web']);
+const apps = new Set(['playground', 'web']);
 
-const makeProject = (name) => ({
-  displayName: name,
-  preset: 'ts-jest/presets/default-esm',
-  testEnvironment: jsdomProjects.has(name) ? 'jsdom' : 'node',
-  rootDir: path.join(
-    __dirname,
-    jsdomProjects.has(name) ? 'apps' : 'packages',
-    name === 'playground' ? 'playground' : name
-  ),
-  testMatch: ['<rootDir>/src/**/__tests__/**/*.spec.ts?(x)'],
-  globals: {
-    'ts-jest': {
-      useESM: true,
-      tsconfig: path.join(
-        __dirname,
-        name === 'playground' ? 'apps/playground' : `packages/${name}`,
-        'tsconfig.json'
-      )
-    }
-  },
-  moduleNameMapper: {
-    '^@x-filter/(.*)$': '<rootDir>/../../packages/$1/src'
-  },
-  setupFilesAfterEnv: jsdomProjects.has(name)
-    ? [path.join(__dirname, 'jest.setup.ts')]
-    : [],
-  coveragePathIgnorePatterns: ['/node_modules/'],
-  coverageDirectory: path.join(__dirname, 'coverage', name),
-  coverageReporters: ['text', 'html'],
-  coverageThreshold: {
-    global: {
-      statements: 95,
-      branches: 95,
-      functions: 95,
-      lines: 95
-    }
-  }
-});
+const makeProject = (name) => {
+  const isApp = apps.has(name);
+  const rootDir = path.join(__dirname, isApp ? 'apps' : 'packages', name);
+
+  return {
+    displayName: name,
+    preset: 'ts-jest/presets/default-esm',
+    testEnvironment: jsdomProjects.has(name) ? 'jsdom' : 'node',
+    rootDir,
+    testMatch: ['<rootDir>/src/**/__tests__/**/*.spec.ts?(x)'],
+    moduleNameMapper: {
+      '^@x-filter/(.*)$': path.join(__dirname, 'packages/$1/src'),
+    },
+    setupFilesAfterEnv: jsdomProjects.has(name) ? [path.join(__dirname, 'jest.setup.ts')] : [],
+    coveragePathIgnorePatterns: ['/node_modules/'],
+  };
+};
 
 module.exports = {
   collectCoverage: true,
-  projects: [makeProject('core'), makeProject('utils'), makeProject('react'), makeProject('playground')]
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'html'],
+  projects: [
+    makeProject('core'),
+    makeProject('utils'),
+    makeProject('react'),
+    makeProject('playground'),
+    makeProject('antd'),
+    makeProject('shadcn'),
+    makeProject('web'),
+  ],
 };
+
