@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { validateInput } from '@x-filter/core';
+import { useEffect, useState } from 'react';
 
 /**
  * Hook for validated input

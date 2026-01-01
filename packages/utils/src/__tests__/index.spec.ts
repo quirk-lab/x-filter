@@ -1,4 +1,4 @@
-import { isNil, isDefined } from '../index';
+import { isDefined, isNil } from '../index';
 
 describe('utils', () => {
   describe('isNil', () => {

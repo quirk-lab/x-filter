@@ -1,5 +1,5 @@
-import type React from 'react';
 import { useFilteredArray } from '@x-filter/react';
+import type React from 'react';
 
 export interface FilteredListProps<T> {
   items: (T | null | undefined)[];

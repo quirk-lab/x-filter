@@ -1,7 +1,7 @@
-import { filterDefined } from '@x-filter/core';
-import { useValidatedInput, useFilteredArray } from '@x-filter/react';
-import { ValidatedInput } from '@x-filter/shadcn';
 import { FilteredList } from '@x-filter/antd';
+import { filterDefined } from '@x-filter/core';
+import { useFilteredArray, useValidatedInput } from '@x-filter/react';
+import { ValidatedInput } from '@x-filter/shadcn';
 
 function App() {
   const { value, setValue, isValid } = useValidatedInput('');

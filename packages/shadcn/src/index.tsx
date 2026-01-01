@@ -1,5 +1,5 @@
-import type React from 'react';
 import { useValidatedInput } from '@x-filter/react';
+import type React from 'react';
 
 export interface ValidatedInputProps {
   placeholder?: string;
