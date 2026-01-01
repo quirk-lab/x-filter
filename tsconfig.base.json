@@ -14,12 +14,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "lib": ["ES2022", "DOM"],
-    "types": ["node", "jest"],
-    "composite": true,
-    "baseUrl": ".",
-    "paths": {
-      "@x-filter/*": ["./packages/*/src"]
-    }
+    "types": ["node", "jest"]
   },
   "include": [],
   "exclude": ["node_modules", "dist"]

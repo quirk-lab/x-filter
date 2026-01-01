@@ -6,9 +6,6 @@
     "rootDir": "./src"
   },
   "include": ["src/**/*"],
-  "references": [
-    { "path": "../core" }
-  ],
   "exclude": [
     "node_modules",
     "dist",
