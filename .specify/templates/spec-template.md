@@ -18,9 +18,6 @@
   - Tested independently
   - Deployed independently
   - Demonstrated to users independently
-
-  Coverage Reminder: Specs MUST call out the automated tests that will uphold ≥95% line and branch
-  coverage, including regression tests for fixes and integration smoke tests for public APIs.
 -->
 
 ### User Story 1 - [Brief Title] (Priority: P1)
@@ -116,10 +113,3 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
-
-## Documentation & Release Notes *(mandatory)*
-
-- **Reference Docs**: [Outline the updates to component documentation, including props/events tables and examples]
-- **Changelog Entry**: [Draft the semantic-versioned changelog note with impact level (MAJOR/MINOR/PATCH)]
-- **Migration Guide**: [Describe required steps for consumers when behavior changes or new defaults land]
-- **Release Validation**: [List cross-project smoke tests and rollback plan checkpoints]

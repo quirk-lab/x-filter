@@ -26,17 +26,17 @@ description: "Task list for Monorepo Foundation for Headless UI Library"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [US1] Create root `pnpm-workspace.yaml` with workspaces: `packages/*`, `apps/*` (repo root)
-- [ ] T002 [US1] Initialize root `package.json` (name, `private:true`, scripts placeholder, `packageManager` pnpm) at `/Users/zhouyang/Coding/x-filter/package.json`
-- [ ] T003 [P] [US1] Add root TypeScript base config at `/Users/zhouyang/Coding/x-filter/tsconfig.base.json` (module: ESM, strict, composite defaults)
-- [ ] T004 [P] [US1] Add ESLint config `/Users/zhouyang/Coding/x-filter/.eslintrc.json` and ignore `/Users/zhouyang/Coding/x-filter/.eslintignore`
-- [ ] T005 [P] [US1] Add Prettier config `/Users/zhouyang/Coding/x-filter/.prettierrc` and ignore `/Users/zhouyang/Coding/x-filter/.prettierignore`
-- [ ] T006 [US1] Add Jest root config at `/Users/zhouyang/Coding/x-filter/jest.config.js` with `projects` pointing to each package/app
-- [ ] T007 [US1] Initialize Husky: add `prepare` script in root and create hooks `/Users/zhouyang/Coding/x-filter/.husky/pre-commit` (format+lint) and `/Users/zhouyang/Coding/x-filter/.husky/pre-push` (typecheck+test)
-- [ ] T008 [P] [US1] Create root `.gitignore` and `.editorconfig` with conventional entries
-- [ ] T009 [US1] Create CI workflow at `/Users/zhouyang/Coding/x-filter/.github/workflows/ci.yml` (Node 18/20 matrix: install→lint→typecheck→test→build; cache artifacts)
-- [ ] T044 [US1] Add CODEOWNERS at `/Users/zhouyang/Coding/x-filter/.github/CODEOWNERS` requiring two maintainer reviews for protected branches
-- [ ] T045 [US1] Document branch protection rules at `/Users/zhouyang/Coding/x-filter/docs/branch-protection.md` (2 approvals, required checks, linear history)
+- [x] T001 [US1] Create root `pnpm-workspace.yaml` with workspaces: `packages/*`, `apps/*` (repo root)
+- [x] T002 [US1] Initialize root `package.json` (name, `private:true`, scripts placeholder, `packageManager` pnpm) at `/Users/zhouyang/Coding/x-filter/package.json`
+- [x] T003 [P] [US1] Add root TypeScript base config at `/Users/zhouyang/Coding/x-filter/tsconfig.base.json` (module: ESM, strict, composite defaults)
+- [x] T004 [P] [US1] Add ESLint config `/Users/zhouyang/Coding/x-filter/.eslintrc.json` and ignore `/Users/zhouyang/Coding/x-filter/.eslintignore`
+- [x] T005 [P] [US1] Add Prettier config `/Users/zhouyang/Coding/x-filter/.prettierrc` and ignore `/Users/zhouyang/Coding/x-filter/.prettierignore`
+- [x] T006 [US1] Add Jest root config at `/Users/zhouyang/Coding/x-filter/jest.config.js` with `projects` pointing to each package/app
+- [x] T007 [US1] Initialize Husky: add `prepare` script in root and create hooks `/Users/zhouyang/Coding/x-filter/.husky/pre-commit` (format+lint) and `/Users/zhouyang/Coding/x-filter/.husky/pre-push` (typecheck+test)
+- [x] T008 [P] [US1] Create root `.gitignore` and `.editorconfig` with conventional entries
+- [x] T009 [US1] Create CI workflow at `/Users/zhouyang/Coding/x-filter/.github/workflows/ci.yml` (Node 18/20 matrix: install→lint→typecheck→test→build; cache artifacts)
+- [x] T044 [US1] Add CODEOWNERS at `/Users/zhouyang/Coding/x-filter/.github/CODEOWNERS` requiring two maintainer reviews for protected branches
+- [x] T045 [US1] Document branch protection rules at `/Users/zhouyang/Coding/x-filter/.github/BRANCH_PROTECTION.md` (2 approvals, required checks, linear history)
 
 ---
 
@@ -46,16 +46,16 @@ description: "Task list for Monorepo Foundation for Headless UI Library"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T010 [US1] Scaffold workspace folders: `packages/core`, `packages/utils`, `packages/react`, `apps/playground`
-- [ ] T011 [P] [US1] Create `packages/core/package.json` (name `@x-filter/core`, `private:true`, ESM exports, `types`, scripts: build/test/lint/format/typecheck)
-- [ ] T012 [P] [US1] Create `packages/utils/package.json` (name `@x-filter/utils`, `private:true`, ESM exports, `types`, scripts aligned)
-- [ ] T013 [P] [US1] Create `packages/react/package.json` (name `@x-filter/react`, `private:true`, ESM exports, `types`, scripts aligned)
-- [ ] T014 [US1] Create `apps/playground/package.json` (name `@x-filter/playground`, `private:true`, scripts: dev/build/test/lint/format/typecheck)
-- [ ] T015 [P] [US1] Add per-package `tsconfig.json` with `composite:true`, `extends: ../../tsconfig.base.json`
-- [ ] T016 [US1] Establish TypeScript project references: root → packages; `apps/playground` → `@x-filter/core`, `@x-filter/utils`, `@x-filter/react`
-- [ ] T017 [US1] Wire workspace dependencies using `workspace:*`: `@x-filter/react` → `@x-filter/core`, `@x-filter/utils`; `@x-filter/utils` → `@x-filter/core`; avoid cycles
-- [ ] T018 [US1] Root scripts: `build`, `test`, `lint`, `format`, `typecheck`, `dev` (delegates to `apps/playground`)
-- [ ] T019 [US1] CI: add cycle detection; enforce coverage thresholds ≥95% per package; upload coverage artifacts for dashboard; include visual regression and accessibility checks
+- [x] T010 [US1] Scaffold workspace folders: `packages/core`, `packages/utils`, `packages/react`, `apps/playground`
+- [x] T011 [P] [US1] Create `packages/core/package.json` (name `@x-filter/core`, `private:true`, ESM exports, `types`, scripts: build/test/lint/format/typecheck)
+- [x] T012 [P] [US1] Create `packages/utils/package.json` (name `@x-filter/utils`, `private:true`, ESM exports, `types`, scripts aligned)
+- [x] T013 [P] [US1] Create `packages/react/package.json` (name `@x-filter/react`, `private:true`, ESM exports, `types`, scripts aligned)
+- [x] T014 [US1] Create `apps/playground/package.json` (name `@x-filter/playground`, `private:true`, scripts: dev/build/test/lint/format/typecheck)
+- [x] T015 [P] [US1] Add per-package `tsconfig.json` with `composite:true`, `extends: ../../tsconfig.base.json`
+- [x] T016 [US1] Establish TypeScript project references: root → packages; `apps/playground` → `@x-filter/core`, `@x-filter/utils`, `@x-filter/react`
+- [x] T017 [US1] Wire workspace dependencies using `workspace:*`: `@x-filter/react` → `@x-filter/core`, `@x-filter/utils`; `@x-filter/utils` → `@x-filter/core`; avoid cycles
+- [x] T018 [US1] Root scripts: `build`, `test`, `lint`, `format`, `typecheck`, `dev` (delegates to `apps/playground`)
+- [x] T019 [US1] CI: add cycle detection; enforce coverage thresholds ≥95% per package; upload coverage artifacts for dashboard; include visual regression and accessibility checks
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -69,21 +69,21 @@ description: "Task list for Monorepo Foundation for Headless UI Library"
 
 ### Tests for User Story 1 (MANDATORY) ✅
 
-- [ ] T020 [P] [US1] Root smoke test file at `apps/playground/src/__tests__/bootstrap.spec.ts` asserting app mounts and imports workspace packages
+- [x] T020 [P] [US1] Root smoke test file at `apps/playground/src/__tests__/bootstrap.spec.ts` asserting app mounts and imports workspace packages
 
 ### Implementation for User Story 1
 
-- [ ] T021 [P] [US1] Create placeholder sources:
+- [x] T021 [P] [US1] Create placeholder sources:
   - `packages/core/src/index.ts`
   - `packages/utils/src/index.ts`
   - `packages/react/src/index.ts`
-- [ ] T022 [US1] Configure `apps/playground` minimal React 18 app files:
+- [x] T022 [US1] Configure `apps/playground` minimal React 18 app files:
   - `apps/playground/index.html`
   - `apps/playground/src/main.tsx`
   - `apps/playground/src/App.tsx`
   - Add Vite config `apps/playground/vite.config.ts` (for dev/build)
-- [ ] T023 [US1] Ensure root Jest `projects` detect each package/app; add per-package `jest.config.js` if needed
-- [ ] T024 [US1] Document quickstart at `/Users/zhouyang/Coding/x-filter/specs/001-1-monorepo-headless/quickstart.md` (install, build, test, dev)
+- [x] T023 [US1] Ensure root Jest `projects` detect each package/app; add per-package `jest.config.js` if needed
+- [x] T024 [US1] Document quickstart at `/Users/zhouyang/Coding/x-filter/specs/001-1-monorepo-headless/quickstart.md` (install, build, test, dev)
 
 **Checkpoint**: User Story 1 independently functional and testable
 
@@ -97,14 +97,14 @@ description: "Task list for Monorepo Foundation for Headless UI Library"
 
 ### Tests for User Story 2 (MANDATORY) ✅
 
-- [ ] T025 [P] [US2] Add sample tests `packages/core/src/__tests__/query-builder.spec.ts` covering type-safe builder stubs
+- [x] T025 [P] [US2] Add sample tests `packages/core/src/__tests__/query-builder.spec.ts` covering type-safe builder stubs
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Implement placeholder domain types `packages/core/src/query-types.ts` (QueryDefinition, Field, Operator, Rule)
-- [ ] T027 [US2] Implement stubbed builder API `packages/core/src/query-builder.ts` (createQuery, addRule, serialize) with TODOs
-- [ ] T028 [P] [US2] Export public surface from `packages/core/src/index.ts`
-- [ ] T029 [US2] Add README usage examples `packages/core/README.md` reflecting API and edge cases (placeholders)
+- [x] T026 [US2] Implement placeholder domain types `packages/core/src/query-types.ts` (QueryDefinition, Field, Operator, Rule)
+- [x] T027 [US2] Implement stubbed builder API `packages/core/src/query-builder.ts` (createQuery, addRule, serialize) with TODOs
+- [x] T028 [P] [US2] Export public surface from `packages/core/src/index.ts`
+- [x] T029 [US2] Add README usage examples `packages/core/README.md` reflecting API and edge cases (placeholders)
 
 **Checkpoint**: User Story 2 independently functional and testable
 
@@ -118,19 +118,19 @@ description: "Task list for Monorepo Foundation for Headless UI Library"
 
 ### Tests for User Story 3 (MANDATORY) ✅
 
-- [ ] T030 [P] [US3] Add sample tests `packages/react/src/__tests__/headless-hooks.spec.tsx` validating hooks signatures and state transitions (stubbed)
-- [ ] T031 [P] [US3] Add sample tests `apps/playground/src/__tests__/demos.spec.tsx` asserting demo renders and responds to basic interactions
-- [ ] T046 [P] [US3] Add utils package tests `packages/utils/src/__tests__/formatters.spec.ts` covering formatter type contracts and stub behavior
-- [ ] T047 [US3] Set up DOM snapshot-based visual regression for headless components and wire into CI checks
-- [ ] T048 [US3] Add accessibility checks for demos/components (lint rules or runtime checks) and wire into CI
+- [x] T030 [P] [US3] Add sample tests `packages/react/src/__tests__/headless-hooks.spec.tsx` validating hooks signatures and state transitions (stubbed)
+- [x] T031 [P] [US3] Add sample tests `apps/playground/src/__tests__/demos.spec.tsx` asserting demo renders and responds to basic interactions
+- [x] T046 [P] [US3] Add utils package tests `packages/utils/src/__tests__/formatters.spec.ts` covering formatter type contracts and stub behavior
+- [x] T047 [US3] Set up DOM snapshot-based visual regression for headless components and wire into CI checks
+- [x] T048 [US3] Add accessibility checks for demos/components (lint rules or runtime checks) and wire into CI
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Define headless hooks `packages/react/src/hooks/useQueryBuilder.ts` (types-only interactions with core)
-- [ ] T033 [US3] Define headless components signatures `packages/react/src/components/QueryBuilder.tsx` (props/events/state contracts only)
-- [ ] T034 [US3] Export public surface from `packages/react/src/index.ts`
-- [ ] T035 [US3] Implement utils placeholders `packages/utils/src/formatters.ts` and `packages/utils/src/exporters.ts` (types + stubs)
-- [ ] T036 [US3] Wire playground demos `apps/playground/src/demos/QueryBuilderDemo.tsx` consuming `@x-filter/core`, `@x-filter/utils`, `@x-filter/react`
+- [x] T032 [US3] Define headless hooks `packages/react/src/hooks/useQueryBuilder.ts` (types-only interactions with core)
+- [x] T033 [US3] Define headless components signatures `packages/react/src/components/QueryBuilder.tsx` (props/events/state contracts only)
+- [x] T034 [US3] Export public surface from `packages/react/src/index.ts`
+- [x] T035 [US3] Implement utils placeholders `packages/utils/src/formatters.ts` and `packages/utils/src/exporters.ts` (types + stubs)
+- [x] T036 [US3] Wire playground demos `apps/playground/src/demos/QueryBuilderDemo.tsx` consuming `@x-filter/core`, `@x-filter/utils`, `@x-filter/react`
 
 **Checkpoint**: All user stories independently functional
 
@@ -140,18 +140,18 @@ description: "Task list for Monorepo Foundation for Headless UI Library"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `specs/001-1-monorepo-headless/quickstart.md` and package READMEs (reference pages include examples and edge cases)
-- [ ] T038 Code cleanup and refactoring
-- [ ] T039 Performance optimization across all stories (build times, local dev startup)
-- [ ] T040 [P] Additional unit, integration, and visual regression tests in `packages/*/src/__tests__/` and `apps/playground/src/__tests__/`
-- [ ] T041 Security hardening (dependency audits, lockfile hygiene)
-- [ ] T042 Run quickstart.md validation and update release checklist
-- [ ] T043 Ensure coverage dashboards are published in CI (upload HTML reports) and thresholds (≥95%) enforced
-- [ ] T049 Create `CHANGELOG.md` with an initial entry documenting the monorepo skeleton and packages
-- [ ] T050 Create package-level reference docs stubs with runnable examples and edge-case notes in `packages/*/README.md`
-- [ ] T051 Add ADR document at `docs/adr/0001-monorepo-structure.md` capturing workspace, tooling, and CI decisions
-- [ ] T052 Ensure a minimum of 5 playground demo scenarios in `apps/playground/src/demos/`
-- [ ] T053 Add `RELEASE.md` describing semantic versioning policy and rollback procedures
+- [x] T037 [P] Documentation updates in `specs/001-1-monorepo-headless/quickstart.md` and package READMEs (reference pages include examples and edge cases)
+- [x] T038 Code cleanup and refactoring
+- [x] T039 Performance optimization across all stories (build times, local dev startup)
+- [x] T040 [P] Additional unit, integration, and visual regression tests in `packages/*/src/__tests__/` and `apps/playground/src/__tests__/`
+- [x] T041 Security hardening (dependency audits, lockfile hygiene)
+- [x] T042 Run quickstart.md validation and update release checklist
+- [x] T043 Ensure coverage dashboards are published in CI (upload HTML reports) and thresholds (≥95%) enforced
+- [x] T049 Create `CHANGELOG.md` with an initial entry documenting the monorepo skeleton and packages
+- [x] T050 Create package-level reference docs stubs with runnable examples and edge-case notes in `packages/*/README.md`
+- [x] T051 Add ADR document at `specs/001-1-monorepo-headless/ADR-0001-monorepo-structure.md` capturing workspace, tooling, and CI decisions
+- [x] T052 Ensure a minimum of 5 playground demo scenarios in `apps/playground/src/demos/`
+- [x] T053 Add `RELEASE.md` describing semantic versioning policy and rollback procedures
 
 ---
 

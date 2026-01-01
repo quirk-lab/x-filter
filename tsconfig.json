@@ -4,6 +4,9 @@
     { "path": "./packages/core" },
     { "path": "./packages/utils" },
     { "path": "./packages/react" },
-    { "path": "./apps/playground" }
+    { "path": "./packages/antd" },
+    { "path": "./packages/shadcn" },
+    { "path": "./apps/playground" },
+    { "path": "./apps/web" }
   ]
 }

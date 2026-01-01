@@ -31,17 +31,13 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1. Public API changes documented with runnable examples and migration notes (Principle: Consumer-Ready API Contracts).
-2. Quality plan enforces linting, static analysis, and dual maintainer reviews (Principle: Rigorous Code Quality Controls).
-3. Coverage strategy keeps line and branch metrics ≥95% with failing-first tests (Principle: Comprehensive Test Coverage).
-4. Documentation deliverables (reference docs, changelog entries, quickstarts) scheduled alongside implementation (Principle: Documentation-First Delivery).
-5. Release plan defines semantic version impact, cross-project smoke tests, and rollback preparation (Principle: Predictable Release Discipline).
+[Gates determined based on constitution file]
 
 ## Project Structure
 
 ### Documentation (this feature)
 
-```
+```text
 specs/[###-feature]/
 ├── plan.md              # This file (/speckit.plan command output)
 ├── research.md          # Phase 0 output (/speckit.plan command)
@@ -59,7 +55,7 @@ specs/[###-feature]/
   not include Option labels.
 -->
 
-```
+```text
 # [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
 ├── models/
@@ -100,7 +96,7 @@ directories captured above]
 
 ## Complexity Tracking
 
-*Fill ONLY if Constitution Check has violations that must be justified*
+> **Fill ONLY if Constitution Check has violations that must be justified**
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|

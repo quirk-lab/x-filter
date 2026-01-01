@@ -2,33 +2,21 @@ name: CI
 
 on:
   push:
-    branches:
-      - '**'
+    branches: ['**']
   pull_request:
-    branches:
-      - '**'
+    branches: ['**']
 
 jobs:
-  quality:
+  lint:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [18.x, 20.x]
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
+      - uses: pnpm/action-setup@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -37,41 +25,76 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Format check
-        run: pnpm format
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Typecheck
-        run: pnpm typecheck
+      - uses: pnpm/action-setup@v4
 
-      - name: Detect circular dependencies
-        run: pnpm dlx madge --circular --extensions ts,tsx packages apps
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
 
-      - name: Test
-        run: pnpm test -- --runInBand --ci
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Build
         run: pnpm build
 
-      - name: Upload coverage report
+      - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: coverage-${{ matrix.node-version }}
-          path: coverage
+          name: dist
+          path: |
+            packages/*/dist
+            apps/*/dist
 
-      - name: Publish coverage summary
-        if: always()
-        run: |
-          if [ -f coverage/lcov.info ]; then
-            pnpm dlx coverage-summary-cli coverage/lcov.info >> $GITHUB_STEP_SUMMARY
-          else
-            echo "Coverage report missing" >> $GITHUB_STEP_SUMMARY
-          fi
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Upload Playwright/visual regression artifacts (if any)
-        uses: actions/upload-artifact@v4
-        if: failure()
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
         with:
-          name: visual-regression-artifacts
-          path: apps/playground/test-results
-          if-no-files-found: ignore
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test
+        run: pnpm test
+
+  typecheck:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm typecheck

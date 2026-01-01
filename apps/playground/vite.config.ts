@@ -1,18 +1,15 @@
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
-  server: {
-    open: false
-  },
-  resolve: {
-    preserveSymlinks: true
-  },
   optimizeDeps: {
-    include: ['react', 'react-dom']
+    include: ['@x-filter/core', '@x-filter/react', '@x-filter/shadcn', '@x-filter/antd'],
   },
-  build: {
-    outDir: 'dist'
-  }
+  server: {
+    watch: {
+      // 监听 packages 目录变化以支持 HMR
+      ignored: ['!**/node_modules/@x-filter/**'],
+    },
+  },
 });
