@@ -1,15 +1,47 @@
-import { isDefined } from '@x-filter/utils';
+export type {
+  FieldType,
+  OperatorDef,
+  Option,
+  FieldSchema,
+  FilterRule,
+  FilterGroup,
+  FilterGroupIC,
+  Combinator,
+  Filter,
+  FilterIC,
+  FilterAny,
+  ValidationResult,
+  ValidationError,
+  SQLResult,
+} from './types';
+export type { IdGenerator } from './id';
+export { isFilterRule, isFilterGroup } from './types';
 
-/**
- * Core filter function that removes null/undefined values from an array
- */
-export function filterDefined<T>(array: (T | null | undefined)[]): T[] {
-  return array.filter(isDefined);
-}
+export { generateId } from './id';
 
-/**
- * Core validation function
- */
-export function validateInput(input: unknown): boolean {
-  return isDefined(input) && typeof input === 'string' && input.length > 0;
-}
+export { defaultOperators, getOperators } from './operators';
+
+export type { CreateFilterOptions, CreateRuleOptions, CreateGroupOptions } from './create';
+export { createFilter, createRule, createGroup } from './create';
+
+export type { MutationOptions } from './mutations';
+export {
+  addRule,
+  removeRule,
+  updateRule,
+  moveRule,
+  addGroup,
+  removeGroup,
+  updateGroup,
+} from './mutations';
+
+export { negateRule, negateGroup } from './negate';
+
+export type { TraverseCallback } from './traverse';
+export { findById, findParent, getPath, traverse, flattenRules } from './traverse';
+
+export { isFilterGroupIC, convertToIC, convertFromIC, addRuleIC, removeRuleIC } from './ic';
+
+export { validate } from './validate';
+
+export { toJSON, fromJSON } from './serialize-json';

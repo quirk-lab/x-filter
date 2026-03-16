@@ -1,6 +1,6 @@
 # @x-filter/core
 
-核心逻辑库，提供过滤和验证功能。
+核心逻辑库，提供过滤器模型创建、变更、遍历与校验能力。
 
 ## 安装
 
@@ -11,21 +11,26 @@ pnpm add @x-filter/core
 ## 使用
 
 ```typescript
-import { filterDefined, validateInput } from '@x-filter/core';
+import { createFilter, addRule, validate } from '@x-filter/core';
 
-const array = [1, null, 2, undefined, 3];
-console.log(filterDefined(array)); // [1, 2, 3]
+const filter = createFilter({ idGenerator: () => 'root' });
+const next = addRule(filter, 'root', {
+  id: 'r1',
+  field: 'age',
+  operator: 'gt',
+  value: 18,
+});
 
-console.log(validateInput('hello')); // true
-console.log(validateInput('')); // false
+const result = validate(next, [{ name: 'age', label: 'Age', type: 'number' }]);
+console.log(result.valid); // true
 ```
 
 ## API
 
-### `filterDefined<T>(array: (T | null | undefined)[]): T[]`
-
-过滤数组中的 `null` 和 `undefined` 值。
-
-### `validateInput(input: unknown): boolean`
-
-验证输入是否为非空字符串。
+主要导出包含：
+- `createFilter` / `createRule` / `createGroup`
+- `addRule` / `updateRule` / `removeRule` / `moveRule`
+- `addGroup` / `updateGroup` / `removeGroup`
+- `validate`
+- `traverse` / `findById` / `findParent` / `getPath` / `flattenRules`
+- `toJSON` / `fromJSON`
