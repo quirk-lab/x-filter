@@ -1,7 +1,7 @@
-import type { Filter, FilterGroup, FilterRule } from './types';
 import type { IdGenerator } from './id';
-import { isFilterGroup } from './types';
 import { generateId } from './id';
+import type { Filter, FilterGroup, FilterRule } from './types';
+import { isFilterGroup } from './types';
 
 function updateGroupInTree(
   root: FilterGroup,
@@ -171,9 +171,8 @@ export function moveRule(
   // For cross-group moves, also remove from the source group
   const targetGroup = findGroupInTree(result, targetGroupId);
   const ruleCountInTarget = targetGroup
-    ? targetGroup.conditions.filter(
-        (c) => typeof c === 'object' && 'id' in c && c.id === ruleId
-      ).length
+    ? targetGroup.conditions.filter((c) => typeof c === 'object' && 'id' in c && c.id === ruleId)
+        .length
     : 0;
 
   if (ruleCountInTarget > 1) {

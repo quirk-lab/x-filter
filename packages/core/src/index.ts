@@ -1,47 +1,66 @@
+export type { CreateFilterOptions, CreateGroupOptions, CreateRuleOptions } from './create';
+export { createFilter, createGroup, createRule } from './create';
 export type {
-  FieldType,
-  OperatorDef,
-  Option,
-  FieldSchema,
-  FilterRule,
-  FilterGroup,
-  FilterGroupIC,
-  Combinator,
-  Filter,
-  FilterIC,
-  FilterAny,
-  ValidationResult,
-  ValidationError,
-  SQLResult,
-} from './types';
+  ASTBinary,
+  ASTCondition,
+  ASTGroup,
+  ASTNode,
+  ASTNot,
+  ASTValue,
+  CompletionContext,
+  CompletionItem,
+  CompletionKind,
+  ParseError,
+  ParseResult,
+  Token,
+  TokenType,
+} from './dsl/index';
+export {
+  astToFilter,
+  filterToAst,
+  formatAST,
+  formatDSL,
+  getDslCompletions,
+  parse,
+  parseDSL,
+  tokenize,
+  tryParseDSL,
+} from './dsl/index';
+export { addRuleIC, convertFromIC, convertToIC, isFilterGroupIC, removeRuleIC } from './ic';
 export type { IdGenerator } from './id';
-export { isFilterRule, isFilterGroup } from './types';
-
 export { generateId } from './id';
-
-export { defaultOperators, getOperators } from './operators';
-
-export type { CreateFilterOptions, CreateRuleOptions, CreateGroupOptions } from './create';
-export { createFilter, createRule, createGroup } from './create';
 
 export type { MutationOptions } from './mutations';
 export {
-  addRule,
-  removeRule,
-  updateRule,
-  moveRule,
   addGroup,
+  addRule,
+  moveRule,
   removeGroup,
+  removeRule,
   updateGroup,
+  updateRule,
 } from './mutations';
 
-export { negateRule, negateGroup } from './negate';
-
+export { negateGroup, negateRule } from './negate';
+export { defaultOperators, getOperators } from './operators';
+export { fromJSON, toJSON } from './serialize-json';
 export type { TraverseCallback } from './traverse';
-export { findById, findParent, getPath, traverse, flattenRules } from './traverse';
-
-export { isFilterGroupIC, convertToIC, convertFromIC, addRuleIC, removeRuleIC } from './ic';
-
+export { findById, findParent, flattenRules, getPath, traverse } from './traverse';
+export type {
+  Combinator,
+  FieldSchema,
+  FieldType,
+  Filter,
+  FilterAny,
+  FilterGroup,
+  FilterGroupIC,
+  FilterIC,
+  FilterRule,
+  OperatorDef,
+  Option,
+  SQLResult,
+  ValidationError,
+  ValidationResult,
+} from './types';
+export { isFilterGroup, isFilterRule } from './types';
 export { validate } from './validate';
-
-export { toJSON, fromJSON } from './serialize-json';

@@ -1,6 +1,5 @@
+import { convertFromIC, isFilterGroupIC } from '../ic';
 import type { FilterAny, FilterGroup, SQLResult } from '../types';
-import { isFilterGroupIC } from '../ic';
-import { convertFromIC } from '../ic';
 import { buildGroupSQL } from './builder';
 
 export type { SQLResult } from '../types';
