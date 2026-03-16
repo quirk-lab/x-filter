@@ -1,34 +1,36 @@
 # @x-filter/react
 
-Headless React bindings for the query builder domain. Components expose render props and hooks so UI
-layers can remain framework-agnostic while reusing core logic.
+React hooks 库，提供基于 core 的 React 集成。
 
-## Usage
+## 安装
 
-```tsx
-import { QueryBuilder } from '@x-filter/react';
-
-const fields = [
-  { key: 'status', label: 'Status', type: 'string' },
-  { key: 'priority', label: 'Priority', type: 'number' }
-];
-
-<QueryBuilder name="issues" fields={fields}>
-  {(api) => (
-    <div>
-      <button onClick={() => api.addRule({ field: 'status', operator: 'equals', value: 'open' })}>
-        Add Status
-      </button>
-      <pre>{api.serialize()}</pre>
-    </div>
-  )}
-</QueryBuilder>;
+```bash
+pnpm add @x-filter/react react react-dom
 ```
 
-## Edge Cases & Guidance
+## 使用
 
-- Hooks maintain immutable rule updates; use the returned `reset` helper when syncing remote state.
-- Render props run every time the rule list changes; memoise expensive UI segments as needed.
-- Ensure parent apps provide the required peer dependency versions of `react` and `react-dom`.
-- Provide descriptive labels/aria attributes in consuming UIs—components are unstyled by design but
-  must remain accessible.
+```tsx
+import { useValidatedInput, useFilteredArray } from '@x-filter/react';
+
+function MyComponent() {
+  const { value, setValue, isValid } = useValidatedInput('');
+  
+  return (
+    <div>
+      <input value={value} onChange={(e) => setValue(e.target.value)} />
+      <p>Valid: {isValid ? 'Yes' : 'No'}</p>
+    </div>
+  );
+}
+```
+
+## API
+
+### `useValidatedInput(initialValue?: string)`
+
+提供输入验证的 hook。
+
+### `useFilteredArray<T>(array: (T | null | undefined)[])`
+
+过滤数组中的 null/undefined 值的 hook。
