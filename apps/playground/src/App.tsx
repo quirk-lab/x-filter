@@ -1,5 +1,4 @@
 import { FilteredList } from '@x-filter/antd';
-import { filterDefined } from '@x-filter/core';
 import { useFilteredArray, useValidatedInput } from '@x-filter/react';
 import { ValidatedInput } from '@x-filter/shadcn';
 
@@ -7,6 +6,7 @@ function App() {
   const { value, setValue, isValid } = useValidatedInput('');
   const testArray = [1, null, 2, undefined, 3, null, 4];
   const filtered = useFilteredArray(testArray);
+  const definedOnly = testArray.filter((item): item is number => item !== null && item !== undefined);
 
   return (
     <div style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
@@ -16,7 +16,7 @@ function App() {
       <div style={{ marginTop: '2rem' }}>
         <h2>📦 Core Package Test</h2>
         <p>原始数组: {JSON.stringify(testArray)}</p>
-        <p>过滤后: {JSON.stringify(filterDefined(testArray))}</p>
+        <p>过滤后: {JSON.stringify(definedOnly)}</p>
       </div>
 
       <div style={{ marginTop: '2rem' }}>

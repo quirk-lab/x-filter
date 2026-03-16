@@ -15,6 +15,16 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
+    },
+    "./sql": {
+      "import": {
+        "types": "./dist/sql/index.d.ts",
+        "default": "./dist/sql/index.js"
+      },
+      "require": {
+        "types": "./dist/sql/index.d.cts",
+        "default": "./dist/sql/index.cjs"
+      }
     }
   },
   "files": [
@@ -26,8 +36,5 @@
     "lint": "biome lint src",
     "format": "biome format src --write",
     "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@x-filter/utils": "workspace:*"
   }
 }

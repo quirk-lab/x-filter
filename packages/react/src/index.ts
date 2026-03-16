@@ -1,4 +1,3 @@
-import { validateInput } from '@x-filter/core';
 import { useEffect, useState } from 'react';
 
 /**
@@ -9,7 +8,7 @@ export function useValidatedInput(initialValue = '') {
   const [isValid, setIsValid] = useState(false);
 
   useEffect(() => {
-    setIsValid(validateInput(value));
+    setIsValid(value.trim().length > 0);
   }, [value]);
 
   return {
