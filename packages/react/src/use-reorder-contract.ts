@@ -9,7 +9,9 @@ function removeGroupFromTree(
 ):
   | { root: FilterGroup; removed: undefined; sourceGroupId: undefined; sourceIndex: undefined }
   | { root: FilterGroup; removed: FilterGroup; sourceGroupId: string; sourceIndex: number } {
-  const directIndex = root.conditions.findIndex((condition) => isFilterGroup(condition) && condition.id === groupId);
+  const directIndex = root.conditions.findIndex(
+    (condition) => isFilterGroup(condition) && condition.id === groupId
+  );
   if (directIndex !== -1) {
     const removed = root.conditions[directIndex];
     if (!isFilterGroup(removed)) {
@@ -90,10 +92,7 @@ function moveGroup(
   }
 
   let insertIndex = targetIndex;
-  if (
-    removedResult.sourceGroupId === targetGroupId &&
-    removedResult.sourceIndex < targetIndex
-  ) {
+  if (removedResult.sourceGroupId === targetGroupId && removedResult.sourceIndex < targetIndex) {
     insertIndex -= 1;
   }
 
