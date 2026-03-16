@@ -1,3 +1,5 @@
+import { isFilterGroupIC } from './ic';
+import { getOperators } from './operators';
 import type {
   FieldSchema,
   FieldType,
@@ -10,8 +12,6 @@ import type {
   ValidationResult,
 } from './types';
 import { isFilterGroup, isFilterRule } from './types';
-import { isFilterGroupIC } from './ic';
-import { getOperators } from './operators';
 
 export function validate(filter: FilterAny, schema: FieldSchema[]): ValidationResult {
   const errors: Record<string, ValidationError[]> = {};

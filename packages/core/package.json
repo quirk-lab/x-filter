@@ -25,6 +25,16 @@
         "types": "./dist/sql/index.d.cts",
         "default": "./dist/sql/index.cjs"
       }
+    },
+    "./dsl": {
+      "import": {
+        "types": "./dist/dsl/index.d.ts",
+        "default": "./dist/dsl/index.js"
+      },
+      "require": {
+        "types": "./dist/dsl/index.d.cts",
+        "default": "./dist/dsl/index.cjs"
+      }
     }
   },
   "files": [

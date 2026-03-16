@@ -1,11 +1,16 @@
-import { validate } from '../validate';
 import type { FieldSchema, FilterAny } from '../types';
+import { validate } from '../validate';
 
 const schema: FieldSchema[] = [
   { name: 'name', label: 'Name', type: 'text' },
   { name: 'age', label: 'Age', type: 'number' },
   { name: 'birthday', label: 'Birthday', type: 'date' },
-  { name: 'status', label: 'Status', type: 'select', values: [{ value: 'active', label: 'Active' }] },
+  {
+    name: 'status',
+    label: 'Status',
+    type: 'select',
+    values: [{ value: 'active', label: 'Active' }],
+  },
   { name: 'tags', label: 'Tags', type: 'multiSelect' },
   { name: 'active', label: 'Active', type: 'boolean' },
 ];
@@ -293,7 +298,9 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'birthday', operator: 'between', value: ['2020-01-01', '2024-12-31'] }],
+      conditions: [
+        { id: 'r1', field: 'birthday', operator: 'between', value: ['2020-01-01', '2024-12-31'] },
+      ],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(true);

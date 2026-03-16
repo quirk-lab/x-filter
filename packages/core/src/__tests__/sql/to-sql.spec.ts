@@ -325,9 +325,7 @@ describe('toSQL', () => {
       id: 'root',
       combinator: 'and',
       not: true,
-      conditions: [
-        { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
-      ],
+      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('NOT (name = ?)');
