@@ -9,7 +9,7 @@ import {
   updateRule as coreUpdateRule,
   createFilter,
 } from '@x-filter/core';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { UseFilterBuilderOptions, UseFilterBuilderReturn } from './types';
 
 export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBuilderReturn {
@@ -23,13 +23,21 @@ export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBui
   const filter = isControlled ? value : internalFilter;
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+  const latestFilterRef = useRef(filter);
 
-  const update = useCallback(
-    (newFilter: Filter) => {
+  useEffect(() => {
+    latestFilterRef.current = filter;
+  }, [filter]);
+
+  const applyMutation = useCallback(
+    (mutator: (prev: Filter) => Filter) => {
+      const nextFilter = mutator(latestFilterRef.current);
+      latestFilterRef.current = nextFilter;
+
       if (!isControlled) {
-        setInternalFilter(newFilter);
+        setInternalFilter(nextFilter);
       }
-      onChangeRef.current?.(newFilter);
+      onChangeRef.current?.(nextFilter);
     },
     [isControlled]
   );
@@ -37,62 +45,61 @@ export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBui
   const setFilter = useCallback(
     (filterOrUpdater: Filter | ((prev: Filter) => Filter)) => {
       if (typeof filterOrUpdater === 'function') {
-        const current = isControlled ? (value as Filter) : internalFilter;
-        update(filterOrUpdater(current));
+        applyMutation(filterOrUpdater);
       } else {
-        update(filterOrUpdater);
+        applyMutation(() => filterOrUpdater);
       }
     },
-    [isControlled, value, internalFilter, update]
+    [applyMutation]
   );
 
   const addRule = useCallback(
     (groupId: string, rule?: Partial<FilterRule>) => {
-      update(coreAddRule(filter, groupId, rule ?? {}));
+      applyMutation((prev) => coreAddRule(prev, groupId, rule ?? {}));
     },
-    [filter, update]
+    [applyMutation]
   );
 
   const removeRule = useCallback(
     (ruleId: string) => {
-      update(coreRemoveRule(filter, ruleId));
+      applyMutation((prev) => coreRemoveRule(prev, ruleId));
     },
-    [filter, update]
+    [applyMutation]
   );
 
   const updateRule = useCallback(
     (ruleId: string, updates: Partial<Omit<FilterRule, 'id'>>) => {
-      update(coreUpdateRule(filter, ruleId, updates));
+      applyMutation((prev) => coreUpdateRule(prev, ruleId, updates));
     },
-    [filter, update]
+    [applyMutation]
   );
 
   const addGroup = useCallback(
     (parentGroupId: string, group?: Partial<FilterGroup>) => {
-      update(coreAddGroup(filter, parentGroupId, group));
+      applyMutation((prev) => coreAddGroup(prev, parentGroupId, group));
     },
-    [filter, update]
+    [applyMutation]
   );
 
   const removeGroup = useCallback(
     (groupId: string) => {
-      update(coreRemoveGroup(filter, groupId));
+      applyMutation((prev) => coreRemoveGroup(prev, groupId));
     },
-    [filter, update]
+    [applyMutation]
   );
 
   const updateGroupFn = useCallback(
     (groupId: string, updates: Partial<Pick<FilterGroup, 'combinator' | 'not'>>) => {
-      update(coreUpdateGroup(filter, groupId, updates));
+      applyMutation((prev) => coreUpdateGroup(prev, groupId, updates));
     },
-    [filter, update]
+    [applyMutation]
   );
 
   const moveRuleFn = useCallback(
     (ruleId: string, targetGroupId: string, position: number) => {
-      update(coreMoveRule(filter, ruleId, targetGroupId, position));
+      applyMutation((prev) => coreMoveRule(prev, ruleId, targetGroupId, position));
     },
-    [filter, update]
+    [applyMutation]
   );
 
   return {

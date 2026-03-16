@@ -42,6 +42,9 @@ function convertNode(node: ASTNode, gen: IdGenerator): FilterRule | FilterGroup 
     }
 
     case 'group':
+      if (node.expression === null) {
+        return { id: gen(), combinator: 'and', conditions: [] };
+      }
       return convertNode(node.expression, gen);
 
     case 'binary': {
@@ -94,7 +97,7 @@ function convertGroupToAST(group: FilterGroup): ASTNode {
   let ast: ASTNode;
 
   if (group.conditions.length === 0) {
-    ast = { type: 'condition', field: '', operator: '', value: null, start: 0, end: 0 };
+    ast = { type: 'group', expression: null, start: 0, end: 0 };
   } else if (group.conditions.length === 1) {
     ast = convertFilterNodeToAST(group.conditions[0]);
   } else {

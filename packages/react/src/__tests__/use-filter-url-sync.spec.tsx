@@ -22,9 +22,7 @@ function createMockParams(initial = '') {
   };
 }
 
-function getFromUrl(
-  result: { current: ReturnType<typeof useFilterUrlSync> },
-): Filter | null {
+function getFromUrl(result: { current: ReturnType<typeof useFilterUrlSync> }): Filter | null {
   let decoded: Filter | null = null;
   act(() => {
     decoded = result.current.getFilterFromUrl();
@@ -40,7 +38,7 @@ describe('useFilterUrlSync', () => {
         useFilterUrlSync({
           getSearchParams: mock.get,
           setSearchParams: mock.set,
-        }),
+        })
       );
 
       const filter = makeFilter();
@@ -61,7 +59,7 @@ describe('useFilterUrlSync', () => {
         useFilterUrlSync({
           getSearchParams: mock.get,
           setSearchParams: mock.set,
-        }),
+        })
       );
 
       const decoded = getFromUrl(result);
@@ -79,7 +77,7 @@ describe('useFilterUrlSync', () => {
         useFilterUrlSync({
           getSearchParams: mock.get,
           setSearchParams: mock.set,
-        }),
+        })
       );
 
       const decoded = getFromUrl(result);
@@ -93,7 +91,7 @@ describe('useFilterUrlSync', () => {
         useFilterUrlSync({
           getSearchParams: mock.get,
           setSearchParams: mock.set,
-        }),
+        })
       );
 
       const decoded = getFromUrl(result);
@@ -108,7 +106,7 @@ describe('useFilterUrlSync', () => {
         useFilterUrlSync({
           getSearchParams: mock.get,
           setSearchParams: mock.set,
-        }),
+        })
       );
 
       getFromUrl(result);
@@ -128,7 +126,7 @@ describe('useFilterUrlSync', () => {
         useFilterUrlSync({
           getSearchParams: mock.get,
           setSearchParams: mock.set,
-        }),
+        })
       );
 
       getFromUrl(result);
@@ -149,7 +147,7 @@ describe('useFilterUrlSync', () => {
           mode: 'json',
           getSearchParams: mock.get,
           setSearchParams: mock.set,
-        }),
+        })
       );
 
       const filter = makeFilter();
@@ -171,7 +169,7 @@ describe('useFilterUrlSync', () => {
           mode: 'json',
           getSearchParams: mock.get,
           setSearchParams: mock.set,
-        }),
+        })
       );
 
       const decoded = getFromUrl(result);
@@ -190,7 +188,7 @@ describe('useFilterUrlSync', () => {
           mode: 'json',
           getSearchParams: mock.get,
           setSearchParams: mock.set,
-        }),
+        })
       );
 
       const decoded = getFromUrl(result);
@@ -207,7 +205,7 @@ describe('useFilterUrlSync', () => {
           paramName: 'q',
           getSearchParams: mock.get,
           setSearchParams: mock.set,
-        }),
+        })
       );
 
       const filter = makeFilter();
@@ -235,7 +233,7 @@ describe('useFilterUrlSync', () => {
         useFilterUrlSync({
           getSearchParams: getSpy,
           setSearchParams: setSpy,
-        }),
+        })
       );
 
       getFromUrl(result);

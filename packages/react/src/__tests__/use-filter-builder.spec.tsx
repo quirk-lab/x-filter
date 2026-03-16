@@ -254,6 +254,22 @@ describe('useFilterBuilder', () => {
       act(() => result.current.setFilter(makeFilter()));
       expect(onChange).toHaveBeenCalledTimes(3);
     });
+
+    it('applies back-to-back mutations from the latest state', () => {
+      const defaultValue = makeFilter();
+      const onChange = jest.fn();
+      const { result } = renderHook(() => useFilterBuilder({ defaultValue, onChange, schema }));
+
+      act(() => {
+        result.current.addRule('root', { field: 'name', operator: 'equals', value: 'A' });
+        result.current.addRule('root', { field: 'age', operator: 'gt', value: 18 });
+      });
+
+      expect(result.current.filter.conditions).toHaveLength(2);
+      expect(onChange).toHaveBeenCalledTimes(2);
+      expect(onChange.mock.calls[0][0].conditions).toHaveLength(1);
+      expect(onChange.mock.calls[1][0].conditions).toHaveLength(2);
+    });
   });
 
   describe('controlled mode', () => {
@@ -307,6 +323,21 @@ describe('useFilterBuilder', () => {
 
       expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ combinator: 'or' }));
       expect(result.current.filter).toBe(value);
+    });
+
+    it('uses latest emitted state for batched controlled mutations', () => {
+      const onChange = jest.fn();
+      const value = makeFilter();
+      const { result } = renderHook(() => useFilterBuilder({ value, onChange, schema }));
+
+      act(() => {
+        result.current.addRule('root', { field: 'name', operator: 'equals', value: 'A' });
+        result.current.addRule('root', { field: 'age', operator: 'gt', value: 18 });
+      });
+
+      expect(onChange).toHaveBeenCalledTimes(2);
+      expect(onChange.mock.calls[0][0].conditions).toHaveLength(1);
+      expect(onChange.mock.calls[1][0].conditions).toHaveLength(2);
     });
   });
 

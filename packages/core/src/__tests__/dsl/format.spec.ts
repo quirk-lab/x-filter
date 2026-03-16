@@ -338,15 +338,13 @@ describe('formatDSL', () => {
     expect(formatDSL(filter)).toBe('status:isEmpty');
   });
 
-  it('formats empty group as empty condition', () => {
+  it('formats empty group as empty group expression', () => {
     const filter: Filter = {
       id: '1',
       combinator: 'and',
       conditions: [],
     };
-    expect(
-      formatAST({ type: 'condition', field: '', operator: '', value: null, start: 0, end: 0 })
-    ).toBe(':');
-    expect(typeof formatDSL(filter)).toBe('string');
+    expect(formatAST({ type: 'group', expression: null, start: 0, end: 0 })).toBe('()');
+    expect(formatDSL(filter)).toBe('()');
   });
 });

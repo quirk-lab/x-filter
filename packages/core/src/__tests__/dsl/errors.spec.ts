@@ -73,10 +73,10 @@ describe('error handling', () => {
       expect(result.errors.some((e) => e.code === 'EXPECTED_DOTDOT')).toBe(true);
     });
 
-    it('EMPTY_EXPRESSION for empty parens', () => {
+    it('accepts empty parens as an empty group', () => {
       const result = parseInput('()');
-      expect(result.ok).toBe(false);
-      expect(result.errors.some((e) => e.code === 'EMPTY_EXPRESSION')).toBe(true);
+      expect(result.ok).toBe(true);
+      expect(result.errors).toEqual([]);
     });
 
     it('UNEXPECTED_TOKEN for trailing tokens', () => {
@@ -131,11 +131,9 @@ describe('error handling', () => {
       expect(result.errors[0]).toMatchObject({ start: 0, end: 6 });
     });
 
-    it('points to correct position for empty parens', () => {
+    it('does not report error positions for empty parens', () => {
       const result = parseInput('()');
-      const emptyExpr = result.errors.find((e) => e.code === 'EMPTY_EXPRESSION');
-      expect(emptyExpr).toBeDefined();
-      expect(emptyExpr?.start).toBe(0);
+      expect(result.errors).toEqual([]);
     });
 
     it('points to trailing token position', () => {

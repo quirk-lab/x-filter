@@ -45,7 +45,7 @@ export type ASTValue =
 
 export interface ASTGroup {
   type: 'group';
-  expression: ASTNode;
+  expression: ASTNode | null;
   start: number;
   end: number;
 }

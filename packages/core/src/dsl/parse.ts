@@ -133,18 +133,18 @@ export function parse(tokens: Token[]): ParseResult {
 
   function parseGroup(): ASTNode | undefined {
     const lp = advance();
-    const expr = parseExpression();
-
-    if (!expr) {
-      errors.push({
-        code: 'EMPTY_EXPRESSION',
-        message: 'Empty parenthesized expression',
+    if (peek().type === 'RPAREN') {
+      const rp = advance();
+      return {
+        type: 'group',
+        expression: null,
         start: lp.start,
-        end: peek().end,
-      });
-      if (peek().type === 'RPAREN') advance();
-      return undefined;
+        end: rp.end,
+      };
     }
+
+    const expr = parseExpression();
+    if (!expr) return undefined;
 
     const rp = expect('RPAREN', 'EXPECTED_RPAREN');
     return {

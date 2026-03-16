@@ -74,6 +74,27 @@ describe('useReorderContract', () => {
       const g1 = newFilter.conditions.find((c) => 'id' in c && c.id === 'g1') as Filter;
       expect(g1.conditions.some((c) => 'id' in c && c.id === 'r1')).toBe(true);
     });
+
+    it('moves a group when operation type is group', () => {
+      const onReorder = jest.fn();
+      const filter = makeFilter();
+      const { result } = renderHook(() => useReorderContract({ filter, onReorder }));
+
+      act(() => {
+        result.current.moveItem({
+          type: 'group',
+          id: 'g1',
+          targetGroupId: 'root',
+          targetIndex: 0,
+        });
+      });
+
+      expect(onReorder).toHaveBeenCalledTimes(1);
+      const newFilter = onReorder.mock.calls[0][0] as Filter;
+      expect(newFilter.conditions[0]).toMatchObject({ id: 'g1' });
+      expect(newFilter.conditions[1]).toMatchObject({ id: 'r1' });
+      expect(newFilter.conditions[2]).toMatchObject({ id: 'r2' });
+    });
   });
 
   describe('canDrop', () => {

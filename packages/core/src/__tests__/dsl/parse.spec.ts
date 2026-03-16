@@ -375,10 +375,12 @@ describe('parse', () => {
       expect(result.errors.some((e) => e.code === 'EXPECTED_RPAREN')).toBe(true);
     });
 
-    it('returns error for empty parens', () => {
-      const result = p('()');
-      expect(result.ok).toBe(false);
-      expect(result.errors.some((e) => e.code === 'EMPTY_EXPRESSION')).toBe(true);
+    it('parses empty parens as empty group', () => {
+      const ast = expectOk('()');
+      expect(ast).toMatchObject({
+        type: 'group',
+        expression: null,
+      });
     });
 
     it('returns error for unknown character', () => {

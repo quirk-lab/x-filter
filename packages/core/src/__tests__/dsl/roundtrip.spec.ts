@@ -248,7 +248,10 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
       conditions: [],
     };
     const dsl = formatDSL(filter);
-    expect(dsl).toBeDefined();
+    resetIds();
+    const result = parseDSL(dsl, testIdGen);
+    expect(result.combinator).toBe('and');
+    expect(result.conditions).toEqual([]);
   });
 });
 

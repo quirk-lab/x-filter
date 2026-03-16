@@ -61,6 +61,9 @@ function formatNode(node: ASTNode, parentPrec: number): string {
     }
 
     case 'group':
+      if (node.expression === null) {
+        return '()';
+      }
       return `(${formatNode(node.expression, 0)})`;
   }
 }
