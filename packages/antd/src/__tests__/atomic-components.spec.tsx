@@ -25,7 +25,10 @@ const schema: FieldSchema[] = [
     name: 'age',
     label: 'Age',
     type: 'number',
-    operators: [{ name: 'gt', label: '>', arity: 'binary' }],
+    operators: [
+      { name: 'gt', label: '>', arity: 'binary' },
+      { name: 'between', label: 'between', arity: 'ternary' },
+    ],
   },
   {
     name: 'status',
@@ -156,6 +159,51 @@ describe('Ant Design atomic components', () => {
     );
     fireEvent.change(screen.getByLabelText('Value'), { target: { value: '2026-05-29' } });
     expect(onDateChange).toHaveBeenCalledWith('2026-05-29');
+  });
+
+  test('AntdValueEditor renders two number inputs for between operators', () => {
+    const onChange = jest.fn();
+    render(
+      <AntdValueEditor
+        schema={schema}
+        rule={{ id: 'r-between-number', field: 'age', operator: 'between', value: [18, 65] }}
+        onChange={onChange}
+      />
+    );
+
+    const inputs = screen.getAllByRole('spinbutton');
+    expect(inputs).toHaveLength(2);
+
+    fireEvent.change(inputs[0], { target: { value: '21' } });
+    expect(onChange).toHaveBeenCalledWith([21, 65]);
+
+    fireEvent.change(inputs[1], { target: { value: '60' } });
+    expect(onChange).toHaveBeenCalledWith([18, 60]);
+  });
+
+  test('AntdValueEditor renders two date inputs for between operators', () => {
+    const onChange = jest.fn();
+    render(
+      <AntdValueEditor
+        schema={schema}
+        rule={{
+          id: 'r-between-date',
+          field: 'createdAt',
+          operator: 'between',
+          value: ['2026-05-01', '2026-05-31'],
+        }}
+        onChange={onChange}
+      />
+    );
+
+    const inputs = screen.getAllByLabelText('Value');
+    expect(inputs).toHaveLength(2);
+
+    fireEvent.change(inputs[0], { target: { value: '2026-05-03' } });
+    expect(onChange).toHaveBeenCalledWith(['2026-05-03', '2026-05-31']);
+
+    fireEvent.change(inputs[1], { target: { value: '2026-05-28' } });
+    expect(onChange).toHaveBeenCalledWith(['2026-05-01', '2026-05-28']);
   });
 
   test('AntdValueEditor falls back safely for unknown fields and unary operators', () => {
