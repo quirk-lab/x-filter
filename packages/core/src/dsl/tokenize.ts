@@ -95,7 +95,13 @@ export function tokenize(input: string): Token[] {
       if (result.ok) {
         tokens.push({ type: 'STRING', value: result.value, start, end: result.end });
       } else {
-        tokens.push({ type: 'ERROR', value: result.value, start, end: result.end });
+        tokens.push({
+          type: 'ERROR',
+          value: result.value,
+          start,
+          end: result.end,
+          errorCode: 'UNTERMINATED_STRING',
+        });
       }
       pos = result.end;
       continue;
@@ -110,7 +116,13 @@ export function tokenize(input: string): Token[] {
       continue;
     }
 
-    tokens.push({ type: 'ERROR', value: ch, start: pos, end: pos + 1 });
+    tokens.push({
+      type: 'ERROR',
+      value: ch,
+      start: pos,
+      end: pos + 1,
+      errorCode: 'UNEXPECTED_CHARACTER',
+    });
     pos++;
   }
 

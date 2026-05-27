@@ -38,7 +38,7 @@ function convertNode(node: ASTNode, gen: IdGenerator): FilterRule | FilterGroup 
 
     case 'not': {
       const inner = convertNode(node.operand, gen);
-      return { ...inner, not: true };
+      return { ...inner, not: !inner.not };
     }
 
     case 'group':
@@ -78,12 +78,23 @@ function convertValueToAST(value: unknown): ASTValue | null {
   return { type: 'string', value: String(value) };
 }
 
+function convertRuleValueToAST(rule: FilterRule): ASTValue | null {
+  if (rule.operator === 'between' && Array.isArray(rule.value) && rule.value.length === 2) {
+    const from = convertValueToAST(rule.value[0]);
+    const to = convertValueToAST(rule.value[1]);
+    if (from && to) {
+      return { type: 'range', from, to };
+    }
+  }
+  return convertValueToAST(rule.value);
+}
+
 function convertRuleToAST(rule: FilterRule): ASTNode {
   const condition: ASTCondition = {
     type: 'condition',
     field: rule.field,
     operator: rule.operator,
-    value: convertValueToAST(rule.value),
+    value: convertRuleValueToAST(rule),
     start: 0,
     end: 0,
   };

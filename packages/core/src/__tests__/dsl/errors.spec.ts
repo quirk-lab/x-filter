@@ -25,6 +25,12 @@ describe('error handling', () => {
       expect(result.errors[0]).toMatchObject({ code: 'UNTERMINATED_STRING' });
     });
 
+    it.each(['"', '"a'])('UNTERMINATED_STRING for short unclosed quote %s', (input) => {
+      const result = parseInput(input);
+      expect(result.ok).toBe(false);
+      expect(result.errors[0]).toMatchObject({ code: 'UNTERMINATED_STRING' });
+    });
+
     it('UNTERMINATED_STRING for string with escape at end', () => {
       const result = parseInput('"hello\\');
       expect(result.ok).toBe(false);

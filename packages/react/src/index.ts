@@ -1,3 +1,5 @@
+import { useMemo, useState } from 'react';
+
 export type {
   MoveOperation,
   UseFilterBuilderOptions,
@@ -9,6 +11,24 @@ export type {
   UseReorderContractOptions,
   UseReorderContractReturn,
 } from './types';
+
+export function useValidatedInput(initialValue = '') {
+  const [value, setValue] = useState(initialValue);
+  const isValid = useMemo(() => value.trim().length > 0, [value]);
+
+  return {
+    value,
+    setValue,
+    isValid,
+  };
+}
+
+export function useFilteredArray<T>(array: readonly (T | null | undefined)[]): T[] {
+  return useMemo(
+    () => array.filter((item): item is T => item !== null && item !== undefined),
+    [array]
+  );
+}
 
 export { useFilterBuilder } from './use-filter-builder';
 export { useFilterDsl } from './use-filter-dsl';

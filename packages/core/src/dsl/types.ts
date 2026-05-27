@@ -23,6 +23,7 @@ export interface Token {
   value: string;
   start: number;
   end: number;
+  errorCode?: 'UNTERMINATED_STRING' | 'UNEXPECTED_CHARACTER';
 }
 
 export type ASTNode = ASTCondition | ASTGroup | ASTBinary | ASTNot;

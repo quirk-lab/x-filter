@@ -203,6 +203,21 @@ describe('parse', () => {
         },
       });
     });
+
+    it('parses repeated NOT expressions', () => {
+      const ast = expectOk('NOT NOT status:equals:active');
+      expect(ast).toMatchObject({
+        type: 'not',
+        operand: {
+          type: 'not',
+          operand: {
+            type: 'condition',
+            field: 'status',
+            operator: 'equals',
+          },
+        },
+      });
+    });
   });
 
   describe('binary expressions', () => {

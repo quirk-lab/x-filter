@@ -1,9 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
-import type { FieldSchema, Filter } from '@x-filter/core';
+import type { Filter } from '@x-filter/core';
 import { formatDSL, toJSON } from '@x-filter/core';
 import { useFilterUrlSync } from '../use-filter-url-sync';
-
-const schema: FieldSchema[] = [{ name: 'name', label: 'Name', type: 'text' }];
 
 const makeFilter = (): Filter => ({
   id: 'root',

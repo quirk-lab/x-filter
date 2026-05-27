@@ -80,6 +80,17 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     });
   });
 
+  it('double NOT cancels out when parsed into a filter', () => {
+    const result = parseDSL('NOT NOT status:equals:active', testIdGen);
+    expect(result.conditions).toHaveLength(1);
+    expect(result.conditions[0]).toMatchObject({
+      field: 'status',
+      operator: 'equals',
+      value: 'active',
+      not: false,
+    });
+  });
+
   it('NOT on group', () => {
     const filter: Filter = {
       id: testIdGen(),

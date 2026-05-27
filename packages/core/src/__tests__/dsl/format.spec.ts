@@ -329,6 +329,15 @@ describe('formatDSL', () => {
     expect(formatDSL(filter)).toBe('tags:in:[a,b,c]');
   });
 
+  it('formats between filters with two values as range syntax', () => {
+    const filter: Filter = {
+      id: '1',
+      combinator: 'and',
+      conditions: [{ id: '2', field: 'age', operator: 'between', value: [18, 65] }],
+    };
+    expect(formatDSL(filter)).toBe('age:between:{18..65}');
+  });
+
   it('formats a filter with undefined value as unary', () => {
     const filter: Filter = {
       id: '1',

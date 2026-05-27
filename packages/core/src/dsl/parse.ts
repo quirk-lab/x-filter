@@ -86,7 +86,7 @@ export function parse(tokens: Token[]): ParseResult {
   function parseUnary(): ASTNode | undefined {
     if (peek().type === 'NOT' && lookAhead(1)?.type !== 'COLON') {
       const notToken = advance();
-      const operand = parseAtom();
+      const operand = parseUnary();
       if (!operand) {
         errors.push({
           code: 'UNEXPECTED_TOKEN',
@@ -110,9 +110,10 @@ export function parse(tokens: Token[]): ParseResult {
 
     if (token.type === 'ERROR') {
       const t = advance();
+      const isUnterminatedString = t.errorCode === 'UNTERMINATED_STRING';
       errors.push({
-        code: t.value.length > 1 ? 'UNTERMINATED_STRING' : 'UNEXPECTED_TOKEN',
-        message: t.value.length > 1 ? 'Unterminated string' : `Unexpected character "${t.value}"`,
+        code: isUnterminatedString ? 'UNTERMINATED_STRING' : 'UNEXPECTED_TOKEN',
+        message: isUnterminatedString ? 'Unterminated string' : `Unexpected character "${t.value}"`,
         start: t.start,
         end: t.end,
       });
