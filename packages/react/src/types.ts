@@ -56,6 +56,17 @@ export interface UseFilterUrlSyncReturn {
   error: string | null;
 }
 
+export interface UseFilterViewModelOptions {
+  filter: Filter;
+  schema: FieldSchema[];
+  errors?: Record<string, ValidationError[]>;
+}
+
+export interface UseFilterViewModelReturn {
+  root: FilterGroupViewModel;
+  schema: FieldSchema[];
+}
+
 export type MoveOperation = {
   type: 'rule' | 'group';
   id: string;
