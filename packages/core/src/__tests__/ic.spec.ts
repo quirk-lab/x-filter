@@ -1,10 +1,4 @@
-import {
-  isFilterGroupIC,
-  convertToIC,
-  convertFromIC,
-  addRuleIC,
-  removeRuleIC,
-} from '../ic';
+import { addRuleIC, convertFromIC, convertToIC, isFilterGroupIC, removeRuleIC } from '../ic';
 import type { Filter, FilterIC, FilterRule } from '../types';
 
 describe('isFilterGroupIC', () => {
@@ -62,9 +56,7 @@ describe('convertToIC', () => {
       conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const ic = convertToIC(filter);
-    expect(ic.conditions).toEqual([
-      { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
-    ]);
+    expect(ic.conditions).toEqual([{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }]);
   });
 
   it('multiple rules: combinator interleaved', () => {
@@ -104,9 +96,7 @@ describe('convertToIC', () => {
         {
           id: 'g1',
           combinator: 'or',
-          conditions: [
-            { id: 'r2', field: 'age', operator: 'gt', value: 18 },
-          ],
+          conditions: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
         },
       ],
     };
@@ -123,7 +113,7 @@ describe('convertToIC', () => {
 });
 
 describe('convertFromIC', () => {
-  it('empty IC converts to standard with combinator \'and\'', () => {
+  it("empty IC converts to standard with combinator 'and'", () => {
     const ic: FilterIC = {
       id: 'root',
       conditions: [],
@@ -134,7 +124,7 @@ describe('convertFromIC', () => {
     expect(filter.conditions).toEqual([]);
   });
 
-  it('single rule: combinator defaults to \'and\'', () => {
+  it("single rule: combinator defaults to 'and'", () => {
     const ic: FilterIC = {
       id: 'root',
       conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
@@ -219,7 +209,7 @@ describe('addRuleIC', () => {
     ]);
   });
 
-  it('adds second rule with default combinator (\'and\')', () => {
+  it("adds second rule with default combinator ('and')", () => {
     const single: FilterIC = {
       id: 'root',
       conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
@@ -237,7 +227,7 @@ describe('addRuleIC', () => {
     ]);
   });
 
-  it('adds rule with custom combinator (\'or\')', () => {
+  it("adds rule with custom combinator ('or')", () => {
     const single: FilterIC = {
       id: 'root',
       conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
@@ -278,9 +268,7 @@ describe('removeRuleIC', () => {
       ],
     };
     const result = removeRuleIC(ic, 'r1');
-    expect(result.conditions).toEqual([
-      { id: 'r2', field: 'age', operator: 'gt', value: 18 },
-    ]);
+    expect(result.conditions).toEqual([{ id: 'r2', field: 'age', operator: 'gt', value: 18 }]);
   });
 
   it('removes last rule (and preceding combinator)', () => {
@@ -310,9 +298,7 @@ describe('removeRuleIC', () => {
   it('returns unchanged when ruleId not found', () => {
     const ic: FilterIC = {
       id: 'root',
-      conditions: [
-        { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
-      ],
+      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const result = removeRuleIC(ic, 'nonexistent');
     expect(result).toBe(ic);
@@ -335,9 +321,7 @@ describe('removeRuleIC', () => {
     };
     const result = removeRuleIC(ic, 'r1');
     const g1 = result.conditions[0] as FilterIC;
-    expect(g1.conditions).toEqual([
-      { id: 'r2', field: 'b', operator: 'eq', value: 2 },
-    ]);
+    expect(g1.conditions).toEqual([{ id: 'r2', field: 'b', operator: 'eq', value: 2 }]);
   });
 });
 
@@ -348,9 +332,7 @@ describe('addRuleIC (nested groups)', () => {
       conditions: [
         {
           id: 'g1',
-          conditions: [
-            { id: 'r1', field: 'a', operator: 'eq', value: 1 },
-          ],
+          conditions: [{ id: 'r1', field: 'a', operator: 'eq', value: 1 }],
         },
       ],
     };

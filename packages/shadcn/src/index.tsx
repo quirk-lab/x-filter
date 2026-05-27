@@ -6,16 +6,14 @@ export interface ValidatedInputProps {
   onChange?: (value: string, isValid: boolean) => void;
 }
 
-/**
- * Shadcn-style validated input component
- */
 export function ValidatedInput({ placeholder, onChange }: ValidatedInputProps) {
   const { value, setValue, isValid } = useValidatedInput('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
+    const nextIsValid = newValue.trim().length > 0;
     setValue(newValue);
-    onChange?.(newValue, isValid);
+    onChange?.(newValue, nextIsValid);
   };
 
   return (
@@ -30,3 +28,5 @@ export function ValidatedInput({ placeholder, onChange }: ValidatedInputProps) {
     </div>
   );
 }
+
+export type { UseFilterBuilderReturn, UseFilterDslReturn } from '@x-filter/react';

@@ -1,12 +1,12 @@
 import { createFilter } from '../create';
 import {
-  addRule,
-  updateRule,
-  removeRule,
-  moveRule,
   addGroup,
+  addRule,
+  moveRule,
   removeGroup,
+  removeRule,
   updateGroup,
+  updateRule,
 } from '../mutations';
 import type { Filter } from '../types';
 
@@ -83,9 +83,14 @@ describe('addRule', () => {
   it('respects custom idGenerator in options', () => {
     const filter = createFilter({ idGenerator: () => 'root' });
     const customId = 'custom-rule-id';
-    const result = addRule(filter, 'root', { field: 'x', operator: 'eq', value: 1 }, {
-      idGenerator: () => customId,
-    });
+    const result = addRule(
+      filter,
+      'root',
+      { field: 'x', operator: 'eq', value: 1 },
+      {
+        idGenerator: () => customId,
+      }
+    );
     expect(result.conditions[0]).toMatchObject({ id: customId });
   });
 
@@ -171,9 +176,7 @@ describe('updateRule', () => {
         {
           id: 'g1',
           combinator: 'or',
-          conditions: [
-            { id: 'r3', field: 'status', operator: 'equals', value: 'active' },
-          ],
+          conditions: [{ id: 'r3', field: 'status', operator: 'equals', value: 'active' }],
         },
       ],
     };
@@ -192,9 +195,7 @@ describe('updateRule', () => {
         {
           id: 'g1',
           combinator: 'or',
-          conditions: [
-            { id: 'r3', field: 'status', operator: 'equals', value: 'active' },
-          ],
+          conditions: [{ id: 'r3', field: 'status', operator: 'equals', value: 'active' }],
         },
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
       ],
@@ -369,9 +370,7 @@ describe('moveRule', () => {
       combinator: 'and',
       conditions: [{ id: 'r1', field: 'x', operator: 'eq', value: 1 }],
     };
-    expect(() => moveRule(filter, 'nonexistent', 'root', 0)).toThrow(
-      'Rule not found: nonexistent'
-    );
+    expect(() => moveRule(filter, 'nonexistent', 'root', 0)).toThrow('Rule not found: nonexistent');
   });
 
   it('throws when targetGroupId does not exist', () => {
@@ -422,9 +421,7 @@ describe('addGroup', () => {
 
   it('throws when parentGroupId does not exist', () => {
     const filter = createFilter({ idGenerator: () => 'root' });
-    expect(() => addGroup(filter, 'nonexistent')).toThrow(
-      'Parent group not found: nonexistent'
-    );
+    expect(() => addGroup(filter, 'nonexistent')).toThrow('Parent group not found: nonexistent');
   });
 
   it('adds group with not flag', () => {
@@ -473,9 +470,7 @@ describe('removeGroup', () => {
             {
               id: 'g2',
               combinator: 'and',
-              conditions: [
-                { id: 'r1', field: 'x', operator: 'eq', value: 1 },
-              ],
+              conditions: [{ id: 'r1', field: 'x', operator: 'eq', value: 1 }],
             },
           ],
         },

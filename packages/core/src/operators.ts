@@ -47,9 +47,7 @@ const multiSelectOperators: OperatorDef[] = [
   { name: 'isNotEmpty', label: 'is not empty', arity: 'unary' },
 ];
 
-const booleanOperators: OperatorDef[] = [
-  { name: 'equals', label: 'equals', arity: 'binary' },
-];
+const booleanOperators: OperatorDef[] = [{ name: 'equals', label: 'equals', arity: 'binary' }];
 
 export const defaultOperators: Record<FieldType, OperatorDef[]> = {
   text: textOperators,

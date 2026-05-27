@@ -1,15 +1,15 @@
+import { isFilterGroupIC } from './ic';
+import { generateId } from './id';
 import type {
   Combinator,
-  FilterAny,
   Filter,
+  FilterAny,
   FilterGroup,
   FilterGroupIC,
   FilterIC,
   FilterRule,
 } from './types';
 import { isFilterGroup } from './types';
-import { isFilterGroupIC } from './ic';
-import { generateId } from './id';
 
 export function toJSON(filter: FilterAny): Record<string, unknown> {
   if (isFilterGroupIC(filter)) {

@@ -1,80 +1,72 @@
-import { FilteredList } from '@x-filter/antd';
-import { useFilteredArray, useValidatedInput } from '@x-filter/react';
-import { ValidatedInput } from '@x-filter/shadcn';
+import { formatDSL } from '@x-filter/core';
+import { useFilterBuilder } from '@x-filter/react';
+
+const schema = [
+  {
+    name: 'status',
+    label: 'Status',
+    type: 'select' as const,
+    operators: [
+      { name: 'equals', label: 'equals', arity: 'binary' as const },
+      { name: 'notEquals', label: 'not equals', arity: 'binary' as const },
+    ],
+    values: [
+      { value: 'open', label: 'Open' },
+      { value: 'closed', label: 'Closed' },
+    ],
+  },
+  {
+    name: 'priority',
+    label: 'Priority',
+    type: 'number' as const,
+    operators: [
+      { name: 'equals', label: 'equals', arity: 'binary' as const },
+      { name: 'gt', label: '>', arity: 'binary' as const },
+    ],
+  },
+];
 
 function App() {
-  const { value, setValue, isValid } = useValidatedInput('');
-  const testArray = [1, null, 2, undefined, 3, null, 4];
-  const filtered = useFilteredArray(testArray);
-  const definedOnly = testArray.filter((item): item is number => item !== null && item !== undefined);
+  const { filter, addRule: addRuleFn } = useFilterBuilder({ schema });
+
+  const handleAddRule = () => {
+    addRuleFn(filter.id, { field: 'status', operator: 'equals', value: 'open' });
+  };
+
+  const currentDsl = formatDSL(filter);
 
   return (
     <div style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
-      <h1>🎮 X-Filter Playground</h1>
-      <p>测试 Monorepo 包依赖链路</p>
+      <h1>X-Filter Playground</h1>
+      <p>Filter Builder Demo</p>
 
       <div style={{ marginTop: '2rem' }}>
-        <h2>📦 Core Package Test</h2>
-        <p>原始数组: {JSON.stringify(testArray)}</p>
-        <p>过滤后: {JSON.stringify(definedOnly)}</p>
+        <h2>Filter State</h2>
+        <pre style={{ background: '#f5f5f5', padding: '1rem', borderRadius: '4px' }}>
+          {JSON.stringify(filter, null, 2)}
+        </pre>
+      </div>
+
+      <div style={{ marginTop: '1rem' }}>
+        <h2>DSL Output</h2>
+        <code style={{ background: '#f5f5f5', padding: '0.5rem' }}>{currentDsl}</code>
       </div>
 
       <div style={{ marginTop: '2rem' }}>
-        <h2>⚛️ React Hooks Test</h2>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>
-            输入验证 Hook:
-            <input
-              type="text"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              style={{ marginLeft: '1rem', padding: '0.5rem' }}
-            />
-          </label>
-          <span style={{ marginLeft: '1rem', color: isValid ? 'green' : 'red' }}>
-            {isValid ? '✓ 有效' : '✗ 无效'}
-          </span>
-        </div>
-        <p>过滤数组 Hook 结果: {JSON.stringify(filtered)}</p>
-      </div>
-
-      <div style={{ marginTop: '2rem' }}>
-        <h2>🎨 Shadcn Component Test</h2>
-        <ValidatedInput
-          placeholder="输入文本..."
-          onChange={(val, valid) => console.log({ val, valid })}
-        />
-      </div>
-
-      <div style={{ marginTop: '2rem' }}>
-        <h2>🐜 Ant Design Component Test</h2>
-        <FilteredList
-          items={testArray}
-          renderItem={(item) => (
-            <span
-              style={{
-                padding: '0.5rem',
-                background: '#f0f0f0',
-                margin: '0.25rem',
-                display: 'inline-block',
-              }}
-            >
-              {item}
-            </span>
-          )}
-        />
+        <button type="button" onClick={handleAddRule} style={{ padding: '0.5rem 1rem' }}>
+          Add Rule
+        </button>
       </div>
 
       <div
         style={{ marginTop: '2rem', padding: '1rem', background: '#e8f5e9', borderRadius: '4px' }}
       >
-        <h3>✅ 依赖链路验证</h3>
+        <h3>Dependency Chain</h3>
         <ul>
-          <li>✓ @x-filter/utils → @x-filter/core</li>
-          <li>✓ @x-filter/core → @x-filter/react</li>
-          <li>✓ @x-filter/react → @x-filter/shadcn</li>
-          <li>✓ @x-filter/react → @x-filter/antd</li>
-          <li>✓ All packages → playground</li>
+          <li>@x-filter/core (types, mutations, DSL)</li>
+          <li>@x-filter/react (headless hooks)</li>
+          <li>@x-filter/shadcn (atomic components)</li>
+          <li>@x-filter/antd (atomic components)</li>
         </ul>
       </div>
     </div>

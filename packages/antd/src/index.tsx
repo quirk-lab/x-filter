@@ -6,9 +6,6 @@ export interface FilteredListProps<T> {
   renderItem: (item: T, index: number) => React.ReactNode;
 }
 
-/**
- * Ant Design-style filtered list component
- */
 export function FilteredList<T>({ items, renderItem }: FilteredListProps<T>) {
   const filtered = useFilteredArray(items);
 
@@ -22,3 +19,5 @@ export function FilteredList<T>({ items, renderItem }: FilteredListProps<T>) {
     </div>
   );
 }
+
+export type { UseFilterBuilderReturn, UseFilterDslReturn } from '@x-filter/react';

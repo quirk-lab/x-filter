@@ -1,4 +1,4 @@
-import { toJSON, fromJSON } from '../serialize-json';
+import { fromJSON, toJSON } from '../serialize-json';
 import type { FilterAny } from '../types';
 
 describe('toJSON', () => {
@@ -56,7 +56,10 @@ describe('toJSON', () => {
     expect(conditions[0]).not.toHaveProperty('id');
     expect(conditions[1]).not.toHaveProperty('id');
     expect((conditions[1] as Record<string, unknown>).conditions).toBeDefined();
-    const nestedConditions = (conditions[1] as Record<string, unknown>).conditions as Record<string, unknown>[];
+    const nestedConditions = (conditions[1] as Record<string, unknown>).conditions as Record<
+      string,
+      unknown
+    >[];
     expect(nestedConditions[0]).not.toHaveProperty('id');
   });
 

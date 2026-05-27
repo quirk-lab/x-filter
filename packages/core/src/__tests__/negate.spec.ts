@@ -1,4 +1,4 @@
-import { negateRule, negateGroup } from '../negate';
+import { negateGroup, negateRule } from '../negate';
 import type { Filter } from '../types';
 
 describe('negateRule', () => {
@@ -17,9 +17,7 @@ describe('negateRule', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [
-        { id: 'r1', field: 'name', operator: 'equals', value: 'John', not: true },
-      ],
+      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John', not: true }],
     };
     const result = negateRule(filter, 'r1');
     const r1 = result.conditions[0];
@@ -30,9 +28,7 @@ describe('negateRule', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [
-        { id: 'r1', field: 'name', operator: 'equals', value: 'John', not: false },
-      ],
+      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John', not: false }],
     };
     const result = negateRule(filter, 'r1');
     const r1 = result.conditions[0];
@@ -71,9 +67,7 @@ describe('negateRule', () => {
         {
           id: 'g1',
           combinator: 'or',
-          conditions: [
-            { id: 'r2', field: 'age', operator: 'gt', value: 18 },
-          ],
+          conditions: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
         },
       ],
     };
@@ -92,9 +86,7 @@ describe('negateRule', () => {
         {
           id: 'g1',
           combinator: 'or',
-          conditions: [
-            { id: 'r2', field: 'age', operator: 'gt', value: 18 },
-          ],
+          conditions: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
         },
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
       ],

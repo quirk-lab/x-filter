@@ -1,5 +1,5 @@
-import type { Combinator, Filter, FilterGroup, FilterRule } from './types';
 import { generateId, type IdGenerator } from './id';
+import type { Combinator, Filter, FilterGroup, FilterRule } from './types';
 
 export interface CreateFilterOptions {
   combinator?: Combinator;

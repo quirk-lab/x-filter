@@ -1,10 +1,4 @@
-import {
-  findById,
-  findParent,
-  getPath,
-  traverse,
-  flattenRules,
-} from '../traverse';
+import { findById, findParent, flattenRules, getPath, traverse } from '../traverse';
 import type { Filter } from '../types';
 
 const filter: Filter = {
@@ -20,9 +14,7 @@ const filter: Filter = {
         {
           id: 'g2',
           combinator: 'and',
-          conditions: [
-            { id: 'r3', field: 'status', operator: 'equals', value: 'active' },
-          ],
+          conditions: [{ id: 'r3', field: 'status', operator: 'equals', value: 'active' }],
         },
       ],
     },
@@ -102,17 +94,17 @@ describe('findParent', () => {
 });
 
 describe('getPath', () => {
-  it('path to root is [\'root\']', () => {
+  it("path to root is ['root']", () => {
     const path = getPath(filter, 'root');
     expect(path).toEqual(['root']);
   });
 
-  it('path to r1 is [\'root\', \'r1\']', () => {
+  it("path to r1 is ['root', 'r1']", () => {
     const path = getPath(filter, 'r1');
     expect(path).toEqual(['root', 'r1']);
   });
 
-  it('path to r3 (deep) is [\'root\', \'g1\', \'g2\', \'r3\']', () => {
+  it("path to r3 (deep) is ['root', 'g1', 'g2', 'r3']", () => {
     const path = getPath(filter, 'r3');
     expect(path).toEqual(['root', 'g1', 'g2', 'r3']);
   });

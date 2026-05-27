@@ -22,10 +22,7 @@ export function findById(filter: FilterAny, id: string): AnyNode | undefined {
   return undefined;
 }
 
-export function findParent(
-  filter: FilterAny,
-  id: string
-): FilterGroup | FilterGroupIC | undefined {
+export function findParent(filter: FilterAny, id: string): FilterGroup | FilterGroupIC | undefined {
   for (const c of filter.conditions) {
     if (typeof c === 'string') continue;
     if (c.id === id) return filter;

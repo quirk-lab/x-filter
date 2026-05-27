@@ -1,13 +1,6 @@
-import type {
-  Combinator,
-  Filter,
-  FilterGroup,
-  FilterGroupIC,
-  FilterIC,
-  FilterRule,
-} from './types';
-import { isFilterGroup } from './types';
 import { generateId, type IdGenerator } from './id';
+import type { Combinator, Filter, FilterGroup, FilterGroupIC, FilterIC, FilterRule } from './types';
+import { isFilterGroup } from './types';
 
 export function isFilterGroupIC(node: unknown): node is FilterGroupIC {
   return (
@@ -193,9 +186,7 @@ export function addRuleIC(
   const result = updateGroupICInTree(filter, groupId, (g) => {
     const nonCombinatorCount = g.conditions.filter((c) => typeof c !== 'string').length;
     const newConditions: FilterGroupIC['conditions'] =
-      nonCombinatorCount > 0
-        ? [...g.conditions, defaultCombinator, newRule]
-        : [newRule];
+      nonCombinatorCount > 0 ? [...g.conditions, defaultCombinator, newRule] : [newRule];
     return { ...g, conditions: newConditions };
   });
 

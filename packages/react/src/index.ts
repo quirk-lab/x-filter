@@ -1,15 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 
-/**
- * Hook for validated input
- */
+export type {
+  MoveOperation,
+  UseFilterBuilderOptions,
+  UseFilterBuilderReturn,
+  UseFilterDslOptions,
+  UseFilterDslReturn,
+  UseFilterUrlSyncOptions,
+  UseFilterUrlSyncReturn,
+  UseReorderContractOptions,
+  UseReorderContractReturn,
+} from './types';
+
 export function useValidatedInput(initialValue = '') {
   const [value, setValue] = useState(initialValue);
-  const [isValid, setIsValid] = useState(false);
-
-  useEffect(() => {
-    setIsValid(value.trim().length > 0);
-  }, [value]);
+  const isValid = useMemo(() => value.trim().length > 0, [value]);
 
   return {
     value,
@@ -18,15 +23,14 @@ export function useValidatedInput(initialValue = '') {
   };
 }
 
-/**
- * Hook for filtering array
- */
-export function useFilteredArray<T>(array: (T | null | undefined)[]) {
-  const [filtered, setFiltered] = useState<T[]>([]);
-
-  useEffect(() => {
-    setFiltered(array.filter((item): item is T => item !== null && item !== undefined));
-  }, [array]);
-
-  return filtered;
+export function useFilteredArray<T>(array: readonly (T | null | undefined)[]): T[] {
+  return useMemo(
+    () => array.filter((item): item is T => item !== null && item !== undefined),
+    [array]
+  );
 }
+
+export { useFilterBuilder } from './use-filter-builder';
+export { useFilterDsl } from './use-filter-dsl';
+export { useFilterUrlSync } from './use-filter-url-sync';
+export { useReorderContract } from './use-reorder-contract';
