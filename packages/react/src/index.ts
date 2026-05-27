@@ -1,6 +1,14 @@
 import { useMemo, useState } from 'react';
 
 export type {
+  FilterBuilderActionHandlers,
+  FilterBuilderClassNames,
+  FilterBuilderLabels,
+  FilterBuilderSlotProps,
+  FilterBuilderSlots,
+  FilterGroupViewModel,
+  FilterNodeViewModel,
+  FilterRuleViewModel,
   MoveOperation,
   UseFilterBuilderOptions,
   UseFilterBuilderReturn,
