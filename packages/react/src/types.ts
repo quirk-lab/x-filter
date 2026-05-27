@@ -1,4 +1,5 @@
 import type {
+  CompletionItem,
   FieldSchema,
   Filter,
   FilterGroup,
@@ -40,6 +41,21 @@ export interface UseFilterDslReturn {
   parseError: string | null;
   commitDSL: () => boolean;
   resetDraft: () => void;
+}
+
+export interface UseDslEditorOptions {
+  filter: Filter;
+  schema: FieldSchema[];
+  onCommit: (filter: Filter) => void;
+  cursor?: number;
+}
+
+export interface UseDslEditorReturn {
+  draftDSL: string;
+  setDraftDSL: (dsl: string) => void;
+  parseError: string | null;
+  completions: CompletionItem[];
+  commit: () => boolean;
 }
 
 export interface UseFilterUrlSyncOptions {

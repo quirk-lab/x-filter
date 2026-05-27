@@ -10,6 +10,8 @@ export type {
   FilterNodeViewModel,
   FilterRuleViewModel,
   MoveOperation,
+  UseDslEditorOptions,
+  UseDslEditorReturn,
   UseFilterBuilderOptions,
   UseFilterBuilderReturn,
   UseFilterDslOptions,
@@ -40,6 +42,7 @@ export function useFilteredArray<T>(array: readonly (T | null | undefined)[]): T
   );
 }
 
+export { useDslEditor } from './use-dsl-editor';
 export { useFilterBuilder } from './use-filter-builder';
 export { useFilterDsl } from './use-filter-dsl';
 export { useFilterUrlSync } from './use-filter-url-sync';
