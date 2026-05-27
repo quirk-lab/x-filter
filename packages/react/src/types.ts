@@ -71,6 +71,7 @@ export type FilterBuilderActionHandlers = {
   removeGroup: (groupId: string) => void;
   updateGroup: (groupId: string, updates: Partial<Pick<FilterGroup, 'combinator' | 'not'>>) => void;
   moveItem: (operation: MoveOperation) => void;
+  canDrop: (dragId: string, targetGroupId: string) => boolean;
 };
 
 export type FilterRuleViewModel = {
@@ -133,7 +134,9 @@ export type FilterBuilderSlotProps = {
 
 export type FilterBuilderSlots = Partial<{
   Root: (props: FilterBuilderSlotProps & { children: ReactNode }) => ReactNode;
-  Group: (props: FilterBuilderSlotProps & { group: FilterGroupViewModel }) => ReactNode;
+  Group: (
+    props: FilterBuilderSlotProps & { group: FilterGroupViewModel; children: ReactNode }
+  ) => ReactNode;
   Rule: (props: FilterBuilderSlotProps & { rule: FilterRuleViewModel }) => ReactNode;
   FieldSelector: (props: FilterBuilderSlotProps & { rule: FilterRuleViewModel }) => ReactNode;
   OperatorSelector: (props: FilterBuilderSlotProps & { rule: FilterRuleViewModel }) => ReactNode;

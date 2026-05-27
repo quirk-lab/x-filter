@@ -26,13 +26,14 @@ const operator: OperatorDef = { name: 'equals', label: 'equals', arity: 'binary'
 const errors: ValidationError[] = [{ type: 'invalidValue', message: 'Value is invalid' }];
 
 const actions: FilterBuilderActionHandlers = {
-  addRule: jest.fn(),
-  removeRule: jest.fn(),
-  updateRule: jest.fn(),
-  addGroup: jest.fn(),
-  removeGroup: jest.fn(),
-  updateGroup: jest.fn(),
-  moveItem: jest.fn(),
+  addRule: (_groupId, _rule) => undefined,
+  removeRule: (_ruleId) => undefined,
+  updateRule: (_ruleId, _updates) => undefined,
+  addGroup: (_groupId, _group) => undefined,
+  removeGroup: (_groupId) => undefined,
+  updateGroup: (_groupId, _updates) => undefined,
+  moveItem: (_operation) => undefined,
+  canDrop: (dragId, targetGroupId) => dragId !== targetGroupId,
 };
 
 const labels: FilterBuilderLabels = {
@@ -76,7 +77,7 @@ const slotProps: FilterBuilderSlotProps = {
 
 const slots: FilterBuilderSlots = {
   Root: (props) => props.children,
-  Group: (props) => props.group.children.length,
+  Group: (props) => props.children,
   Rule: (props) => props.rule.errors.length,
   FieldSelector: (props) => props.rule.field?.label,
   OperatorSelector: (props) => props.rule.operator?.label,
@@ -88,5 +89,9 @@ test('shared adapter types support public slots, labels, classNames, and view mo
   expect(classNames.rule).toBe('rule');
   expect(groupVm.children[0]).toBe(ruleVm);
   expect(nodeVm.kind).toBe('group');
+  expect(actions.canDrop('r1', 'root')).toBe(true);
+  expect(slots.Group?.({ ...slotProps, group: groupVm, children: 'group children' })).toBe(
+    'group children'
+  );
   expect(slots.Rule?.({ ...slotProps, rule: ruleVm })).toBe(1);
 });
