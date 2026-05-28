@@ -1,4 +1,4 @@
-import type { FieldSchema, Filter, FilterGroup } from '@x-filter/core';
+import type { FieldSchema, Filter } from '@x-filter/core';
 import type {
   FilterBuilderActionHandlers,
   FilterBuilderClassNames,
@@ -8,9 +8,8 @@ import type {
   FilterGroupViewModel,
   FilterNodeViewModel,
   FilterRuleViewModel,
-  MoveOperation,
 } from '@x-filter/react';
-import { useFilterBuilder, useFilterViewModel } from '@x-filter/react';
+import { useFilterBuilder, useFilterViewModel, useReorderContract } from '@x-filter/react';
 import { Button, Card, Space } from 'antd';
 import { useMemo } from 'react';
 import { AntdCombinatorSelector } from './combinator-selector';
@@ -39,20 +38,6 @@ const DEFAULT_LABELS = {
 } satisfies Required<
   Pick<FilterBuilderLabels, 'addRule' | 'addGroup' | 'removeRule' | 'removeGroup'>
 >;
-
-function hasGroup(filter: FilterGroup, groupId: string): boolean {
-  if (filter.id === groupId) {
-    return true;
-  }
-
-  return filter.conditions.some((condition) => {
-    if (!('conditions' in condition)) {
-      return false;
-    }
-
-    return hasGroup(condition, groupId);
-  });
-}
 
 function canUseAtomicGroup(labels: typeof DEFAULT_LABELS, classNames?: FilterBuilderClassNames) {
   return (
@@ -91,6 +76,7 @@ export function AntdFilterBuilder({
 }: AntdFilterBuilderProps) {
   const builder = useFilterBuilder({ value, defaultValue, onChange, schema });
   const viewModel = useFilterViewModel({ filter: builder.filter, schema: builder.schema });
+  const reorder = useReorderContract({ filter: builder.filter, onReorder: builder.setFilter });
   const resolvedLabels = {
     addRule: labels?.addRule ?? DEFAULT_LABELS.addRule,
     addGroup: labels?.addGroup ?? DEFAULT_LABELS.addGroup,
@@ -106,14 +92,10 @@ export function AntdFilterBuilder({
       addGroup: builder.addGroup,
       removeGroup: builder.removeGroup,
       updateGroup: builder.updateGroup,
-      moveItem: (operation: MoveOperation) => {
-        if (operation.type === 'rule') {
-          builder.moveRule(operation.id, operation.targetGroupId, operation.targetIndex);
-        }
-      },
-      canDrop: (_dragId: string, targetGroupId: string) => hasGroup(builder.filter, targetGroupId),
+      moveItem: reorder.moveItem,
+      canDrop: reorder.canDrop,
     }),
-    [builder]
+    [builder, reorder]
   );
 
   const slotProps: FilterBuilderSlotProps = {

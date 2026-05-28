@@ -309,18 +309,8 @@ test('AntdFilterBuilder wires Root, Group, Rule, FieldSelector, and OperatorSele
             <button type="button" onClick={() => actions.canDrop('r1', 'root')}>
               Check root drop
             </button>
-            <button
-              type="button"
-              onClick={() =>
-                actions.moveItem({
-                  type: 'group',
-                  id: 'g1',
-                  targetGroupId: 'root',
-                  targetIndex: 0,
-                })
-              }
-            >
-              Move group noop
+            <button type="button" onClick={() => actions.canDrop('root', 'root')}>
+              Check root group drop
             </button>
             {children}
           </div>
@@ -334,7 +324,7 @@ test('AntdFilterBuilder wires Root, Group, Rule, FieldSelector, and OperatorSele
   );
 
   fireEvent.click(screen.getByRole('button', { name: 'Check root drop' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Move group noop' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Check root group drop' }));
 
   expect(screen.getByLabelText('Custom root')).not.toBeNull();
   expect(screen.getByText('Rule slot r1')).not.toBeNull();
@@ -429,6 +419,93 @@ test('AntdFilterBuilder moveItem slot action moves rules between groups', () => 
       ],
     })
   );
+});
+
+test('AntdFilterBuilder moveItem slot action moves child groups', () => {
+  const onChange = jest.fn();
+  render(
+    <AntdFilterBuilder
+      schema={schema}
+      defaultValue={{
+        id: 'root',
+        combinator: 'and',
+        conditions: [
+          { id: 'r1', field: 'name', operator: 'equals', value: 'Ada' },
+          { id: 'g1', combinator: 'and', conditions: [] },
+        ],
+      }}
+      onChange={onChange}
+      slots={{
+        Root: ({ actions, children }) => (
+          <div>
+            <button
+              type="button"
+              onClick={() =>
+                actions.moveItem({
+                  type: 'group',
+                  id: 'g1',
+                  targetGroupId: 'root',
+                  targetIndex: 0,
+                })
+              }
+            >
+              Move group
+            </button>
+            {children}
+          </div>
+        ),
+      }}
+    />
+  );
+
+  fireEvent.click(screen.getByRole('button', { name: 'Move group' }));
+
+  expect(onChange).toHaveBeenCalledWith(
+    expect.objectContaining({
+      conditions: [expect.objectContaining({ id: 'g1' }), expect.objectContaining({ id: 'r1' })],
+    })
+  );
+});
+
+test('AntdFilterBuilder canDrop rejects missing drag ids and group descendant targets', () => {
+  render(
+    <AntdFilterBuilder
+      schema={schema}
+      defaultValue={{
+        id: 'root',
+        combinator: 'and',
+        conditions: [
+          {
+            id: 'g1',
+            combinator: 'and',
+            conditions: [
+              {
+                id: 'g2',
+                combinator: 'or',
+                conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
+              },
+            ],
+          },
+        ],
+      }}
+      slots={{
+        Root: ({ actions, children }) => (
+          <div>
+            <span>
+              {actions.canDrop('missing', 'root') ? 'missing allowed' : 'missing rejected'}
+            </span>
+            <span>
+              {actions.canDrop('g1', 'g2') ? 'descendant allowed' : 'descendant rejected'}
+            </span>
+            {children}
+          </div>
+        ),
+      }}
+    />
+  );
+
+  expect(screen.getByText('missing rejected')).not.toBeNull();
+  expect(screen.getByText('descendant rejected')).not.toBeNull();
 });
 
 test('AntdFilterBuilder renders default value editors for supported field types', () => {
