@@ -86,6 +86,9 @@ importers:
       '@x-filter/shadcn':
         specifier: workspace:*
         version: link:../../packages/shadcn
+      antd:
+        specifier: ^5.0.0
+        version: 5.29.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
