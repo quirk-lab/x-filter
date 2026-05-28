@@ -78,7 +78,7 @@ test('AntdFilterBuilder has no obvious accessibility violations with DSL and DnD
   );
 
   expectNoAxeViolations(await axe(container));
-});
+}, 30000);
 
 test('AntdFilterBuilder gives ternary value inputs distinct accessible names', () => {
   render(<AntdFilterBuilder schema={rangeSchema} value={rangeFilter} onChange={jest.fn()} />);

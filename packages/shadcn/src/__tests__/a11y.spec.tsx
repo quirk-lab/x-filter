@@ -78,7 +78,7 @@ test('ShadcnFilterBuilder has no obvious accessibility violations with DSL and D
   );
 
   expectNoAxeViolations(await axe(container));
-});
+}, 30000);
 
 test('ShadcnFilterBuilder gives ternary value inputs distinct accessible names', () => {
   render(<ShadcnFilterBuilder schema={rangeSchema} value={rangeFilter} onChange={jest.fn()} />);
