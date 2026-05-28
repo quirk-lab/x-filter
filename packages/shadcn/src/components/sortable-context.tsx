@@ -1,6 +1,7 @@
 import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import type { ReactNode } from 'react';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS as DndCss } from '@dnd-kit/utilities';
+import type { CSSProperties, ReactNode } from 'react';
 
 export interface SortableFilterContextProps {
   items: string[];
@@ -21,5 +22,33 @@ export function SortableFilterContext({ items, children, onMove }: SortableFilte
         {children}
       </SortableContext>
     </DndContext>
+  );
+}
+
+export interface SortableFilterItemProps {
+  id: string;
+  children: ReactNode;
+}
+
+export function SortableFilterItem({ id, children }: SortableFilterItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const style: CSSProperties = {
+    transform: DndCss.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div data-sortable-id={id} ref={setNodeRef} style={style}>
+      <button
+        {...attributes}
+        {...listeners}
+        aria-label={`Drag ${id}`}
+        aria-roledescription="sortable"
+        type="button"
+      >
+        Drag {id}
+      </button>
+      {children}
+    </div>
   );
 }

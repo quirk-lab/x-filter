@@ -82,6 +82,15 @@ test('AntdFilterBuilder moves a child group through the keyboard fallback', () =
   );
 });
 
+test('AntdFilterBuilder wires sortable item handles when dnd is enabled', () => {
+  renderWithDnd();
+
+  const dragHandle = screen.getByRole('button', { name: /drag r1/i });
+
+  expect(dragHandle.getAttribute('aria-roledescription')).toBe('sortable');
+  expect(dragHandle.closest('[data-sortable-id="r1"]')).not.toBeNull();
+});
+
 test('AntdFilterBuilder omits keyboard move controls unless dnd is enabled', () => {
   const { rerender } = render(<AntdFilterBuilder schema={schema} value={filter} />);
 

@@ -19,7 +19,7 @@ import { ShadcnNotToggle } from './not-toggle';
 import { ShadcnOperatorSelector } from './operator-selector';
 import { Button, Card, cn } from './primitives';
 import { ShadcnFilterRule } from './rule-row';
-import { SortableFilterContext } from './sortable-context';
+import { SortableFilterContext, SortableFilterItem } from './sortable-context';
 import { ShadcnValueEditor } from './value-editor';
 
 export interface ShadcnFilterBuilderProps {
@@ -276,18 +276,18 @@ export function ShadcnFilterBuilder({
   };
 
   const renderGroup = (group: FilterGroupViewModel) => {
-    const children = group.children.map((child, index) => (
-      <div key={child.id}>
-        {dnd ? (
+    const children = group.children.map((child, index) =>
+      dnd ? (
+        <SortableFilterItem key={child.id} id={child.id}>
           <div>
             {renderMoveControls(group, child, index)}
             {renderNode(child)}
           </div>
-        ) : (
-          renderNode(child)
-        )}
-      </div>
-    ));
+        </SortableFilterItem>
+      ) : (
+        <div key={child.id}>{renderNode(child)}</div>
+      )
+    );
     const orderedChildren = dnd ? (
       <SortableFilterContext
         items={group.children.map((child) => child.id)}

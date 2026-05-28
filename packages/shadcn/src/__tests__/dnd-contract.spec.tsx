@@ -82,6 +82,15 @@ test('ShadcnFilterBuilder moves a child group through the keyboard fallback', ()
   );
 });
 
+test('ShadcnFilterBuilder wires sortable item handles when dnd is enabled', () => {
+  renderWithDnd();
+
+  const dragHandle = screen.getByRole('button', { name: /drag r1/i });
+
+  expect(dragHandle.getAttribute('aria-roledescription')).toBe('sortable');
+  expect(dragHandle.closest('[data-sortable-id="r1"]')).not.toBeNull();
+});
+
 test('ShadcnFilterBuilder omits keyboard move controls unless dnd is enabled', () => {
   const { rerender } = render(<ShadcnFilterBuilder schema={schema} value={filter} />);
 

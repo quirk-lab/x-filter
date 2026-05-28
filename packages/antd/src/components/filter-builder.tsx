@@ -19,7 +19,7 @@ import { AntdFilterGroup } from './group-block';
 import { AntdNotToggle } from './not-toggle';
 import { AntdOperatorSelector } from './operator-selector';
 import { AntdFilterRule } from './rule-row';
-import { SortableFilterContext } from './sortable-context';
+import { SortableFilterContext, SortableFilterItem } from './sortable-context';
 import { AntdValueEditor } from './value-editor';
 
 export interface AntdFilterBuilderProps {
@@ -269,18 +269,18 @@ export function AntdFilterBuilder({
   };
 
   const renderGroup = (group: FilterGroupViewModel) => {
-    const children = group.children.map((child, index) => (
-      <div key={child.id}>
-        {dnd ? (
+    const children = group.children.map((child, index) =>
+      dnd ? (
+        <SortableFilterItem key={child.id} id={child.id}>
           <div>
             {renderMoveControls(group, child, index)}
             {renderNode(child)}
           </div>
-        ) : (
-          renderNode(child)
-        )}
-      </div>
-    ));
+        </SortableFilterItem>
+      ) : (
+        <div key={child.id}>{renderNode(child)}</div>
+      )
+    );
     const orderedChildren = dnd ? (
       <SortableFilterContext
         items={group.children.map((child) => child.id)}
