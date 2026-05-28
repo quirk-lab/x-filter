@@ -85,9 +85,12 @@ describe('getDslCompletions', () => {
       expect(items[0]).toMatchObject({ kind: 'operator', value: 'equals' });
     });
 
-    it('returns empty when field has no operators', () => {
+    it('returns default operators when field has no custom operators', () => {
       const items = getDslCompletions({ input: 'assignee:', cursor: 9, schema });
-      expect(items).toEqual([]);
+      expect(items.every((i) => i.kind === 'operator')).toBe(true);
+      expect(items.map((i) => i.value)).toEqual(
+        expect.arrayContaining(['equals', 'contains', 'startsWith'])
+      );
     });
 
     it('returns empty for unknown field', () => {

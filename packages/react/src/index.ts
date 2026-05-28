@@ -1,13 +1,25 @@
 import { useMemo, useState } from 'react';
 
 export type {
+  FilterBuilderActionHandlers,
+  FilterBuilderClassNames,
+  FilterBuilderLabels,
+  FilterBuilderSlotProps,
+  FilterBuilderSlots,
+  FilterGroupViewModel,
+  FilterNodeViewModel,
+  FilterRuleViewModel,
   MoveOperation,
+  UseDslEditorOptions,
+  UseDslEditorReturn,
   UseFilterBuilderOptions,
   UseFilterBuilderReturn,
   UseFilterDslOptions,
   UseFilterDslReturn,
   UseFilterUrlSyncOptions,
   UseFilterUrlSyncReturn,
+  UseFilterViewModelOptions,
+  UseFilterViewModelReturn,
   UseReorderContractOptions,
   UseReorderContractReturn,
 } from './types';
@@ -30,7 +42,9 @@ export function useFilteredArray<T>(array: readonly (T | null | undefined)[]): T
   );
 }
 
+export { useDslEditor } from './use-dsl-editor';
 export { useFilterBuilder } from './use-filter-builder';
 export { useFilterDsl } from './use-filter-dsl';
 export { useFilterUrlSync } from './use-filter-url-sync';
+export { useFilterViewModel } from './use-filter-view-model';
 export { useReorderContract } from './use-reorder-contract';

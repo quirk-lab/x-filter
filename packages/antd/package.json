@@ -28,9 +28,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@x-filter/core": "workspace:*",
     "@x-filter/react": "workspace:*"
   },
   "peerDependencies": {
+    "antd": "^5.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   }

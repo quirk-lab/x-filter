@@ -1,6 +1,8 @@
 import { useFilteredArray } from '@x-filter/react';
 import type React from 'react';
 
+export * from './components';
+
 export interface FilteredListProps<T> {
   items: (T | null | undefined)[];
   renderItem: (item: T, index: number) => React.ReactNode;
@@ -20,4 +22,14 @@ export function FilteredList<T>({ items, renderItem }: FilteredListProps<T>) {
   );
 }
 
-export type { UseFilterBuilderReturn, UseFilterDslReturn } from '@x-filter/react';
+export type {
+  FilterBuilderClassNames,
+  FilterBuilderLabels,
+  FilterBuilderSlotProps,
+  FilterBuilderSlots,
+  FilterGroupViewModel,
+  FilterNodeViewModel,
+  FilterRuleViewModel,
+  UseFilterBuilderReturn,
+  UseFilterDslReturn,
+} from '@x-filter/react';

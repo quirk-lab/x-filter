@@ -1,6 +1,8 @@
 import { useValidatedInput } from '@x-filter/react';
 import type React from 'react';
 
+export * from './components';
+
 export interface ValidatedInputProps {
   placeholder?: string;
   onChange?: (value: string, isValid: boolean) => void;
@@ -29,4 +31,14 @@ export function ValidatedInput({ placeholder, onChange }: ValidatedInputProps) {
   );
 }
 
-export type { UseFilterBuilderReturn, UseFilterDslReturn } from '@x-filter/react';
+export type {
+  FilterBuilderClassNames,
+  FilterBuilderLabels,
+  FilterBuilderSlotProps,
+  FilterBuilderSlots,
+  FilterGroupViewModel,
+  FilterNodeViewModel,
+  FilterRuleViewModel,
+  UseFilterBuilderReturn,
+  UseFilterDslReturn,
+} from '@x-filter/react';
