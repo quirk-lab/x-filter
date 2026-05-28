@@ -2,6 +2,8 @@ export type { ShadcnCombinatorSelectorProps } from './combinator-selector';
 export { ShadcnCombinatorSelector } from './combinator-selector';
 export type { ShadcnFieldSelectorProps } from './field-selector';
 export { ShadcnFieldSelector } from './field-selector';
+export type { ShadcnFilterBuilderProps } from './filter-builder';
+export { ShadcnFilterBuilder } from './filter-builder';
 export type { ShadcnFilterGroupProps } from './group-block';
 export { ShadcnFilterGroup } from './group-block';
 export type { ShadcnNotToggleProps } from './not-toggle';
