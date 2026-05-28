@@ -103,7 +103,16 @@ export function AntdFilterBuilder({
       moveItem: reorder.moveItem,
       canDrop: reorder.canDrop,
     }),
-    [builder, reorder]
+    [
+      builder.addRule,
+      builder.removeRule,
+      builder.updateRule,
+      builder.addGroup,
+      builder.removeGroup,
+      builder.updateGroup,
+      reorder.moveItem,
+      reorder.canDrop,
+    ]
   );
 
   const slotProps: FilterBuilderSlotProps = {
