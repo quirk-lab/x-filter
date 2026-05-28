@@ -2,6 +2,8 @@ export type { AntdCombinatorSelectorProps } from './combinator-selector';
 export { AntdCombinatorSelector } from './combinator-selector';
 export type { AntdFieldSelectorProps } from './field-selector';
 export { AntdFieldSelector } from './field-selector';
+export type { AntdFilterBuilderProps } from './filter-builder';
+export { AntdFilterBuilder } from './filter-builder';
 export type { AntdFilterGroupProps } from './group-block';
 export { AntdFilterGroup } from './group-block';
 export type { AntdNotToggleProps } from './not-toggle';

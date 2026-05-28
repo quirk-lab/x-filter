@@ -1,0 +1,272 @@
+import type { FieldSchema, Filter, FilterGroup } from '@x-filter/core';
+import type {
+  FilterBuilderActionHandlers,
+  FilterBuilderClassNames,
+  FilterBuilderLabels,
+  FilterBuilderSlotProps,
+  FilterBuilderSlots,
+  FilterGroupViewModel,
+  FilterNodeViewModel,
+  FilterRuleViewModel,
+  MoveOperation,
+} from '@x-filter/react';
+import { useFilterBuilder, useFilterViewModel } from '@x-filter/react';
+import { Button, Card, Space } from 'antd';
+import { useMemo } from 'react';
+import { AntdCombinatorSelector } from './combinator-selector';
+import { AntdFieldSelector } from './field-selector';
+import { AntdFilterGroup } from './group-block';
+import { AntdNotToggle } from './not-toggle';
+import { AntdOperatorSelector } from './operator-selector';
+import { AntdFilterRule } from './rule-row';
+import { AntdValueEditor } from './value-editor';
+
+export interface AntdFilterBuilderProps {
+  schema: FieldSchema[];
+  value?: Filter;
+  defaultValue?: Filter;
+  onChange?: (filter: Filter) => void;
+  slots?: FilterBuilderSlots;
+  labels?: FilterBuilderLabels;
+  classNames?: FilterBuilderClassNames;
+}
+
+const DEFAULT_LABELS = {
+  addRule: 'Add rule',
+  addGroup: 'Add group',
+  removeRule: 'Remove rule',
+  removeGroup: 'Remove group',
+} satisfies Required<
+  Pick<FilterBuilderLabels, 'addRule' | 'addGroup' | 'removeRule' | 'removeGroup'>
+>;
+
+function hasGroup(filter: FilterGroup, groupId: string): boolean {
+  if (filter.id === groupId) {
+    return true;
+  }
+
+  return filter.conditions.some((condition) => {
+    if (!('conditions' in condition)) {
+      return false;
+    }
+
+    return hasGroup(condition, groupId);
+  });
+}
+
+function canUseAtomicGroup(labels: typeof DEFAULT_LABELS, classNames?: FilterBuilderClassNames) {
+  return (
+    labels.addRule === DEFAULT_LABELS.addRule &&
+    labels.addGroup === DEFAULT_LABELS.addGroup &&
+    labels.removeGroup === DEFAULT_LABELS.removeGroup &&
+    !classNames?.actions
+  );
+}
+
+function canUseAtomicRule(
+  labels: typeof DEFAULT_LABELS,
+  slots?: FilterBuilderSlots,
+  classNames?: FilterBuilderClassNames
+) {
+  return (
+    labels.removeRule === DEFAULT_LABELS.removeRule &&
+    !slots?.FieldSelector &&
+    !slots?.OperatorSelector &&
+    !slots?.ValueEditor &&
+    !classNames?.fieldSelector &&
+    !classNames?.operatorSelector &&
+    !classNames?.valueEditor &&
+    !classNames?.actions
+  );
+}
+
+export function AntdFilterBuilder({
+  schema,
+  value,
+  defaultValue,
+  onChange,
+  slots,
+  labels,
+  classNames,
+}: AntdFilterBuilderProps) {
+  const builder = useFilterBuilder({ value, defaultValue, onChange, schema });
+  const viewModel = useFilterViewModel({ filter: builder.filter, schema: builder.schema });
+  const resolvedLabels = {
+    addRule: labels?.addRule ?? DEFAULT_LABELS.addRule,
+    addGroup: labels?.addGroup ?? DEFAULT_LABELS.addGroup,
+    removeRule: labels?.removeRule ?? DEFAULT_LABELS.removeRule,
+    removeGroup: labels?.removeGroup ?? DEFAULT_LABELS.removeGroup,
+  };
+
+  const actions = useMemo<FilterBuilderActionHandlers>(
+    () => ({
+      addRule: builder.addRule,
+      removeRule: builder.removeRule,
+      updateRule: builder.updateRule,
+      addGroup: builder.addGroup,
+      removeGroup: builder.removeGroup,
+      updateGroup: builder.updateGroup,
+      moveItem: (operation: MoveOperation) => {
+        if (operation.type === 'rule') {
+          builder.moveRule(operation.id, operation.targetGroupId, operation.targetIndex);
+        }
+      },
+      canDrop: (_dragId: string, targetGroupId: string) => hasGroup(builder.filter, targetGroupId),
+    }),
+    [builder]
+  );
+
+  const slotProps: FilterBuilderSlotProps = {
+    filter: builder.filter,
+    schema: builder.schema,
+    actions,
+  };
+
+  const renderRule = (rule: FilterRuleViewModel) => {
+    if (slots?.Rule) {
+      return slots.Rule({ ...slotProps, rule });
+    }
+
+    if (canUseAtomicRule(resolvedLabels, slots, classNames)) {
+      return (
+        <AntdFilterRule
+          className={classNames?.rule}
+          rule={rule}
+          schema={builder.schema}
+          onChange={actions.updateRule}
+          onRemove={actions.removeRule}
+        />
+      );
+    }
+
+    const FieldSelector = slots?.FieldSelector;
+    const OperatorSelector = slots?.OperatorSelector;
+    const ValueEditor = slots?.ValueEditor;
+
+    return (
+      <Space
+        aria-describedby={rule.aria.describedBy}
+        aria-label={rule.aria.label}
+        className={classNames?.rule}
+        role="group"
+        wrap
+      >
+        <AntdNotToggle
+          checked={Boolean(rule.rule.not)}
+          onChange={(not) => actions.updateRule(rule.id, { not })}
+        />
+        {FieldSelector ? (
+          FieldSelector({ ...slotProps, rule })
+        ) : (
+          <AntdFieldSelector
+            className={classNames?.fieldSelector}
+            rule={rule.rule}
+            schema={builder.schema}
+            onChange={(field) => actions.updateRule(rule.id, { field })}
+          />
+        )}
+        {OperatorSelector ? (
+          OperatorSelector({ ...slotProps, rule })
+        ) : (
+          <AntdOperatorSelector
+            className={classNames?.operatorSelector}
+            field={rule.field}
+            rule={rule.rule}
+            schema={builder.schema}
+            onChange={(operator) => actions.updateRule(rule.id, { operator })}
+          />
+        )}
+        {ValueEditor ? (
+          ValueEditor({ ...slotProps, rule })
+        ) : (
+          <AntdValueEditor
+            className={classNames?.valueEditor}
+            field={rule.field}
+            operator={rule.operator}
+            rule={rule.rule}
+            schema={builder.schema}
+            onChange={(nextValue) => actions.updateRule(rule.id, { value: nextValue })}
+          />
+        )}
+        <span className={classNames?.actions}>
+          <Button danger onClick={() => actions.removeRule(rule.id)}>
+            {resolvedLabels.removeRule}
+          </Button>
+        </span>
+      </Space>
+    );
+  };
+
+  const renderNode = (node: FilterNodeViewModel) => {
+    if (node.kind === 'rule') {
+      return renderRule(node);
+    }
+
+    return renderGroup(node);
+  };
+
+  const renderGroup = (group: FilterGroupViewModel) => {
+    const children = group.children.map((child) => <div key={child.id}>{renderNode(child)}</div>);
+
+    if (slots?.Group) {
+      return slots.Group({ ...slotProps, group, children });
+    }
+
+    const isRoot = group.id === viewModel.root.id;
+
+    if (canUseAtomicGroup(resolvedLabels, classNames)) {
+      return (
+        <AntdFilterGroup
+          className={classNames?.group}
+          group={group}
+          onAddGroup={actions.addGroup}
+          onAddRule={actions.addRule}
+          onCombinatorChange={(groupId, combinator) => actions.updateGroup(groupId, { combinator })}
+          onNotChange={(groupId, not) => actions.updateGroup(groupId, { not })}
+          onRemove={isRoot ? undefined : actions.removeGroup}
+        >
+          {children}
+        </AntdFilterGroup>
+      );
+    }
+
+    return (
+      <Card
+        aria-describedby={group.aria.describedBy}
+        aria-label={group.aria.label}
+        className={classNames?.group}
+        role="group"
+        size="small"
+      >
+        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          <Space className={classNames?.actions} wrap>
+            <AntdCombinatorSelector
+              value={group.group.combinator}
+              onChange={(combinator) => actions.updateGroup(group.id, { combinator })}
+            />
+            <AntdNotToggle
+              checked={Boolean(group.group.not)}
+              onChange={(not) => actions.updateGroup(group.id, { not })}
+            />
+            <Button onClick={() => actions.addRule(group.id)}>{resolvedLabels.addRule}</Button>
+            <Button onClick={() => actions.addGroup(group.id)}>{resolvedLabels.addGroup}</Button>
+            {isRoot ? null : (
+              <Button danger onClick={() => actions.removeGroup(group.id)}>
+                {resolvedLabels.removeGroup}
+              </Button>
+            )}
+          </Space>
+          {children.length > 0 ? <Space direction="vertical">{children}</Space> : null}
+        </Space>
+      </Card>
+    );
+  };
+
+  const children = renderGroup(viewModel.root);
+
+  if (slots?.Root) {
+    return slots.Root({ ...slotProps, children });
+  }
+
+  return <div className={classNames?.root}>{children}</div>;
+}
