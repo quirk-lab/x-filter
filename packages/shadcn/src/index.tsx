@@ -1,6 +1,8 @@
 import { useValidatedInput } from '@x-filter/react';
 import type React from 'react';
 
+export * from './components';
+
 export interface ValidatedInputProps {
   placeholder?: string;
   onChange?: (value: string, isValid: boolean) => void;
