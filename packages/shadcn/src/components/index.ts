@@ -18,5 +18,7 @@ export type { ButtonProps, CardProps, CheckboxProps, InputProps, SelectProps } f
 export { Button, Card, Checkbox, cn, Input, Select } from './primitives';
 export type { ShadcnFilterRuleProps } from './rule-row';
 export { ShadcnFilterRule } from './rule-row';
+export type { SortableFilterContextProps } from './sortable-context';
+export { SortableFilterContext } from './sortable-context';
 export type { ShadcnValueEditorProps } from './value-editor';
 export { ShadcnValueEditor } from './value-editor';

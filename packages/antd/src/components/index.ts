@@ -16,5 +16,7 @@ export type { AntdOperatorSelectorProps } from './operator-selector';
 export { AntdOperatorSelector } from './operator-selector';
 export type { AntdFilterRuleProps } from './rule-row';
 export { AntdFilterRule } from './rule-row';
+export type { SortableFilterContextProps } from './sortable-context';
+export { SortableFilterContext } from './sortable-context';
 export type { AntdValueEditorProps } from './value-editor';
 export { AntdValueEditor } from './value-editor';

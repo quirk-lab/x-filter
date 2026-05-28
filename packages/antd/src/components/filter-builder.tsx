@@ -19,6 +19,7 @@ import { AntdFilterGroup } from './group-block';
 import { AntdNotToggle } from './not-toggle';
 import { AntdOperatorSelector } from './operator-selector';
 import { AntdFilterRule } from './rule-row';
+import { SortableFilterContext } from './sortable-context';
 import { AntdValueEditor } from './value-editor';
 
 export interface AntdFilterBuilderProps {
@@ -30,6 +31,7 @@ export interface AntdFilterBuilderProps {
   labels?: FilterBuilderLabels;
   classNames?: FilterBuilderClassNames;
   dsl?: boolean;
+  dnd?: boolean;
 }
 
 const DEFAULT_LABELS = {
@@ -76,6 +78,7 @@ export function AntdFilterBuilder({
   labels,
   classNames,
   dsl,
+  dnd,
 }: AntdFilterBuilderProps) {
   const builder = useFilterBuilder({ value, defaultValue, onChange, schema });
   const viewModel = useFilterViewModel({ filter: builder.filter, schema: builder.schema });
@@ -190,11 +193,107 @@ export function AntdFilterBuilder({
     return renderGroup(node);
   };
 
+  const canMoveChild = (
+    group: FilterGroupViewModel,
+    child: FilterNodeViewModel,
+    targetIndex: number
+  ) => {
+    return (
+      targetIndex >= 0 && targetIndex < group.children.length && actions.canDrop(child.id, group.id)
+    );
+  };
+
+  const moveChild = (
+    group: FilterGroupViewModel,
+    child: FilterNodeViewModel,
+    index: number,
+    direction: 'up' | 'down'
+  ) => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (!canMoveChild(group, child, targetIndex)) return;
+
+    actions.moveItem({
+      type: child.kind,
+      id: child.id,
+      targetGroupId: group.id,
+      targetIndex: child.kind === 'group' && direction === 'down' ? index + 2 : targetIndex,
+    });
+  };
+
+  const handleSortableMove = (group: FilterGroupViewModel, activeId: string, overId: string) => {
+    const activeIndex = group.children.findIndex((child) => child.id === activeId);
+    const overIndex = group.children.findIndex((child) => child.id === overId);
+    if (activeIndex === -1 || overIndex === -1) return;
+
+    const child = group.children[activeIndex];
+    if (!actions.canDrop(child.id, group.id)) return;
+
+    actions.moveItem({
+      type: child.kind,
+      id: child.id,
+      targetGroupId: group.id,
+      targetIndex: child.kind === 'group' && activeIndex < overIndex ? overIndex + 1 : overIndex,
+    });
+  };
+
+  const renderMoveControls = (
+    group: FilterGroupViewModel,
+    child: FilterNodeViewModel,
+    index: number
+  ) => {
+    if (!dnd) return null;
+
+    const canMoveUp = canMoveChild(group, child, index - 1);
+    const canMoveDown = canMoveChild(group, child, index + 1);
+
+    return (
+      <span>
+        <button
+          aria-label={`Move ${child.id} up`}
+          disabled={!canMoveUp}
+          type="button"
+          onClick={() => moveChild(group, child, index, 'up')}
+        >
+          Move {child.id} up
+        </button>
+        <button
+          aria-label={`Move ${child.id} down`}
+          disabled={!canMoveDown}
+          type="button"
+          onClick={() => moveChild(group, child, index, 'down')}
+        >
+          Move {child.id} down
+        </button>
+      </span>
+    );
+  };
+
   const renderGroup = (group: FilterGroupViewModel) => {
-    const children = group.children.map((child) => <div key={child.id}>{renderNode(child)}</div>);
+    const children = group.children.map((child, index) => (
+      <div key={child.id}>
+        {dnd ? (
+          <div>
+            {renderMoveControls(group, child, index)}
+            {renderNode(child)}
+          </div>
+        ) : (
+          renderNode(child)
+        )}
+      </div>
+    ));
+    const orderedChildren = dnd ? (
+      <SortableFilterContext
+        items={group.children.map((child) => child.id)}
+        onMove={(activeId, overId) => handleSortableMove(group, activeId, overId)}
+      >
+        {children}
+      </SortableFilterContext>
+    ) : (
+      children
+    );
 
     if (slots?.Group) {
-      return slots.Group({ ...slotProps, group, children });
+      return slots.Group({ ...slotProps, group, children: orderedChildren });
     }
 
     const isRoot = group.id === viewModel.root.id;
@@ -210,7 +309,7 @@ export function AntdFilterBuilder({
           onNotChange={(groupId, not) => actions.updateGroup(groupId, { not })}
           onRemove={isRoot ? undefined : actions.removeGroup}
         >
-          {children}
+          {orderedChildren}
         </AntdFilterGroup>
       );
     }
@@ -241,7 +340,7 @@ export function AntdFilterBuilder({
               </Button>
             )}
           </Space>
-          {children.length > 0 ? <Space direction="vertical">{children}</Space> : null}
+          {children.length > 0 ? <Space direction="vertical">{orderedChildren}</Space> : null}
         </Space>
       </Card>
     );
