@@ -6,6 +6,8 @@
   "scripts": {
     "build": "pnpm -r run build",
     "dev": "pnpm --filter @x-filter/playground dev",
+    "storybook": "pnpm --filter @x-filter/storybook dev",
+    "storybook:build": "pnpm --filter @x-filter/storybook build",
     "lint": "biome lint .",
     "format": "biome format . --write",
     "check": "biome check .",

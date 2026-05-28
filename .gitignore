@@ -9,6 +9,7 @@ dist/
 coverage/
 apps/*/dist/
 packages/*/dist/
+apps/storybook/storybook-static/
 
 # Logs & diagnostics
 npm-debug.log*
