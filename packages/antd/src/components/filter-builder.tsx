@@ -13,6 +13,7 @@ import { useFilterBuilder, useFilterViewModel, useReorderContract } from '@x-fil
 import { Button, Card, Space } from 'antd';
 import { useMemo } from 'react';
 import { AntdCombinatorSelector } from './combinator-selector';
+import { AntdDslEditor } from './dsl-editor';
 import { AntdFieldSelector } from './field-selector';
 import { AntdFilterGroup } from './group-block';
 import { AntdNotToggle } from './not-toggle';
@@ -28,6 +29,7 @@ export interface AntdFilterBuilderProps {
   slots?: FilterBuilderSlots;
   labels?: FilterBuilderLabels;
   classNames?: FilterBuilderClassNames;
+  dsl?: boolean;
 }
 
 const DEFAULT_LABELS = {
@@ -73,6 +75,7 @@ export function AntdFilterBuilder({
   slots,
   labels,
   classNames,
+  dsl,
 }: AntdFilterBuilderProps) {
   const builder = useFilterBuilder({ value, defaultValue, onChange, schema });
   const viewModel = useFilterViewModel({ filter: builder.filter, schema: builder.schema });
@@ -244,7 +247,25 @@ export function AntdFilterBuilder({
     );
   };
 
-  const children = renderGroup(viewModel.root);
+  const tree = renderGroup(viewModel.root);
+  const dslEditor = dsl ? (
+    <AntdDslEditor
+      className={classNames?.dslEditor}
+      completionMenuClassName={classNames?.completionMenu}
+      filter={builder.filter}
+      labels={labels}
+      schema={builder.schema}
+      onCommit={builder.setFilter}
+    />
+  ) : null;
+  const children = dslEditor ? (
+    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+      {dslEditor}
+      {tree}
+    </Space>
+  ) : (
+    tree
+  );
 
   if (slots?.Root) {
     return slots.Root({ ...slotProps, children });

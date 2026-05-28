@@ -1,5 +1,9 @@
 export type { ShadcnCombinatorSelectorProps } from './combinator-selector';
 export { ShadcnCombinatorSelector } from './combinator-selector';
+export type { ShadcnCompletionMenuProps } from './completion-menu';
+export { ShadcnCompletionMenu } from './completion-menu';
+export type { ShadcnDslEditorProps } from './dsl-editor';
+export { ShadcnDslEditor } from './dsl-editor';
 export type { ShadcnFieldSelectorProps } from './field-selector';
 export { ShadcnFieldSelector } from './field-selector';
 export type { ShadcnFilterBuilderProps } from './filter-builder';

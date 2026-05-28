@@ -12,6 +12,7 @@ import type {
 import { useFilterBuilder, useFilterViewModel, useReorderContract } from '@x-filter/react';
 import { useMemo } from 'react';
 import { ShadcnCombinatorSelector } from './combinator-selector';
+import { ShadcnDslEditor } from './dsl-editor';
 import { ShadcnFieldSelector } from './field-selector';
 import { ShadcnFilterGroup } from './group-block';
 import { ShadcnNotToggle } from './not-toggle';
@@ -28,6 +29,7 @@ export interface ShadcnFilterBuilderProps {
   slots?: FilterBuilderSlots;
   labels?: FilterBuilderLabels;
   classNames?: FilterBuilderClassNames;
+  dsl?: boolean;
 }
 
 const DEFAULT_LABELS = {
@@ -73,6 +75,7 @@ export function ShadcnFilterBuilder({
   slots,
   labels,
   classNames,
+  dsl,
 }: ShadcnFilterBuilderProps) {
   const builder = useFilterBuilder({ value, defaultValue, onChange, schema });
   const viewModel = useFilterViewModel({ filter: builder.filter, schema: builder.schema });
@@ -254,7 +257,25 @@ export function ShadcnFilterBuilder({
     );
   };
 
-  const children = renderGroup(viewModel.root);
+  const tree = renderGroup(viewModel.root);
+  const dslEditor = dsl ? (
+    <ShadcnDslEditor
+      className={classNames?.dslEditor}
+      completionMenuClassName={classNames?.completionMenu}
+      filter={builder.filter}
+      labels={labels}
+      schema={builder.schema}
+      onCommit={builder.setFilter}
+    />
+  ) : null;
+  const children = dslEditor ? (
+    <div className="flex flex-col gap-4">
+      {dslEditor}
+      {tree}
+    </div>
+  ) : (
+    tree
+  );
 
   if (slots?.Root) {
     return slots.Root({ ...slotProps, children });

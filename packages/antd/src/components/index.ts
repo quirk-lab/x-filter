@@ -1,5 +1,9 @@
 export type { AntdCombinatorSelectorProps } from './combinator-selector';
 export { AntdCombinatorSelector } from './combinator-selector';
+export type { AntdCompletionMenuProps } from './completion-menu';
+export { AntdCompletionMenu } from './completion-menu';
+export type { AntdDslEditorProps } from './dsl-editor';
+export { AntdDslEditor } from './dsl-editor';
 export type { AntdFieldSelectorProps } from './field-selector';
 export { AntdFieldSelector } from './field-selector';
 export type { AntdFilterBuilderProps } from './filter-builder';
