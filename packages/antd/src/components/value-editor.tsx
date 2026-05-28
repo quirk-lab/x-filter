@@ -68,13 +68,13 @@ export function AntdValueEditor({
       return (
         <Space.Compact className={className}>
           <InputNumber
-            aria-label="Value"
+            aria-label="Start value"
             disabled={disabled}
             onChange={(value) => onChange(updatePairValue(rule.value, 0, value))}
             value={asOptionalNumber(firstValue)}
           />
           <InputNumber
-            aria-label="Value"
+            aria-label="End value"
             disabled={disabled}
             onChange={(value) => onChange(updatePairValue(rule.value, 1, value))}
             value={asOptionalNumber(secondValue)}
@@ -87,14 +87,14 @@ export function AntdValueEditor({
       return (
         <Space.Compact className={className}>
           <Input
-            aria-label="Value"
+            aria-label="Start value"
             disabled={disabled}
             onChange={(event) => onChange(updatePairValue(rule.value, 0, event.target.value))}
             type="date"
             value={asStringValue(firstValue)}
           />
           <Input
-            aria-label="Value"
+            aria-label="End value"
             disabled={disabled}
             onChange={(event) => onChange(updatePairValue(rule.value, 1, event.target.value))}
             type="date"

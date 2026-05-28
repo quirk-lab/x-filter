@@ -186,13 +186,10 @@ describe('shadcn atomic components', () => {
       />
     );
 
-    const inputs = screen.getAllByLabelText('Value');
-    expect(inputs).toHaveLength(2);
-
-    fireEvent.change(inputs[0], { target: { value: '2026-05-03' } });
+    fireEvent.change(screen.getByLabelText('Start value'), { target: { value: '2026-05-03' } });
     expect(onChange).toHaveBeenCalledWith(['2026-05-03', '2026-05-31']);
 
-    fireEvent.change(inputs[1], { target: { value: '2026-05-28' } });
+    fireEvent.change(screen.getByLabelText('End value'), { target: { value: '2026-05-28' } });
     expect(onChange).toHaveBeenCalledWith(['2026-05-01', '2026-05-28']);
   });
 

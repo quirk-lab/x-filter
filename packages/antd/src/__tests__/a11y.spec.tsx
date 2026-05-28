@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import type { FieldSchema, Filter } from '@x-filter/core';
 import { AntdFilterBuilder } from '../index';
 
@@ -43,10 +43,47 @@ const filter: Filter = {
   ],
 };
 
+const rangeSchema: FieldSchema[] = [
+  {
+    name: 'age',
+    label: 'Age',
+    type: 'number',
+    operators: [{ name: 'between', label: 'between', arity: 'ternary' }],
+  },
+  {
+    name: 'createdAt',
+    label: 'Created at',
+    type: 'date',
+    operators: [{ name: 'between', label: 'between', arity: 'ternary' }],
+  },
+];
+
+const rangeFilter: Filter = {
+  id: 'root',
+  combinator: 'and',
+  conditions: [
+    { id: 'age-range', field: 'age', operator: 'between', value: [18, 65] },
+    {
+      id: 'created-range',
+      field: 'createdAt',
+      operator: 'between',
+      value: ['2026-01-01', '2026-12-31'],
+    },
+  ],
+};
+
 test('AntdFilterBuilder has no obvious accessibility violations with DSL and DnD enabled', async () => {
   const { container } = render(
     <AntdFilterBuilder schema={schema} value={filter} onChange={jest.fn()} dsl dnd />
   );
 
   expectNoAxeViolations(await axe(container));
+});
+
+test('AntdFilterBuilder gives ternary value inputs distinct accessible names', () => {
+  render(<AntdFilterBuilder schema={rangeSchema} value={rangeFilter} onChange={jest.fn()} />);
+
+  expect(screen.getAllByLabelText('Start value')).toHaveLength(2);
+  expect(screen.getAllByLabelText('End value')).toHaveLength(2);
+  expect(screen.queryAllByLabelText('Value')).toHaveLength(0);
 });

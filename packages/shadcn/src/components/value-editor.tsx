@@ -76,7 +76,7 @@ export function ShadcnValueEditor({
       return (
         <div className={cn('flex gap-2', className)}>
           <Input
-            aria-label="Value"
+            aria-label="Start value"
             disabled={disabled}
             onChange={(event) =>
               onChange(updatePairValue(rule.value, 0, parseNumberInput(event.target.value)))
@@ -85,7 +85,7 @@ export function ShadcnValueEditor({
             value={asNumberInputValue(firstValue)}
           />
           <Input
-            aria-label="Value"
+            aria-label="End value"
             disabled={disabled}
             onChange={(event) =>
               onChange(updatePairValue(rule.value, 1, parseNumberInput(event.target.value)))
@@ -101,14 +101,14 @@ export function ShadcnValueEditor({
       return (
         <div className={cn('flex gap-2', className)}>
           <Input
-            aria-label="Value"
+            aria-label="Start value"
             disabled={disabled}
             onChange={(event) => onChange(updatePairValue(rule.value, 0, event.target.value))}
             type="date"
             value={asStringValue(firstValue)}
           />
           <Input
-            aria-label="Value"
+            aria-label="End value"
             disabled={disabled}
             onChange={(event) => onChange(updatePairValue(rule.value, 1, event.target.value))}
             type="date"

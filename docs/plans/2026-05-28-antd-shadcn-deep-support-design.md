@@ -236,4 +236,3 @@ Storybook should show:
 6. Add DSL completion UI and keyboard behavior.
 7. Add DnD integration in both UI packages.
 8. Add Storybook demos and documentation.
-

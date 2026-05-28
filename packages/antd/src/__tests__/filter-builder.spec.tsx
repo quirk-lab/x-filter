@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import type { FieldSchema, Filter, FilterRule } from '@x-filter/core';
+import type { FieldSchema, Filter, FilterRule, ValidationError } from '@x-filter/core';
 import { AntdFilterBuilder, FilteredList } from '../index';
 
 const schema: FieldSchema[] = [
@@ -116,6 +116,29 @@ test('AntdFilterBuilder renders custom ValueEditor slot', () => {
   );
 
   expect(screen.getByText('Custom value')).not.toBeNull();
+});
+
+test('AntdFilterBuilder passes external validation errors to rule slots', () => {
+  const errors: Record<string, ValidationError[]> = {
+    r1: [{ type: 'invalidValue', message: 'Name is invalid' }],
+  };
+
+  render(
+    <AntdFilterBuilder
+      schema={schema}
+      defaultValue={{
+        id: 'root',
+        combinator: 'and',
+        conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
+      }}
+      errors={errors}
+      slots={{
+        Rule: ({ rule }) => <div>{rule.errors[0]?.message ?? 'No errors'}</div>,
+      }}
+    />
+  );
+
+  expect(screen.getByText('Name is invalid')).not.toBeNull();
 });
 
 test('AntdFilterBuilder emits controlled rule updates', () => {
@@ -564,10 +587,8 @@ test('AntdFilterBuilder renders default value editors for supported field types'
       onChange={onChange}
     />
   );
-  const dateRangeInputs = screen.getAllByLabelText('Value');
-  expect(dateRangeInputs).toHaveLength(2);
-  fireEvent.change(dateRangeInputs[0], { target: { value: '2026-05-03' } });
-  fireEvent.change(dateRangeInputs[1], { target: { value: '2026-05-28' } });
+  fireEvent.change(screen.getByLabelText('Start value'), { target: { value: '2026-05-03' } });
+  fireEvent.change(screen.getByLabelText('End value'), { target: { value: '2026-05-28' } });
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
       conditions: [

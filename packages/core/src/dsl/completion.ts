@@ -1,3 +1,4 @@
+import { getOperators } from '../operators';
 import type { FieldSchema, OperatorDef } from '../types';
 import { tokenize } from './tokenize';
 import type { CompletionContext, CompletionItem } from './types';
@@ -55,8 +56,8 @@ export function getDslCompletions(context: CompletionContext): CompletionItem[] 
     const fieldName = colonParts[0];
     const prefix = colonParts[1];
     const field = schema.find((f) => f.name === fieldName);
-    if (!field?.operators) return [];
-    return operatorCompletions(field.operators, prefix);
+    if (!field) return [];
+    return operatorCompletions(getOperators(field.type, field.operators), prefix);
   }
 
   if (colonParts.length >= 3) {

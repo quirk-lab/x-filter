@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import type { FieldSchema, Filter, FilterRule } from '@x-filter/core';
+import type { FieldSchema, Filter, FilterRule, ValidationError } from '@x-filter/core';
 import {
   Button,
   Card,
@@ -123,6 +123,29 @@ test('ShadcnFilterBuilder renders custom ValueEditor slot', () => {
   );
 
   expect(screen.getByText('Custom value')).not.toBeNull();
+});
+
+test('ShadcnFilterBuilder passes external validation errors to rule slots', () => {
+  const errors: Record<string, ValidationError[]> = {
+    r1: [{ type: 'invalidValue', message: 'Name is invalid' }],
+  };
+
+  render(
+    <ShadcnFilterBuilder
+      schema={schema}
+      defaultValue={{
+        id: 'root',
+        combinator: 'and',
+        conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
+      }}
+      errors={errors}
+      slots={{
+        Rule: ({ rule }) => <div>{rule.errors[0]?.message ?? 'No errors'}</div>,
+      }}
+    />
+  );
+
+  expect(screen.getByText('Name is invalid')).not.toBeNull();
 });
 
 test('ShadcnFilterBuilder emits controlled rule updates', () => {
@@ -577,10 +600,8 @@ test('ShadcnFilterBuilder renders default value editors for supported field type
       onChange={onChange}
     />
   );
-  const dateRangeInputs = screen.getAllByLabelText('Value');
-  expect(dateRangeInputs).toHaveLength(2);
-  fireEvent.change(dateRangeInputs[0], { target: { value: '2026-05-03' } });
-  fireEvent.change(dateRangeInputs[1], { target: { value: '2026-05-28' } });
+  fireEvent.change(screen.getByLabelText('Start value'), { target: { value: '2026-05-03' } });
+  fireEvent.change(screen.getByLabelText('End value'), { target: { value: '2026-05-28' } });
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
       conditions: [

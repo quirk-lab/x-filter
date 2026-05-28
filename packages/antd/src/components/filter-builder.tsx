@@ -1,4 +1,4 @@
-import type { FieldSchema, Filter } from '@x-filter/core';
+import type { FieldSchema, Filter, ValidationError } from '@x-filter/core';
 import type {
   FilterBuilderActionHandlers,
   FilterBuilderClassNames,
@@ -30,6 +30,7 @@ export interface AntdFilterBuilderProps {
   slots?: FilterBuilderSlots;
   labels?: FilterBuilderLabels;
   classNames?: FilterBuilderClassNames;
+  errors?: Record<string, ValidationError[]>;
   dsl?: boolean;
   dnd?: boolean;
 }
@@ -77,11 +78,12 @@ export function AntdFilterBuilder({
   slots,
   labels,
   classNames,
+  errors,
   dsl,
   dnd,
 }: AntdFilterBuilderProps) {
   const builder = useFilterBuilder({ value, defaultValue, onChange, schema });
-  const viewModel = useFilterViewModel({ filter: builder.filter, schema: builder.schema });
+  const viewModel = useFilterViewModel({ filter: builder.filter, schema: builder.schema, errors });
   const reorder = useReorderContract({ filter: builder.filter, onReorder: builder.setFilter });
   const resolvedLabels = {
     addRule: labels?.addRule ?? DEFAULT_LABELS.addRule,

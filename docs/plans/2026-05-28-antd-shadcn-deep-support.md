@@ -1510,4 +1510,3 @@ Skip commit if there are no changes.
 - A11y tests cover primary builder states.
 - Storybook demonstrates parity between Ant Design and shadcn.
 - Full workspace verification passes.
-
