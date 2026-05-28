@@ -15,7 +15,28 @@ export interface ShadcnDslEditorProps {
   onCommit: (filter: Filter) => void;
 }
 
-function replaceCurrentSegment(draft: string, cursor: number, value: string) {
+function needsStringQuoting(value: string): boolean {
+  if (value.length === 0) return true;
+  if (!/^[a-zA-Z0-9_.]+$/.test(value)) return true;
+  if (value.includes('..')) return true;
+  const upperValue = value.toUpperCase();
+  if (upperValue === 'AND' || upperValue === 'OR' || upperValue === 'NOT') return true;
+  if (value === 'true' || value === 'false') return true;
+  if (/^\d+(\.\d+)?$/.test(value)) return true;
+  return false;
+}
+
+function formatCompletionValue(item: CompletionItem): string {
+  if (item.kind !== 'value' || !needsStringQuoting(item.value)) {
+    return item.value;
+  }
+
+  return `"${item.value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+}
+
+function replaceCurrentSegment(draft: string, cursor: number, item: CompletionItem) {
+  const value = formatCompletionValue(item);
+
   if (draft === '()') {
     return { nextDraft: value, nextCursor: value.length };
   }
@@ -60,11 +81,7 @@ export function ShadcnDslEditor({
 
   const applyCompletion = (item: CompletionItem) => {
     const cursorPosition = cursor ?? editor.draftDSL.length;
-    const { nextDraft, nextCursor } = replaceCurrentSegment(
-      editor.draftDSL,
-      cursorPosition,
-      item.value
-    );
+    const { nextDraft, nextCursor } = replaceCurrentSegment(editor.draftDSL, cursorPosition, item);
 
     editor.setDraftDSL(nextDraft);
     setCursor(nextCursor);

@@ -14,6 +14,8 @@ const schema: FieldSchema[] = [
     values: [
       { value: 'open', label: 'Open' },
       { value: 'closed', label: 'Closed' },
+      { value: 'in progress', label: 'In progress' },
+      { value: 'true', label: 'True string' },
     ],
   },
   {
@@ -76,6 +78,21 @@ test('AntdFilterBuilder applies completions with keyboard navigation and closes 
   fireEvent.keyDown(input, { key: 'Escape' });
 
   expect(screen.queryByRole('listbox')).toBeNull();
+});
+
+test('AntdFilterBuilder quotes value completions that need DSL string quoting', () => {
+  render(<AntdFilterBuilder schema={schema} value={filter} dsl />);
+
+  const input = screen.getByLabelText(/dsl/i);
+  fireEvent.change(input, { target: { value: 'status:equals:in' } });
+  fireEvent.click(screen.getByRole('option', { name: /in progress/i }));
+
+  expect(input).toHaveProperty('value', 'status:equals:"in progress"');
+
+  fireEvent.change(input, { target: { value: 'status:equals:tr' } });
+  fireEvent.click(screen.getByRole('option', { name: /true string/i }));
+
+  expect(input).toHaveProperty('value', 'status:equals:"true"');
 });
 
 test('AntdFilterBuilder omits DSL input unless dsl is true', () => {
