@@ -2,6 +2,9 @@ const path = require('node:path');
 
 const jsdomProjects = new Set(['react', 'playground', 'antd', 'shadcn', 'web']);
 const apps = new Set(['playground', 'web']);
+const hasExplicitTestFile = process.argv.some(
+  (arg) => arg.includes('/src/__tests__/') && /\.spec\.tsx?$/.test(arg)
+);
 
 const makeProject = (name) => {
   const isApp = apps.has(name);
@@ -34,7 +37,7 @@ const makeProject = (name) => {
 };
 
 module.exports = {
-  collectCoverage: true,
+  collectCoverage: !hasExplicitTestFile,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'html'],
   coverageThreshold: {
