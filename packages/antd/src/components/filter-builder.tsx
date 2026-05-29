@@ -18,6 +18,7 @@ import { AntdFieldSelector } from './field-selector';
 import { AntdFilterGroup } from './group-block';
 import { AntdNotToggle } from './not-toggle';
 import { AntdOperatorSelector } from './operator-selector';
+import { getDefaultRuleUpdatesForField } from './rule-defaults';
 import { AntdFilterRule } from './rule-row';
 import { SortableFilterContext, SortableFilterItem } from './sortable-context';
 import { AntdValueEditor } from './value-editor';
@@ -161,7 +162,9 @@ export function AntdFilterBuilder({
             className={classNames?.fieldSelector}
             rule={rule.rule}
             schema={builder.schema}
-            onChange={(field) => actions.updateRule(rule.id, { field })}
+            onChange={(field) =>
+              actions.updateRule(rule.id, getDefaultRuleUpdatesForField(builder.schema, field))
+            }
           />
         )}
         {OperatorSelector ? (

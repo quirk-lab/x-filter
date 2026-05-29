@@ -18,6 +18,7 @@ const KEYWORDS: Record<string, TokenType> = {
 };
 
 const isAlphaNumeric = (ch: string): boolean => /[a-zA-Z0-9_]/.test(ch);
+const isDigit = (ch: string): boolean => /[0-9]/.test(ch);
 
 function scanString(input: string, pos: number): { value: string; end: number; ok: boolean } {
   let i = pos;
@@ -64,6 +65,24 @@ function scanIdentifier(input: string, pos: number): { value: string; end: numbe
   return { value: input.slice(pos, i), end: i };
 }
 
+function scanSignedNumber(input: string, pos: number): { value: string; end: number } {
+  let i = pos;
+  if (input[i] === '-') i++;
+
+  while (i < input.length && isDigit(input[i])) {
+    i++;
+  }
+
+  if (input[i] === '.' && i + 1 < input.length && input[i + 1] !== '.' && isDigit(input[i + 1])) {
+    i++;
+    while (i < input.length && isDigit(input[i])) {
+      i++;
+    }
+  }
+
+  return { value: input.slice(pos, i), end: i };
+}
+
 export function tokenize(input: string): Token[] {
   const tokens: Token[] = [];
   let pos = 0;
@@ -103,6 +122,14 @@ export function tokenize(input: string): Token[] {
           errorCode: 'UNTERMINATED_STRING',
         });
       }
+      pos = result.end;
+      continue;
+    }
+
+    if (ch === '-' && pos + 1 < input.length && isDigit(input[pos + 1])) {
+      const start = pos;
+      const result = scanSignedNumber(input, pos);
+      tokens.push({ type: 'IDENTIFIER', value: result.value, start, end: result.end });
       pos = result.end;
       continue;
     }

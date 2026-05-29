@@ -4,6 +4,7 @@ import { ShadcnFieldSelector } from './field-selector';
 import { ShadcnNotToggle } from './not-toggle';
 import { ShadcnOperatorSelector } from './operator-selector';
 import { Button, cn } from './primitives';
+import { getDefaultRuleUpdatesForField } from './rule-defaults';
 import { ShadcnValueEditor } from './value-editor';
 
 export interface ShadcnFilterRuleProps {
@@ -34,7 +35,7 @@ export function ShadcnFilterRule({
       <ShadcnFieldSelector
         schema={schema}
         rule={rule.rule}
-        onChange={(field) => onChange(rule.id, { field })}
+        onChange={(field) => onChange(rule.id, getDefaultRuleUpdatesForField(schema, field))}
       />
       <ShadcnOperatorSelector
         field={rule.field}

@@ -95,6 +95,67 @@ describe('useReorderContract', () => {
       expect(newFilter.conditions[1]).toMatchObject({ id: 'r1' });
       expect(newFilter.conditions[2]).toMatchObject({ id: 'r2' });
     });
+
+    it('moves a group into a non-descendant nested group', () => {
+      const onReorder = jest.fn();
+      const filter: Filter = {
+        id: 'root',
+        combinator: 'and',
+        conditions: [
+          { id: 'g1', combinator: 'and', conditions: [] },
+          { id: 'g2', combinator: 'or', conditions: [] },
+        ],
+      };
+      const { result } = renderHook(() => useReorderContract({ filter, onReorder }));
+
+      act(() => {
+        result.current.moveItem({
+          type: 'group',
+          id: 'g1',
+          targetGroupId: 'g2',
+          targetIndex: 0,
+        });
+      });
+
+      const newFilter = onReorder.mock.calls[0][0] as Filter;
+      const g2 = newFilter.conditions[0] as Filter;
+      expect(g2).toMatchObject({
+        id: 'g2',
+        conditions: [expect.objectContaining({ id: 'g1' })],
+      });
+    });
+
+    it('throws before reordering when moving the root group', () => {
+      const onReorder = jest.fn();
+      const filter = makeFilter();
+      const { result } = renderHook(() => useReorderContract({ filter, onReorder }));
+
+      expect(() =>
+        result.current.moveItem({
+          type: 'group',
+          id: 'root',
+          targetGroupId: 'g1',
+          targetIndex: 0,
+        })
+      ).toThrow('Cannot move root group');
+      expect(onReorder).not.toHaveBeenCalled();
+    });
+
+    it('throws before reordering when a group target does not exist', () => {
+      const onReorder = jest.fn();
+      const filter = makeFilter();
+      const { result } = renderHook(() => useReorderContract({ filter, onReorder }));
+
+      expect(() =>
+        result.current.moveItem({
+          type: 'group',
+          id: 'g1',
+          targetGroupId: 'missing',
+          targetIndex: 0,
+        })
+      ).toThrow('Target group not found: missing');
+      expect(onReorder).not.toHaveBeenCalled();
+    });
   });
 
   describe('canDrop', () => {

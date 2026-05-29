@@ -161,6 +161,27 @@ describe('toSQL', () => {
     expect(result.params).toEqual([18, 65]);
   });
 
+  it('in: status IN (?, ?) with array params', () => {
+    const filter: FilterAny = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [{ id: 'r1', field: 'status', operator: 'in', value: ['open', 'closed'] }],
+    };
+    const result = toSQL(filter);
+    expect(result.sql).toBe('status IN (?, ?)');
+    expect(result.params).toEqual(['open', 'closed']);
+  });
+
+  it('empty in array produces a false predicate', () => {
+    const filter: FilterAny = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [{ id: 'r1', field: 'status', operator: 'in', value: [] }],
+    };
+    const result = toSQL(filter);
+    expect(result).toEqual({ sql: '1 = 0', params: [] });
+  });
+
   it('before (date): birthday < ?', () => {
     const filter: FilterAny = {
       id: 'root',
@@ -332,14 +353,49 @@ describe('toSQL', () => {
     expect(result.params).toEqual(['John']);
   });
 
-  it('unknown operator falls back to field operator value pattern', () => {
+  it('rejects unsupported operators instead of interpolating them', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
       conditions: [{ id: 'r1', field: 'score', operator: 'customOp', value: 42 }],
     };
-    const result = toSQL(filter);
-    expect(result.sql).toBe('score customOp ?');
-    expect(result.params).toEqual([42]);
+    expect(() => toSQL(filter)).toThrow('Unsupported SQL operator: customOp');
+  });
+
+  it('rejects unsafe field identifiers', () => {
+    const filter: FilterAny = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [{ id: 'r1', field: 'name) OR 1=1 --', operator: 'equals', value: 'x' }],
+    };
+    expect(() => toSQL(filter)).toThrow('Unsafe SQL field identifier');
+  });
+
+  it('rejects invalid runtime combinators', () => {
+    const filter = {
+      id: 'root',
+      combinator: 'or); DROP TABLE users; --',
+      conditions: [
+        { id: 'r1', field: 'name', operator: 'equals', value: 'x' },
+        { id: 'r2', field: 'age', operator: 'gt', value: 1 },
+      ],
+    } as unknown as FilterAny;
+
+    expect(() => toSQL(filter)).toThrow('Invalid SQL combinator');
+  });
+
+  it('maps public fields through a SQL field map and quotes identifiers', () => {
+    const filter: FilterAny = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [{ id: 'r1', field: 'userName', operator: 'equals', value: 'Ada' }],
+    };
+
+    const result = toSQL(filter, {
+      fieldMap: { userName: 'users.name' },
+      quoteIdentifier: (identifier) => `"${identifier}"`,
+    });
+
+    expect(result).toEqual({ sql: '"users"."name" = ?', params: ['Ada'] });
   });
 });

@@ -160,7 +160,9 @@ test('AntdFilterBuilder emits controlled rule updates', () => {
 
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'r1', field: 'age' })],
+      conditions: [
+        expect.objectContaining({ id: 'r1', field: 'age', operator: 'gt', value: null }),
+      ],
     })
   );
 });

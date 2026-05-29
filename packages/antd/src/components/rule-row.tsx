@@ -4,6 +4,7 @@ import { Button, Space } from 'antd';
 import { AntdFieldSelector } from './field-selector';
 import { AntdNotToggle } from './not-toggle';
 import { AntdOperatorSelector } from './operator-selector';
+import { getDefaultRuleUpdatesForField } from './rule-defaults';
 import { AntdValueEditor } from './value-editor';
 
 export interface AntdFilterRuleProps {
@@ -36,7 +37,7 @@ export function AntdFilterRule({
       <AntdFieldSelector
         schema={schema}
         rule={rule.rule}
-        onChange={(field) => onChange(rule.id, { field })}
+        onChange={(field) => onChange(rule.id, getDefaultRuleUpdatesForField(schema, field))}
       />
       <AntdOperatorSelector
         field={rule.field}

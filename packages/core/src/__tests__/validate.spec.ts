@@ -272,6 +272,97 @@ describe('validate', () => {
     expect(result.errors.r1[0].type).toBe('invalidValue');
   });
 
+  it('invalid group combinator is reported on the group id', () => {
+    const filter = {
+      id: 'root',
+      combinator: 'xor',
+      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
+    } as unknown as FilterAny;
+
+    const result = validate(filter, schema);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors.root[0].type).toBe('invalidCombinator');
+  });
+
+  it('invalid standard group condition shape is reported on the group id', () => {
+    const filter = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [{ id: 'bad-condition' }],
+    } as unknown as FilterAny;
+
+    const result = validate(filter, schema);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors.root[0].type).toBe('invalidGroup');
+  });
+
+  it('invalid IC combinator sequence is reported on the IC group id', () => {
+    const filter: FilterAny = {
+      id: 'root',
+      conditions: [
+        { id: 'r1', field: 'name', operator: 'equals', value: 'Ada' },
+        'and',
+        'or',
+        { id: 'r2', field: 'age', operator: 'gt', value: 18 },
+      ],
+    };
+
+    const result = validate(filter, schema);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors.root[0].type).toBe('invalidCombinator');
+  });
+
+  it('invalid IC condition shape is reported on the IC group id', () => {
+    const filter = {
+      id: 'root',
+      conditions: [{ id: 'bad-condition' }],
+    } as unknown as FilterAny;
+
+    const result = validate(filter, schema);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors.root[0].type).toBe('invalidGroup');
+  });
+
+  it('select value must be one of schema values when values are provided', () => {
+    const filter: FilterAny = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [{ id: 'r1', field: 'status', operator: 'equals', value: 'archived' }],
+    };
+
+    const result = validate(filter, schema);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors.r1[0].type).toBe('invalidValue');
+    expect(result.errors.r1[0].message).toContain('allowed option');
+  });
+
+  it('multiSelect array values must all be strings and allowed options when values are provided', () => {
+    const taggedSchema: FieldSchema[] = [
+      ...schema.filter((field) => field.name !== 'tags'),
+      {
+        name: 'tags',
+        label: 'Tags',
+        type: 'multiSelect',
+        values: [{ value: 'vip', label: 'VIP' }],
+      },
+    ];
+    const filter: FilterAny = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [{ id: 'r1', field: 'tags', operator: 'contains', value: ['vip', 'trial'] }],
+    };
+
+    const result = validate(filter, taggedSchema);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors.r1[0].type).toBe('invalidValue');
+  });
+
   it('invalid select value (number instead of string) → invalidValue', () => {
     const filter: FilterAny = {
       id: 'root',

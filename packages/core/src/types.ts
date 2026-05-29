@@ -54,7 +54,13 @@ export interface ValidationResult {
 }
 
 export interface ValidationError {
-  type: 'invalidField' | 'invalidOperator' | 'invalidValue' | 'missingValue';
+  type:
+    | 'invalidField'
+    | 'invalidOperator'
+    | 'invalidValue'
+    | 'missingValue'
+    | 'invalidGroup'
+    | 'invalidCombinator';
   message: string;
 }
 

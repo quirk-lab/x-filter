@@ -25,7 +25,7 @@ function isIdentLike(token: Token): boolean {
 function interpretBareValue(text: string): ASTValue {
   if (text === 'true') return { type: 'boolean', value: true };
   if (text === 'false') return { type: 'boolean', value: false };
-  if (/^\d+(\.\d+)?$/.test(text)) return { type: 'number', value: Number(text) };
+  if (/^-?\d+(\.\d+)?$/.test(text)) return { type: 'number', value: Number(text) };
   return { type: 'string', value: text };
 }
 

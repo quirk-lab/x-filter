@@ -18,6 +18,7 @@ import { ShadcnFilterGroup } from './group-block';
 import { ShadcnNotToggle } from './not-toggle';
 import { ShadcnOperatorSelector } from './operator-selector';
 import { Button, Card, cn } from './primitives';
+import { getDefaultRuleUpdatesForField } from './rule-defaults';
 import { ShadcnFilterRule } from './rule-row';
 import { SortableFilterContext, SortableFilterItem } from './sortable-context';
 import { ShadcnValueEditor } from './value-editor';
@@ -159,7 +160,9 @@ export function ShadcnFilterBuilder({
             className={classNames?.fieldSelector}
             rule={rule.rule}
             schema={builder.schema}
-            onChange={(field) => actions.updateRule(rule.id, { field })}
+            onChange={(field) =>
+              actions.updateRule(rule.id, getDefaultRuleUpdatesForField(builder.schema, field))
+            }
           />
         )}
         {OperatorSelector ? (

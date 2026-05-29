@@ -313,7 +313,7 @@ describe('Ant Design atomic components', () => {
     fireEvent.click(within(ruleControls).getByRole('button', { name: 'Remove rule' }));
 
     expect(onRuleChange).toHaveBeenCalledWith('r1', { not: true });
-    expect(onRuleChange).toHaveBeenCalledWith('r1', { field: 'age' });
+    expect(onRuleChange).toHaveBeenCalledWith('r1', { field: 'age', operator: 'gt', value: null });
     expect(onRuleChange).toHaveBeenCalledWith('r1', { operator: 'contains' });
     expect(onRuleChange).toHaveBeenCalledWith('r1', { value: 'Katherine' });
     expect(onRemoveRule).toHaveBeenCalledWith('r1');

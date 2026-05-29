@@ -117,6 +117,17 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     expect(result.conditions[0]).toMatchObject({ field: 'age', operator: 'gt', value: 42 });
   });
 
+  it('negative number value', () => {
+    const dsl = formatDSL({
+      id: 'x',
+      combinator: 'and',
+      conditions: [{ id: 'y', field: 'balance', operator: 'lt', value: -5 }],
+    });
+    resetIds();
+    const result = parseDSL(dsl, testIdGen);
+    expect(result.conditions[0]).toMatchObject({ field: 'balance', operator: 'lt', value: -5 });
+  });
+
   it('boolean value', () => {
     const dsl = formatDSL({
       id: 'x',
@@ -249,6 +260,16 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
       field: 'age',
       operator: 'between',
       value: [18, 65],
+    });
+  });
+
+  it('negative range DSL string is correctly parsed', () => {
+    resetIds();
+    const filter = parseDSL('temperature:between:{-10..10}', testIdGen);
+    expect(filter.conditions[0]).toMatchObject({
+      field: 'temperature',
+      operator: 'between',
+      value: [-10, 10],
     });
   });
 
