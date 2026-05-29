@@ -1,0 +1,46 @@
+export const metadata = {
+  title: '部署',
+  description: '将 X-Filter 文档网站作为完全静态的 Vercel 导出部署。',
+};
+
+# 部署
+
+文档网站是完全静态的 Next.js 导出。它不依赖 redirects、rewrites、cookies、Server Actions 或请求时 route handlers。
+
+## Vercel 设置
+
+把 monorepo 根目录作为项目目录，并把 web 包作为构建目标。
+
+```bash
+pnpm --filter @x-filter/web... build
+```
+
+构建会把静态文件写入：
+
+```text
+apps/web/out
+```
+
+## 静态导出约束
+
+网站有意使用显式路由，而不是框架级 i18n 路由：
+
+| 语言 | 路由形态 |
+| --- | --- |
+| 英文 | `/docs`, `/playground`, `/changelog` |
+| 中文 | `/zh/docs`, `/zh/playground`, `/zh/changelog` |
+
+这让网站兼容 `output: 'export'`，并避免运行时语言检测。
+
+## 本地预览
+
+```bash
+pnpm --filter @x-filter/web... build
+pnpm --filter @x-filter/web preview
+```
+
+## 说明
+
+- 图片按静态导出配置为 unoptimized。
+- 文档 shell 是自定义的，MDX 页面由 Nextra 编译。
+- web 构建前会先构建 workspace 包，便于 Vercel 解析包导出。

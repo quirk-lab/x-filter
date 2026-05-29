@@ -1,0 +1,46 @@
+import { AdapterParityDemo } from '../../../src/components/demos/adapter-parity-demo';
+
+export const metadata = {
+  title: '文档',
+  description: '了解 X-Filter 如何建模过滤器、渲染适配器并导出查询输出。',
+};
+
+# 文档
+
+X-Filter 是面向 React 应用的过滤器构建工具包，适用于需要可移植查询模型的产品。核心包负责过滤器树、校验、JSON 序列化、DSL 格式化、解析和 SQL 生成。UI 包则用产品原生适配器渲染同一份状态。
+
+<div className="callout">
+  npm 包计划以预发布版本提供。本地 workspace 包名已经稳定：`@x-filter/core`、`@x-filter/react`、`@x-filter/antd` 和 `@x-filter/shadcn`。
+</div>
+
+## 包职责
+
+| 包 | 职责 |
+| --- | --- |
+| `@x-filter/core` | 过滤器类型、不可变变更、校验、JSON、DSL 和 SQL 工具。 |
+| `@x-filter/react` | 构建器、DSL 编辑、URL 同步和 view model 的 hooks。 |
+| `@x-filter/antd` | 基于共享 React 契约的 Ant Design 过滤器构建组件。 |
+| `@x-filter/shadcn` | 基于同一契约的 shadcn 风格原语和构建组件。 |
+
+## 架构
+
+1. 定义类型化字段 schema。
+2. 在应用状态中保存 `Filter` 树。
+3. 使用适配器渲染这棵树。
+4. 校验并导出 JSON、DSL 或参数化 SQL。
+
+```tsx
+import { validate } from '@x-filter/core';
+import { formatDSL } from '@x-filter/core/dsl';
+import { toSQL } from '@x-filter/core/sql';
+
+const validation = validate(filter, schema);
+const dsl = formatDSL(filter);
+const sql = toSQL(filter, { fieldMap: { status: 'tickets.status' } });
+```
+
+## 一致性演示
+
+<AdapterParityDemo locale="zh" />
+
+继续阅读[快速开始](/zh/docs/getting-started)，接入第一个构建器。

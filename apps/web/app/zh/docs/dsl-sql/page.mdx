@@ -1,0 +1,57 @@
+export const metadata = {
+  title: 'DSL 与 SQL',
+  description: '将 X-Filter 树格式化、解析并导出为 DSL 和参数化 SQL。',
+};
+
+# DSL 与 SQL
+
+X-Filter 让可视化构建器和文本工作流保持一致。同一份 `Filter` 可以序列化为 JSON、格式化为 DSL、从 DSL 解析回来，并转换为参数化 SQL。
+
+## DSL 格式
+
+```ts
+import { formatDSL, tryParseDSL } from '@x-filter/core/dsl';
+
+const dsl = formatDSL(filter);
+const parsed = tryParseDSL('status:equals:open AND amount:gt:1000');
+```
+
+DSL 条件使用 `field:operator:value`。分组和布尔逻辑是显式的：
+
+```text
+accountTier:equals:enterprise AND (contractValue:gt:50000 OR ownerActive:equals:true)
+```
+
+## SQL 生成
+
+SQL 输出是参数化的，返回 `{ sql, params }`。
+
+```ts
+import { toSQL } from '@x-filter/core/sql';
+
+const result = toSQL(filter, {
+  fieldMap: {
+    accountTier: 'accounts.tier',
+    contractValue: 'contracts.arr',
+  },
+});
+```
+
+## 安全模型
+
+使用 `fieldMap` 把公开字段名映射到数据库标识符。生成 SQL 前会检查标识符，所有值都会放入 `params` 数组。
+
+<div className="callout callout--warm">
+  SQL 生成是集成辅助工具，不是授权层。租户、权限和行级安全检查仍应保留在后端。
+</div>
+
+## 校验顺序
+
+先校验，再导出：
+
+```ts
+const validation = validate(filter, schema);
+if (!validation.valid) return validation.errors;
+
+return toSQL(filter, { fieldMap });
+```

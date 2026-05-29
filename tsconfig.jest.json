@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "paths": {
+      "@x-filter/antd": ["packages/antd/src"],
+      "@x-filter/antd/*": ["packages/antd/src/*"],
+      "@x-filter/core": ["packages/core/src"],
+      "@x-filter/core/*": ["packages/core/src/*"],
+      "@x-filter/react": ["packages/react/src"],
+      "@x-filter/react/*": ["packages/react/src/*"],
+      "@x-filter/shadcn": ["packages/shadcn/src"],
+      "@x-filter/shadcn/*": ["packages/shadcn/src/*"],
+      "@x-filter/utils": ["packages/utils/src"],
+      "@x-filter/utils/*": ["packages/utils/src/*"]
+    }
+  }
+}

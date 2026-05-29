@@ -1,0 +1,57 @@
+export const metadata = {
+  title: 'DSL and SQL',
+  description: 'Format, parse, and export X-Filter trees as DSL and parameterized SQL.',
+};
+
+# DSL and SQL
+
+X-Filter keeps the visual builder and text-based workflows aligned. The same `Filter` can be serialized to JSON, formatted as DSL, parsed back from DSL, and converted to parameterized SQL.
+
+## DSL format
+
+```ts
+import { formatDSL, tryParseDSL } from '@x-filter/core/dsl';
+
+const dsl = formatDSL(filter);
+const parsed = tryParseDSL('status:equals:open AND amount:gt:1000');
+```
+
+DSL conditions use `field:operator:value`. Groups and boolean logic are explicit:
+
+```text
+accountTier:equals:enterprise AND (contractValue:gt:50000 OR ownerActive:equals:true)
+```
+
+## SQL generation
+
+SQL output is parameterized and returns `{ sql, params }`.
+
+```ts
+import { toSQL } from '@x-filter/core/sql';
+
+const result = toSQL(filter, {
+  fieldMap: {
+    accountTier: 'accounts.tier',
+    contractValue: 'contracts.arr',
+  },
+});
+```
+
+## Safety model
+
+Use `fieldMap` to map public field names to database identifiers. Identifiers are checked before SQL is emitted, and values are always placed into the `params` array.
+
+<div className="callout callout--warm">
+  SQL generation is an integration helper, not an authorization layer. Keep tenant, permission, and row-level security checks in your backend.
+</div>
+
+## Validation order
+
+Validate first, then export:
+
+```ts
+const validation = validate(filter, schema);
+if (!validation.valid) return validation.errors;
+
+return toSQL(filter, { fieldMap });
+```

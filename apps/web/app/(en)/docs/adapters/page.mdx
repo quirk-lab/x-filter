@@ -1,0 +1,61 @@
+import { AdapterParityDemo } from '../../../../src/components/demos/adapter-parity-demo';
+
+export const metadata = {
+  title: 'Adapters',
+  description: 'Use X-Filter Ant Design and shadcn adapters with the same core state.',
+};
+
+# Adapters
+
+Adapters render the same `Filter` tree and the same schema. This keeps product teams free to match a design system without forking query semantics.
+
+## Ant Design
+
+```tsx
+import { AntdFilterBuilder } from '@x-filter/antd';
+
+<AntdFilterBuilder
+  dsl
+  errors={validation.errors}
+  labels={{
+    addRule: 'Add rule',
+    addGroup: 'Add group',
+    removeRule: 'Remove rule',
+    removeGroup: 'Remove group',
+  }}
+  schema={schema}
+  value={filter}
+  onChange={setFilter}
+/>;
+```
+
+## shadcn
+
+```tsx
+import { ShadcnFilterBuilder } from '@x-filter/shadcn';
+
+<ShadcnFilterBuilder
+  dsl
+  errors={validation.errors}
+  schema={schema}
+  value={filter}
+  onChange={setFilter}
+/>;
+```
+
+## Shared contract
+
+Both adapters accept:
+
+| Prop | Purpose |
+| --- | --- |
+| `schema` | Field model used by selectors, value editors, and validation. |
+| `value` | Controlled `Filter` tree. |
+| `onChange` | Receives the next `Filter` tree after mutations. |
+| `errors` | Validation errors keyed by rule or group id. |
+| `dsl` | Enables the DSL editor above the visual builder. |
+| `dnd` | Enables drag-and-drop and keyboard move controls. |
+
+## Try both adapters
+
+<AdapterParityDemo locale="en" />

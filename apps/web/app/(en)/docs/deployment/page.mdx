@@ -1,0 +1,46 @@
+export const metadata = {
+  title: 'Deployment',
+  description: 'Deploy the X-Filter docs website as a fully static Vercel export.',
+};
+
+# Deployment
+
+The docs website is a fully static Next.js export. It does not depend on redirects, rewrites, cookies, Server Actions, or request-time route handlers.
+
+## Vercel settings
+
+Use the root of the monorepo as the project directory and the web package as the build target.
+
+```bash
+pnpm --filter @x-filter/web... build
+```
+
+The build writes static files to:
+
+```text
+apps/web/out
+```
+
+## Static export constraints
+
+The site intentionally uses explicit routes instead of framework i18n routing:
+
+| Locale | Route shape |
+| --- | --- |
+| English | `/docs`, `/playground`, `/changelog` |
+| Chinese | `/zh/docs`, `/zh/playground`, `/zh/changelog` |
+
+This keeps the site compatible with `output: 'export'` and avoids runtime locale detection.
+
+## Local preview
+
+```bash
+pnpm --filter @x-filter/web... build
+pnpm --filter @x-filter/web preview
+```
+
+## Notes
+
+- Images are configured as unoptimized for static export.
+- The docs shell is custom, while Nextra compiles MDX pages.
+- Workspace packages are built before the web build so Vercel can resolve package exports.

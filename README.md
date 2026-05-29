@@ -14,7 +14,7 @@ packages/
 
 apps/
 ├── playground/ # 开发调试应用
-└── web/        # 官网应用
+└── web/        # 静态文档官网和交互 demo
 ```
 
 ## 🚀 快速开始
@@ -39,6 +39,14 @@ pnpm dev
 
 这将启动 playground 应用，访问 http://localhost:5173
 
+### 启动文档官网
+
+```bash
+pnpm --filter @x-filter/web dev
+```
+
+文档官网使用 Next.js 静态导出、Nextra MDX 编译和显式双语路由。英文为默认路由，中文在 `/zh` 下。
+
 ### 开发单个包
 
 ```bash
@@ -53,6 +61,8 @@ pnpm dev
 
 - `pnpm build` - 构建所有包
 - `pnpm dev` - 启动 playground 开发服务器
+- `pnpm --filter @x-filter/web dev` - 启动文档官网
+- `pnpm --filter @x-filter/web... build` - 构建静态官网及其依赖到 `apps/web/out`
 - `pnpm lint` - 运行 Biome 代码检查
 - `pnpm format` - 格式化代码
 - `pnpm typecheck` - 类型检查
@@ -75,7 +85,7 @@ apps (依赖 UI 包)
 ## 🔧 技术栈
 
 - **包管理**: pnpm 9.x
-- **构建工具**: tsup (库包), Vite (应用)
+- **构建工具**: tsup (库包), Vite (playground), Next.js/Nextra (web)
 - **代码规范**: Biome
 - **Git Hooks**: Husky
 - **CI/CD**: GitHub Actions

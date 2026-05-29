@@ -8,6 +8,7 @@ export interface ShadcnFieldSelectorProps {
   value?: string;
   disabled?: boolean;
   className?: string;
+  label?: string;
   onChange: (fieldName: string) => void;
 }
 
@@ -17,16 +18,17 @@ export function ShadcnFieldSelector({
   value,
   disabled,
   className,
+  label = 'Field',
   onChange,
 }: ShadcnFieldSelectorProps) {
   return (
     <Select
-      aria-label="Field"
+      aria-label={label}
       className={className}
       disabled={disabled}
       onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange(event.target.value)}
       options={schema.map((field) => ({ value: field.name, label: field.label }))}
-      placeholder="Select field"
+      placeholder={label}
       value={value ?? rule?.field ?? ''}
     />
   );

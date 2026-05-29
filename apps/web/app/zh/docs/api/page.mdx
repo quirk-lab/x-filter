@@ -1,0 +1,64 @@
+export const metadata = {
+  title: 'API 参考',
+  description: '查看 X-Filter 核心类型、工具函数、React hooks 和适配器属性。',
+};
+
+# API 参考
+
+这里列出文档和示例使用的稳定接口。
+
+## 核心类型
+
+| 类型 | 说明 |
+| --- | --- |
+| `FieldSchema` | 字段名、标签、类型、取值、默认操作符和默认值。 |
+| `FilterRule` | 单个条件，包含 `field`、`operator`、`value` 和可选 `not`。 |
+| `FilterGroup` | 包含 `combinator`、可选 `not` 和嵌套条件的分组。 |
+| `Filter` | 根 `FilterGroup` 的别名。 |
+| `ValidationResult` | schema 校验后的 `{ valid, errors }`。 |
+
+## 核心工具
+
+| 工具 | 说明 |
+| --- | --- |
+| `createFilter` | 创建空过滤器分组。 |
+| `createRule` | 用生成或指定的 id 创建规则。 |
+| `addRule`, `removeRule`, `updateRule` | 不可变地变更规则集合。 |
+| `addGroup`, `removeGroup`, `updateGroup` | 不可变地变更嵌套分组。 |
+| `validate` | 检查字段、操作符、值、组合器和分组。 |
+| `toJSON`, `fromJSON` | 为存储和 URL 序列化过滤器。 |
+
+## DSL 与 SQL 工具
+
+| 工具 | 说明 |
+| --- | --- |
+| `formatDSL` | 把 `Filter` 转换为文本 DSL。 |
+| `tryParseDSL` | 把文本解析为 `Filter`，并提供结构化解析错误。 |
+| `getDslCompletions` | 为 DSL 编辑器构建补全项。 |
+| `toSQL` | 把过滤器转换为 `{ sql, params }`。 |
+
+## React hooks
+
+| Hook | 说明 |
+| --- | --- |
+| `useFilterBuilder` | 受控或非受控的过滤器变更工具。 |
+| `useFilterViewModel` | 为适配器渲染构建可访问 view model。 |
+| `useFilterDsl` | 管理 DSL 草稿、提交和解析错误。 |
+| `useFilterUrlSync` | 通过 URL search params 编码和解码过滤器。 |
+| `useReorderContract` | 嵌套分组的共享移动和放置规则。 |
+
+## 适配器组件
+
+`AntdFilterBuilder` 和 `ShadcnFilterBuilder` 使用相同属性契约：
+
+```ts
+type FilterBuilderProps = {
+  schema: FieldSchema[];
+  value?: Filter;
+  defaultValue?: Filter;
+  onChange?: (filter: Filter) => void;
+  errors?: Record<string, ValidationError[]>;
+  dsl?: boolean;
+  dnd?: boolean;
+};
+```

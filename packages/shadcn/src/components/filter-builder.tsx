@@ -151,6 +151,7 @@ export function ShadcnFilterBuilder({
       >
         <ShadcnNotToggle
           checked={Boolean(rule.rule.not)}
+          label={labels?.not}
           onChange={(not) => actions.updateRule(rule.id, { not })}
         />
         {FieldSelector ? (
@@ -158,6 +159,7 @@ export function ShadcnFilterBuilder({
         ) : (
           <ShadcnFieldSelector
             className={classNames?.fieldSelector}
+            label={labels?.field}
             rule={rule.rule}
             schema={builder.schema}
             onChange={(field) =>
@@ -171,6 +173,7 @@ export function ShadcnFilterBuilder({
           <ShadcnOperatorSelector
             className={classNames?.operatorSelector}
             field={rule.field}
+            label={labels?.operator}
             rule={rule.rule}
             schema={builder.schema}
             onChange={(operator) => actions.updateRule(rule.id, { operator })}
@@ -181,10 +184,14 @@ export function ShadcnFilterBuilder({
         ) : (
           <ShadcnValueEditor
             className={classNames?.valueEditor}
+            endLabel={labels?.endValue}
             field={rule.field}
+            label={labels?.value}
+            noValueLabel={labels?.noValue}
             operator={rule.operator}
             rule={rule.rule}
             schema={builder.schema}
+            startLabel={labels?.startValue}
             onChange={(nextValue) => actions.updateRule(rule.id, { value: nextValue })}
           />
         )}
@@ -336,11 +343,13 @@ export function ShadcnFilterBuilder({
         <div className="flex flex-col gap-4">
           <div className={cn('flex flex-wrap items-center gap-2', classNames?.actions)}>
             <ShadcnCombinatorSelector
+              label={labels?.combinator}
               value={group.group.combinator}
               onChange={(combinator) => actions.updateGroup(group.id, { combinator })}
             />
             <ShadcnNotToggle
               checked={Boolean(group.group.not)}
+              label={labels?.not}
               onChange={(not) => actions.updateGroup(group.id, { not })}
             />
             <Button variant="outline" onClick={() => actions.addRule(group.id)}>

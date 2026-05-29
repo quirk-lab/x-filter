@@ -74,6 +74,7 @@ export function ShadcnDslEditor({
   const editor = useDslEditor({ filter, schema, onCommit, cursor });
   const visibleCompletions = isCompletionOpen ? editor.completions : [];
   const inputLabel = labels?.dslInput ?? 'DSL';
+  const applyLabel = labels?.applyDsl ?? 'Apply DSL';
 
   const updateCursor = (target: HTMLTextAreaElement) => {
     setCursor(target.selectionStart ?? target.value.length);
@@ -143,7 +144,7 @@ export function ShadcnDslEditor({
         onSelect={(event) => updateCursor(event.currentTarget)}
         value={editor.draftDSL}
       />
-      <Button onClick={editor.commit}>Apply DSL</Button>
+      <Button onClick={editor.commit}>{applyLabel}</Button>
       {editor.parseError ? (
         <div
           className="rounded-md border border-destructive px-3 py-2 text-sm text-destructive"

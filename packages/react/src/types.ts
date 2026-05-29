@@ -139,6 +139,10 @@ export type FilterBuilderLabels = Partial<{
   combinator: string;
   not: string;
   dslInput: string;
+  applyDsl: string;
+  startValue: string;
+  endValue: string;
+  noValue: string;
 }>;
 
 export type FilterBuilderClassNames = Partial<{

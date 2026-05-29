@@ -5,6 +5,7 @@ export interface AntdCombinatorSelectorProps {
   value: Combinator;
   disabled?: boolean;
   className?: string;
+  label?: string;
   onChange: (combinator: Combinator) => void;
 }
 
@@ -12,11 +13,12 @@ export function AntdCombinatorSelector({
   value,
   disabled,
   className,
+  label = 'Combinator',
   onChange,
 }: AntdCombinatorSelectorProps) {
   return (
     <Select
-      aria-label="Combinator"
+      aria-label={label}
       className={className}
       disabled={disabled}
       onChange={(combinator) => onChange(combinator)}

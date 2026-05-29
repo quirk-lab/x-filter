@@ -8,6 +8,7 @@ export interface AntdOperatorSelectorProps {
   value?: string;
   disabled?: boolean;
   className?: string;
+  label?: string;
   onChange: (operatorName: string) => void;
 }
 
@@ -29,6 +30,7 @@ export function AntdOperatorSelector({
   value,
   disabled,
   className,
+  label = 'Operator',
   onChange,
 }: AntdOperatorSelectorProps) {
   const selectedField = field ?? findSchemaField(schema, rule?.field);
@@ -36,12 +38,12 @@ export function AntdOperatorSelector({
 
   return (
     <Select
-      aria-label="Operator"
+      aria-label={label}
       className={className}
       disabled={disabled || operators.length === 0}
       onChange={(operatorName) => onChange(operatorName)}
       options={operators.map((operator) => ({ value: operator.name, label: operator.label }))}
-      placeholder="Select operator"
+      placeholder={label}
       value={value ?? rule?.operator}
     />
   );

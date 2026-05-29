@@ -6,8 +6,11 @@ node_modules/
 # Build outputs
 build/
 dist/
+out/
 coverage/
+apps/*/.next/
 apps/*/dist/
+apps/*/out/
 packages/*/dist/
 apps/storybook/storybook-static/
 

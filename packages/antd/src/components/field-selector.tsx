@@ -7,6 +7,7 @@ export interface AntdFieldSelectorProps {
   value?: string;
   disabled?: boolean;
   className?: string;
+  label?: string;
   onChange: (fieldName: string) => void;
 }
 
@@ -16,16 +17,17 @@ export function AntdFieldSelector({
   value,
   disabled,
   className,
+  label = 'Field',
   onChange,
 }: AntdFieldSelectorProps) {
   return (
     <Select
-      aria-label="Field"
+      aria-label={label}
       className={className}
       disabled={disabled}
       onChange={(fieldName) => onChange(fieldName)}
       options={schema.map((field) => ({ value: field.name, label: field.label }))}
-      placeholder="Select field"
+      placeholder={label}
       value={value ?? rule?.field}
     />
   );

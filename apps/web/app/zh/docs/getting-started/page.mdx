@@ -1,0 +1,81 @@
+export const metadata = {
+  title: '快速开始',
+  description: '创建 X-Filter schema、渲染构建器并校验过滤器输出。',
+};
+
+# 快速开始
+
+安装与你要渲染的适配器匹配的包。第一个预发布版本使用这里展示的 workspace 包名。
+
+```bash
+pnpm add @x-filter/core @x-filter/react @x-filter/antd
+```
+
+## 定义 schema
+
+schema 描述产品暴露给用户的字段。操作符可以从字段类型推断，也可以按字段覆盖。
+
+```ts
+import type { FieldSchema } from '@x-filter/core';
+
+export const schema: FieldSchema[] = [
+  {
+    name: 'status',
+    label: '状态',
+    type: 'select',
+    values: [
+      { value: 'open', label: '打开' },
+      { value: 'closed', label: '关闭' },
+    ],
+  },
+  {
+    name: 'amount',
+    label: '金额',
+    type: 'number',
+    defaultOperator: 'gt',
+    defaultValue: 1000,
+  },
+];
+```
+
+## 渲染构建器
+
+适配器是受控组件。把过滤器保存在应用状态中，并把同一份值传给需要渲染的适配器。
+
+```tsx
+'use client';
+
+import { useState } from 'react';
+import type { Filter } from '@x-filter/core';
+import { AntdFilterBuilder } from '@x-filter/antd';
+
+const initialFilter: Filter = {
+  id: 'root',
+  combinator: 'and',
+  conditions: [],
+};
+
+export function Filters() {
+  const [filter, setFilter] = useState(initialFilter);
+
+  return <AntdFilterBuilder schema={schema} value={filter} onChange={setFilter} />;
+}
+```
+
+## 应用前校验
+
+在发送到 API 或转换成其他查询语言前先运行校验。
+
+```ts
+import { validate } from '@x-filter/core';
+
+const result = validate(filter, schema);
+
+if (!result.valid) {
+  return { ok: false, errors: result.errors };
+}
+```
+
+## 下一步
+
+阅读[适配器](/zh/docs/adapters)了解 UI 集成，或阅读 [DSL 与 SQL](/zh/docs/dsl-sql)了解导出格式。

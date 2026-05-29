@@ -10,6 +10,10 @@ export interface ShadcnValueEditorProps {
   operator?: OperatorDef;
   disabled?: boolean;
   className?: string;
+  label?: string;
+  startLabel?: string;
+  endLabel?: string;
+  noValueLabel?: string;
   onChange: (value: unknown) => void;
 }
 
@@ -57,6 +61,10 @@ export function ShadcnValueEditor({
   operator,
   disabled,
   className,
+  label = 'Value',
+  startLabel = 'Start value',
+  endLabel = 'End value',
+  noValueLabel = 'No value',
   onChange,
 }: ShadcnValueEditorProps) {
   const selectedField = field ?? findSchemaField(schema, rule.field);
@@ -65,7 +73,13 @@ export function ShadcnValueEditor({
 
   if (selectedOperator?.arity === 'unary') {
     return (
-      <Input aria-label="Value" className={className} disabled placeholder="No value" value="" />
+      <Input
+        aria-label={label}
+        className={className}
+        disabled
+        placeholder={noValueLabel}
+        value=""
+      />
     );
   }
 
@@ -76,7 +90,7 @@ export function ShadcnValueEditor({
       return (
         <div className={cn('flex gap-2', className)}>
           <Input
-            aria-label="Start value"
+            aria-label={startLabel}
             disabled={disabled}
             onChange={(event) =>
               onChange(updatePairValue(rule.value, 0, parseNumberInput(event.target.value)))
@@ -85,7 +99,7 @@ export function ShadcnValueEditor({
             value={asNumberInputValue(firstValue)}
           />
           <Input
-            aria-label="End value"
+            aria-label={endLabel}
             disabled={disabled}
             onChange={(event) =>
               onChange(updatePairValue(rule.value, 1, parseNumberInput(event.target.value)))
@@ -101,14 +115,14 @@ export function ShadcnValueEditor({
       return (
         <div className={cn('flex gap-2', className)}>
           <Input
-            aria-label="Start value"
+            aria-label={startLabel}
             disabled={disabled}
             onChange={(event) => onChange(updatePairValue(rule.value, 0, event.target.value))}
             type="date"
             value={asStringValue(firstValue)}
           />
           <Input
-            aria-label="End value"
+            aria-label={endLabel}
             disabled={disabled}
             onChange={(event) => onChange(updatePairValue(rule.value, 1, event.target.value))}
             type="date"
@@ -122,7 +136,7 @@ export function ShadcnValueEditor({
   if (selectedField?.type === 'number') {
     return (
       <Input
-        aria-label="Value"
+        aria-label={label}
         className={className}
         disabled={isDisabled}
         onChange={(event) => onChange(parseNumberInput(event.target.value))}
@@ -135,7 +149,7 @@ export function ShadcnValueEditor({
   if (selectedField?.type === 'select') {
     return (
       <Select
-        aria-label="Value"
+        aria-label={label}
         className={className}
         disabled={isDisabled}
         onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange(event.target.value)}
@@ -143,7 +157,7 @@ export function ShadcnValueEditor({
           value: option.value,
           label: option.label,
         }))}
-        placeholder="Select value"
+        placeholder={label}
         value={asStringValue(rule.value)}
       />
     );
@@ -152,7 +166,7 @@ export function ShadcnValueEditor({
   if (selectedField?.type === 'multiSelect') {
     return (
       <Select
-        aria-label="Value"
+        aria-label={label}
         className={className}
         disabled={isDisabled}
         multiple
@@ -169,7 +183,7 @@ export function ShadcnValueEditor({
   if (selectedField?.type === 'boolean') {
     return (
       <Checkbox
-        aria-label="Value"
+        aria-label={label}
         checked={Boolean(rule.value)}
         className={className}
         disabled={isDisabled}
@@ -181,7 +195,7 @@ export function ShadcnValueEditor({
   if (selectedField?.type === 'date') {
     return (
       <Input
-        aria-label="Value"
+        aria-label={label}
         className={className}
         disabled={isDisabled}
         onChange={(event) => onChange(event.target.value)}
@@ -193,7 +207,7 @@ export function ShadcnValueEditor({
 
   return (
     <Input
-      aria-label="Value"
+      aria-label={label}
       className={className}
       disabled={isDisabled}
       onChange={(event) => onChange(event.target.value)}

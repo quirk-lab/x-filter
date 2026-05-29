@@ -74,6 +74,7 @@ export function AntdDslEditor({
   const editor = useDslEditor({ filter, schema, onCommit, cursor });
   const visibleCompletions = isCompletionOpen ? editor.completions : [];
   const inputLabel = labels?.dslInput ?? 'DSL';
+  const applyLabel = labels?.applyDsl ?? 'Apply DSL';
 
   const updateCursor = (target: HTMLTextAreaElement) => {
     setCursor(target.selectionStart ?? target.value.length);
@@ -143,7 +144,7 @@ export function AntdDslEditor({
         onSelect={(event) => updateCursor(event.currentTarget)}
         value={editor.draftDSL}
       />
-      <Button onClick={editor.commit}>Apply DSL</Button>
+      <Button onClick={editor.commit}>{applyLabel}</Button>
       {editor.parseError ? <Alert message={editor.parseError} showIcon type="error" /> : null}
       <AntdCompletionMenu
         activeIndex={activeIndex}

@@ -9,6 +9,7 @@ export interface ShadcnOperatorSelectorProps {
   value?: string;
   disabled?: boolean;
   className?: string;
+  label?: string;
   onChange: (operatorName: string) => void;
 }
 
@@ -30,6 +31,7 @@ export function ShadcnOperatorSelector({
   value,
   disabled,
   className,
+  label = 'Operator',
   onChange,
 }: ShadcnOperatorSelectorProps) {
   const selectedField = field ?? findSchemaField(schema, rule?.field);
@@ -37,12 +39,12 @@ export function ShadcnOperatorSelector({
 
   return (
     <Select
-      aria-label="Operator"
+      aria-label={label}
       className={className}
       disabled={disabled || operators.length === 0}
       onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange(event.target.value)}
       options={operators.map((operator) => ({ value: operator.name, label: operator.label }))}
-      placeholder="Select operator"
+      placeholder={label}
       value={value ?? rule?.operator ?? ''}
     />
   );

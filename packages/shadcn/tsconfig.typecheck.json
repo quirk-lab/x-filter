@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "../..",
+    "paths": {
+      "@x-filter/core": ["../core/src"],
+      "@x-filter/core/*": ["../core/src/*"],
+      "@x-filter/react": ["../react/src"]
+    }
+  },
+  "include": ["src/**/*", "../core/src/**/*", "../react/src/**/*"]
+}

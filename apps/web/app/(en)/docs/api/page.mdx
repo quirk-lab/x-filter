@@ -1,0 +1,64 @@
+export const metadata = {
+  title: 'API Reference',
+  description: 'Reference X-Filter core types, helpers, React hooks, and adapter props.',
+};
+
+# API Reference
+
+This reference covers the stable surface used by the web docs and examples.
+
+## Core types
+
+| Type | Description |
+| --- | --- |
+| `FieldSchema` | Field name, label, type, values, default operator, and default value. |
+| `FilterRule` | A single condition with `field`, `operator`, `value`, and optional `not`. |
+| `FilterGroup` | A group with `combinator`, optional `not`, and nested conditions. |
+| `Filter` | Alias for the root `FilterGroup`. |
+| `ValidationResult` | `{ valid, errors }` after schema validation. |
+
+## Core helpers
+
+| Helper | Description |
+| --- | --- |
+| `createFilter` | Create an empty filter group. |
+| `createRule` | Create a rule with generated or provided id. |
+| `addRule`, `removeRule`, `updateRule` | Mutate rule collections immutably. |
+| `addGroup`, `removeGroup`, `updateGroup` | Mutate nested groups immutably. |
+| `validate` | Check fields, operators, values, combinators, and groups. |
+| `toJSON`, `fromJSON` | Serialize filters for storage and URLs. |
+
+## DSL and SQL helpers
+
+| Helper | Description |
+| --- | --- |
+| `formatDSL` | Convert a `Filter` into text DSL. |
+| `tryParseDSL` | Parse text into a `Filter` with structured parse errors. |
+| `getDslCompletions` | Build completion items for DSL editors. |
+| `toSQL` | Convert a filter to `{ sql, params }`. |
+
+## React hooks
+
+| Hook | Description |
+| --- | --- |
+| `useFilterBuilder` | Controlled/uncontrolled mutation helpers for filters. |
+| `useFilterViewModel` | Build accessible view models for adapter rendering. |
+| `useFilterDsl` | Manage DSL drafts, commits, and parse errors. |
+| `useFilterUrlSync` | Encode and decode filters through URL search params. |
+| `useReorderContract` | Shared move and drop rules for nested groups. |
+
+## Adapter components
+
+`AntdFilterBuilder` and `ShadcnFilterBuilder` share the same prop contract:
+
+```ts
+type FilterBuilderProps = {
+  schema: FieldSchema[];
+  value?: Filter;
+  defaultValue?: Filter;
+  onChange?: (filter: Filter) => void;
+  errors?: Record<string, ValidationError[]>;
+  dsl?: boolean;
+  dnd?: boolean;
+};
+```

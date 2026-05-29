@@ -1,0 +1,81 @@
+export const metadata = {
+  title: 'Getting Started',
+  description: 'Create an X-Filter schema, render a builder, and validate filter output.',
+};
+
+# Getting Started
+
+Install the packages that match the adapter you plan to render. For the first pre-release, use the workspace package names shown here.
+
+```bash
+pnpm add @x-filter/core @x-filter/react @x-filter/antd
+```
+
+## Define a schema
+
+A schema describes the fields your product exposes to users. Operators can be inferred from field type or overridden per field.
+
+```ts
+import type { FieldSchema } from '@x-filter/core';
+
+export const schema: FieldSchema[] = [
+  {
+    name: 'status',
+    label: 'Status',
+    type: 'select',
+    values: [
+      { value: 'open', label: 'Open' },
+      { value: 'closed', label: 'Closed' },
+    ],
+  },
+  {
+    name: 'amount',
+    label: 'Amount',
+    type: 'number',
+    defaultOperator: 'gt',
+    defaultValue: 1000,
+  },
+];
+```
+
+## Render a builder
+
+Adapters are controlled components. Keep the filter in your application state and pass the same value to whichever adapter you render.
+
+```tsx
+'use client';
+
+import { useState } from 'react';
+import type { Filter } from '@x-filter/core';
+import { AntdFilterBuilder } from '@x-filter/antd';
+
+const initialFilter: Filter = {
+  id: 'root',
+  combinator: 'and',
+  conditions: [],
+};
+
+export function Filters() {
+  const [filter, setFilter] = useState(initialFilter);
+
+  return <AntdFilterBuilder schema={schema} value={filter} onChange={setFilter} />;
+}
+```
+
+## Validate before applying
+
+Run validation before you send a query to your API or convert it into another query language.
+
+```ts
+import { validate } from '@x-filter/core';
+
+const result = validate(filter, schema);
+
+if (!result.valid) {
+  return { ok: false, errors: result.errors };
+}
+```
+
+## Next steps
+
+Read [Adapters](/docs/adapters) for UI integration details or [DSL and SQL](/docs/dsl-sql) for export formats.

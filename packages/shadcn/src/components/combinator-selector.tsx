@@ -6,6 +6,7 @@ export interface ShadcnCombinatorSelectorProps {
   value: Combinator;
   disabled?: boolean;
   className?: string;
+  label?: string;
   onChange: (combinator: Combinator) => void;
 }
 
@@ -13,11 +14,12 @@ export function ShadcnCombinatorSelector({
   value,
   disabled,
   className,
+  label = 'Combinator',
   onChange,
 }: ShadcnCombinatorSelectorProps) {
   return (
     <Select
-      aria-label="Combinator"
+      aria-label={label}
       className={className}
       disabled={disabled}
       onChange={(event: ChangeEvent<HTMLSelectElement>) =>

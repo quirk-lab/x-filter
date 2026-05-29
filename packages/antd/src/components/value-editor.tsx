@@ -10,6 +10,10 @@ export interface AntdValueEditorProps {
   operator?: OperatorDef;
   disabled?: boolean;
   className?: string;
+  label?: string;
+  startLabel?: string;
+  endLabel?: string;
+  noValueLabel?: string;
   onChange: (value: unknown) => void;
 }
 
@@ -49,6 +53,10 @@ export function AntdValueEditor({
   operator,
   disabled,
   className,
+  label = 'Value',
+  startLabel = 'Start value',
+  endLabel = 'End value',
+  noValueLabel = 'No value',
   onChange,
 }: AntdValueEditorProps) {
   const selectedField = field ?? findSchemaField(schema, rule.field);
@@ -57,7 +65,13 @@ export function AntdValueEditor({
 
   if (selectedOperator?.arity === 'unary') {
     return (
-      <Input aria-label="Value" className={className} disabled placeholder="No value" value="" />
+      <Input
+        aria-label={label}
+        className={className}
+        disabled
+        placeholder={noValueLabel}
+        value=""
+      />
     );
   }
 
@@ -68,13 +82,13 @@ export function AntdValueEditor({
       return (
         <Space.Compact className={className}>
           <InputNumber
-            aria-label="Start value"
+            aria-label={startLabel}
             disabled={disabled}
             onChange={(value) => onChange(updatePairValue(rule.value, 0, value))}
             value={asOptionalNumber(firstValue)}
           />
           <InputNumber
-            aria-label="End value"
+            aria-label={endLabel}
             disabled={disabled}
             onChange={(value) => onChange(updatePairValue(rule.value, 1, value))}
             value={asOptionalNumber(secondValue)}
@@ -87,14 +101,14 @@ export function AntdValueEditor({
       return (
         <Space.Compact className={className}>
           <Input
-            aria-label="Start value"
+            aria-label={startLabel}
             disabled={disabled}
             onChange={(event) => onChange(updatePairValue(rule.value, 0, event.target.value))}
             type="date"
             value={asStringValue(firstValue)}
           />
           <Input
-            aria-label="End value"
+            aria-label={endLabel}
             disabled={disabled}
             onChange={(event) => onChange(updatePairValue(rule.value, 1, event.target.value))}
             type="date"
@@ -108,7 +122,7 @@ export function AntdValueEditor({
   if (selectedField?.type === 'number') {
     return (
       <InputNumber
-        aria-label="Value"
+        aria-label={label}
         className={className}
         disabled={isDisabled}
         onChange={(value) => onChange(value)}
@@ -120,7 +134,7 @@ export function AntdValueEditor({
   if (selectedField?.type === 'select') {
     return (
       <Select
-        aria-label="Value"
+        aria-label={label}
         className={className}
         disabled={isDisabled}
         onChange={(value) => onChange(value)}
@@ -128,7 +142,7 @@ export function AntdValueEditor({
           value: option.value,
           label: option.label,
         }))}
-        placeholder="Select value"
+        placeholder={label}
         value={asStringValue(rule.value) || undefined}
       />
     );
@@ -137,7 +151,7 @@ export function AntdValueEditor({
   if (selectedField?.type === 'multiSelect') {
     return (
       <Select
-        aria-label="Value"
+        aria-label={label}
         className={className}
         disabled={isDisabled}
         mode="multiple"
@@ -146,7 +160,7 @@ export function AntdValueEditor({
           value: option.value,
           label: option.label,
         }))}
-        placeholder="Select values"
+        placeholder={label}
         value={asArrayValue(rule.value)}
       />
     );
@@ -155,7 +169,7 @@ export function AntdValueEditor({
   if (selectedField?.type === 'boolean') {
     return (
       <Checkbox
-        aria-label="Value"
+        aria-label={label}
         checked={Boolean(rule.value)}
         className={className}
         disabled={isDisabled}
@@ -167,7 +181,7 @@ export function AntdValueEditor({
   if (selectedField?.type === 'date') {
     return (
       <Input
-        aria-label="Value"
+        aria-label={label}
         className={className}
         disabled={isDisabled}
         onChange={(event) => onChange(event.target.value)}
@@ -179,7 +193,7 @@ export function AntdValueEditor({
 
   return (
     <Input
-      aria-label="Value"
+      aria-label={label}
       className={className}
       disabled={isDisabled}
       onChange={(event) => onChange(event.target.value)}

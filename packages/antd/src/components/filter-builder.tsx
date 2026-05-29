@@ -153,6 +153,7 @@ export function AntdFilterBuilder({
       >
         <AntdNotToggle
           checked={Boolean(rule.rule.not)}
+          label={labels?.not}
           onChange={(not) => actions.updateRule(rule.id, { not })}
         />
         {FieldSelector ? (
@@ -160,6 +161,7 @@ export function AntdFilterBuilder({
         ) : (
           <AntdFieldSelector
             className={classNames?.fieldSelector}
+            label={labels?.field}
             rule={rule.rule}
             schema={builder.schema}
             onChange={(field) =>
@@ -173,6 +175,7 @@ export function AntdFilterBuilder({
           <AntdOperatorSelector
             className={classNames?.operatorSelector}
             field={rule.field}
+            label={labels?.operator}
             rule={rule.rule}
             schema={builder.schema}
             onChange={(operator) => actions.updateRule(rule.id, { operator })}
@@ -183,10 +186,14 @@ export function AntdFilterBuilder({
         ) : (
           <AntdValueEditor
             className={classNames?.valueEditor}
+            endLabel={labels?.endValue}
             field={rule.field}
+            label={labels?.value}
+            noValueLabel={labels?.noValue}
             operator={rule.operator}
             rule={rule.rule}
             schema={builder.schema}
+            startLabel={labels?.startValue}
             onChange={(nextValue) => actions.updateRule(rule.id, { value: nextValue })}
           />
         )}
@@ -339,11 +346,13 @@ export function AntdFilterBuilder({
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           <Space className={classNames?.actions} wrap>
             <AntdCombinatorSelector
+              label={labels?.combinator}
               value={group.group.combinator}
               onChange={(combinator) => actions.updateGroup(group.id, { combinator })}
             />
             <AntdNotToggle
               checked={Boolean(group.group.not)}
+              label={labels?.not}
               onChange={(not) => actions.updateGroup(group.id, { not })}
             />
             <Button onClick={() => actions.addRule(group.id)}>{resolvedLabels.addRule}</Button>

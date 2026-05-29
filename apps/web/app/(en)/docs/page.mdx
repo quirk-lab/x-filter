@@ -1,0 +1,46 @@
+import { AdapterParityDemo } from '../../../src/components/demos/adapter-parity-demo';
+
+export const metadata = {
+  title: 'Documentation',
+  description: 'Learn how X-Filter models filters, renders adapters, and exports query output.',
+};
+
+# Documentation
+
+X-Filter is a filter-builder toolkit for React applications that need a portable query model. The core package owns the filter tree, validation, JSON serialization, DSL formatting, parsing, and SQL generation. UI packages render that same state through product-native adapters.
+
+<div className="callout">
+  The npm packages are planned for pre-release. The local workspace package names are already stable: `@x-filter/core`, `@x-filter/react`, `@x-filter/antd`, and `@x-filter/shadcn`.
+</div>
+
+## Package roles
+
+| Package | Role |
+| --- | --- |
+| `@x-filter/core` | Filter types, mutations, validation, JSON, DSL, and SQL helpers. |
+| `@x-filter/react` | Controlled and uncontrolled hooks for builders, DSL editing, URL sync, and view models. |
+| `@x-filter/antd` | Ant Design filter-builder components over the shared React contract. |
+| `@x-filter/shadcn` | shadcn-style primitives and builder components over the same contract. |
+
+## Architecture
+
+1. Define a typed field schema.
+2. Store a `Filter` tree in application state.
+3. Render the tree with an adapter.
+4. Validate and export JSON, DSL, or parameterized SQL.
+
+```tsx
+import { validate } from '@x-filter/core';
+import { formatDSL } from '@x-filter/core/dsl';
+import { toSQL } from '@x-filter/core/sql';
+
+const validation = validate(filter, schema);
+const dsl = formatDSL(filter);
+const sql = toSQL(filter, { fieldMap: { status: 'tickets.status' } });
+```
+
+## Live parity demo
+
+<AdapterParityDemo locale="en" />
+
+Continue with [Getting Started](/docs/getting-started) to wire the first builder.

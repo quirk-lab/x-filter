@@ -1,0 +1,61 @@
+import { AdapterParityDemo } from '../../../../src/components/demos/adapter-parity-demo';
+
+export const metadata = {
+  title: '适配器',
+  description: '用同一份核心状态使用 X-Filter Ant Design 和 shadcn 适配器。',
+};
+
+# 适配器
+
+适配器渲染同一棵 `Filter` 树和同一份 schema。这让产品团队可以匹配自己的设计系统，而不用分叉查询语义。
+
+## Ant Design
+
+```tsx
+import { AntdFilterBuilder } from '@x-filter/antd';
+
+<AntdFilterBuilder
+  dsl
+  errors={validation.errors}
+  labels={{
+    addRule: '添加规则',
+    addGroup: '添加分组',
+    removeRule: '删除规则',
+    removeGroup: '删除分组',
+  }}
+  schema={schema}
+  value={filter}
+  onChange={setFilter}
+/>;
+```
+
+## shadcn
+
+```tsx
+import { ShadcnFilterBuilder } from '@x-filter/shadcn';
+
+<ShadcnFilterBuilder
+  dsl
+  errors={validation.errors}
+  schema={schema}
+  value={filter}
+  onChange={setFilter}
+/>;
+```
+
+## 共享契约
+
+两个适配器都接受：
+
+| 属性 | 用途 |
+| --- | --- |
+| `schema` | 选择器、值编辑器和校验使用的字段模型。 |
+| `value` | 受控 `Filter` 树。 |
+| `onChange` | 变更后接收下一棵 `Filter` 树。 |
+| `errors` | 以规则或分组 id 为键的校验错误。 |
+| `dsl` | 在可视化构建器上方启用 DSL 编辑器。 |
+| `dnd` | 启用拖放和键盘移动控制。 |
+
+## 试用两个适配器
+
+<AdapterParityDemo locale="zh" />

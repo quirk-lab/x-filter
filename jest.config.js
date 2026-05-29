@@ -23,12 +23,22 @@ const makeProject = (name) => {
 
   return {
     displayName: name,
-    preset: 'ts-jest/presets/default-esm',
     testEnvironment: jsdomProjects.has(name) ? 'jsdom' : 'node',
     rootDir,
     testMatch: ['<rootDir>/src/**/__tests__/**/*.spec.ts?(x)'],
     moduleNameMapper: {
+      '^@x-filter/core/(.*)$': path.join(__dirname, 'packages/core/src/$1'),
       '^@x-filter/(.*)$': path.join(__dirname, 'packages/$1/src'),
+    },
+    extensionsToTreatAsEsm: ['.ts', '.tsx'],
+    transform: {
+      '^.+\\.tsx?$': [
+        'ts-jest',
+        {
+          tsconfig: path.join(__dirname, 'tsconfig.jest.json'),
+          useESM: true,
+        },
+      ],
     },
     setupFilesAfterEnv: jsdomProjects.has(name) ? [path.join(__dirname, 'jest.setup.ts')] : [],
     collectCoverageFrom,
