@@ -1,6 +1,6 @@
 import type { FieldSchema, FilterRule } from '@x-filter/core';
 import type { ChangeEvent } from 'react';
-import { Select } from './primitives';
+import { Select, type SelectOption } from './primitives';
 
 export interface ShadcnFieldSelectorProps {
   schema: FieldSchema[];
@@ -21,15 +21,27 @@ export function ShadcnFieldSelector({
   label = 'Field',
   onChange,
 }: ShadcnFieldSelectorProps) {
+  const selectedValue = value ?? rule?.field ?? '';
+  const options: SelectOption[] = schema.map((field) => ({
+    value: field.name,
+    label: field.label,
+  }));
+  const hasSelectedValue =
+    selectedValue === '' || options.some((option) => option.value === selectedValue);
+
+  if (!hasSelectedValue) {
+    options.push({ value: selectedValue, label: selectedValue, disabled: true });
+  }
+
   return (
     <Select
       aria-label={label}
       className={className}
       disabled={disabled}
       onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange(event.target.value)}
-      options={schema.map((field) => ({ value: field.name, label: field.label }))}
+      options={options}
       placeholder={label}
-      value={value ?? rule?.field ?? ''}
+      value={selectedValue}
     />
   );
 }

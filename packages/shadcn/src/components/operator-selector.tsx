@@ -1,6 +1,6 @@
 import { type FieldSchema, type FilterRule, getOperators, type OperatorDef } from '@x-filter/core';
 import type { ChangeEvent } from 'react';
-import { Select } from './primitives';
+import { Select, type SelectOption } from './primitives';
 
 export interface ShadcnOperatorSelectorProps {
   schema: FieldSchema[];
@@ -36,6 +36,17 @@ export function ShadcnOperatorSelector({
 }: ShadcnOperatorSelectorProps) {
   const selectedField = field ?? findSchemaField(schema, rule?.field);
   const operators = getFieldOperators(selectedField);
+  const selectedValue = value ?? rule?.operator ?? '';
+  const options: SelectOption[] = operators.map((operator) => ({
+    value: operator.name,
+    label: operator.label,
+  }));
+  const hasSelectedValue =
+    selectedValue === '' || options.some((option) => option.value === selectedValue);
+
+  if (!hasSelectedValue) {
+    options.push({ value: selectedValue, label: selectedValue, disabled: true });
+  }
 
   return (
     <Select
@@ -43,9 +54,9 @@ export function ShadcnOperatorSelector({
       className={className}
       disabled={disabled || operators.length === 0}
       onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange(event.target.value)}
-      options={operators.map((operator) => ({ value: operator.name, label: operator.label }))}
+      options={options}
       placeholder={label}
-      value={value ?? rule?.operator ?? ''}
+      value={selectedValue}
     />
   );
 }

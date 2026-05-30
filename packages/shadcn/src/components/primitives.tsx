@@ -45,6 +45,7 @@ export function Input({ className, ...props }: InputProps) {
 export type SelectOption = {
   value: string;
   label: ReactNode;
+  disabled?: boolean;
 };
 
 export type SelectProps = Omit<ComponentPropsWithoutRef<'select'>, 'children'> & {
@@ -69,7 +70,7 @@ export function Select({ className, options = [], placeholder, multiple, ...prop
         </option>
       ) : null}
       {options.map((option) => (
-        <option key={option.value} value={option.value}>
+        <option disabled={option.disabled} key={option.value} value={option.value}>
           {option.label}
         </option>
       ))}

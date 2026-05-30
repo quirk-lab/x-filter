@@ -72,6 +72,19 @@ describe('shadcn atomic components', () => {
     expect(onChange).toHaveBeenCalledWith('age');
   });
 
+  test('ShadcnFieldSelector preserves unknown current field values', () => {
+    render(
+      <ShadcnFieldSelector
+        schema={schema}
+        rule={{ id: 'r-unknown', field: 'segment', operator: 'equals', value: 'strategic' }}
+        onChange={jest.fn()}
+      />
+    );
+
+    const fieldSelect = screen.getByLabelText(/field/i) as HTMLSelectElement;
+    expect(fieldSelect.selectedOptions[0]?.textContent).toBe('segment');
+  });
+
   test('ShadcnOperatorSelector renders operators for selected field', () => {
     const onChange = jest.fn();
     render(<ShadcnOperatorSelector schema={schema} rule={rule} onChange={onChange} />);
@@ -79,6 +92,19 @@ describe('shadcn atomic components', () => {
     fireEvent.change(screen.getByLabelText(/operator/i), { target: { value: 'contains' } });
 
     expect(onChange).toHaveBeenCalledWith('contains');
+  });
+
+  test('ShadcnOperatorSelector preserves unknown current operator values', () => {
+    render(
+      <ShadcnOperatorSelector
+        schema={schema}
+        rule={{ id: 'r-unknown', field: 'name', operator: 'startsWith', value: 'Ada' }}
+        onChange={jest.fn()}
+      />
+    );
+
+    const operatorSelect = screen.getByLabelText(/operator/i) as HTMLSelectElement;
+    expect(operatorSelect.selectedOptions[0]?.textContent).toBe('startsWith');
   });
 
   test('ShadcnValueEditor emits text value changes', () => {
