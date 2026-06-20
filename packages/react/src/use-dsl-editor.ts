@@ -52,11 +52,17 @@ export function useDslEditor(options: UseDslEditorOptions): UseDslEditorReturn {
     return false;
   }, [draftDSL]);
 
+  const resetDraft = useCallback(() => {
+    setDraftDSLState(formatDSL(filter));
+    setParseError(null);
+  }, [filter]);
+
   return {
     draftDSL,
     setDraftDSL,
     parseError,
     completions,
     commit,
+    resetDraft,
   };
 }

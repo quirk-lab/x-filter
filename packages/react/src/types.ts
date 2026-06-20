@@ -56,6 +56,7 @@ export interface UseDslEditorReturn {
   parseError: string | null;
   completions: CompletionItem[];
   commit: () => boolean;
+  resetDraft: () => void;
 }
 
 export interface UseFilterUrlSyncOptions {

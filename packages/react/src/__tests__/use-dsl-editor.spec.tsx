@@ -160,4 +160,64 @@ describe('useDslEditor', () => {
 
     expect(completionValues(result.current.completions)).toEqual(['equals', 'notEquals']);
   });
+
+  it('resetDraft resets to current filter DSL and clears parseError', () => {
+    const filter = makeFilter();
+    const onCommit = jest.fn();
+    const { result } = renderHook(() => useDslEditor({ filter, schema, onCommit }));
+
+    const originalDSL = result.current.draftDSL;
+
+    act(() => {
+      result.current.setDraftDSL('something:different:value');
+    });
+    expect(result.current.draftDSL).toBe('something:different:value');
+
+    act(() => {
+      result.current.resetDraft();
+    });
+
+    expect(result.current.draftDSL).toBe(originalDSL);
+    expect(result.current.parseError).toBeNull();
+  });
+
+  it('resetDraft clears a previous parseError', () => {
+    const filter = makeFilter();
+    const onCommit = jest.fn();
+    const { result } = renderHook(() => useDslEditor({ filter, schema, onCommit }));
+
+    act(() => {
+      result.current.setDraftDSL('@@@ invalid');
+    });
+    act(() => {
+      result.current.commit();
+    });
+    expect(result.current.parseError).not.toBeNull();
+
+    act(() => {
+      result.current.resetDraft();
+    });
+    expect(result.current.parseError).toBeNull();
+  });
+
+  it('resetDraft does not prevent subsequent external filter resync', () => {
+    const filter = makeFilter();
+    const nextFilter = makeFilter('priority', 'gt', 10);
+    const onCommit = jest.fn();
+    const { result, rerender } = renderHook(
+      ({ currentFilter }) => useDslEditor({ filter: currentFilter, schema, onCommit }),
+      { initialProps: { currentFilter: filter } }
+    );
+
+    act(() => {
+      result.current.setDraftDSL('something:different:value');
+    });
+    act(() => {
+      result.current.resetDraft();
+    });
+    expect(result.current.draftDSL).toBe(formatDSL(filter));
+
+    rerender({ currentFilter: nextFilter });
+    expect(result.current.draftDSL).toBe(formatDSL(nextFilter));
+  });
 });
