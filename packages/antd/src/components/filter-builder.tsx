@@ -10,7 +10,10 @@ import type {
   FilterRuleViewModel,
 } from '@x-filter/react';
 import {
+  canUseAtomicGroup,
+  canUseAtomicRule,
   getDefaultRuleUpdatesForField,
+  resolveLabels,
   useFilterBuilder,
   useFilterViewModel,
   useReorderContract,
@@ -40,41 +43,6 @@ export interface AntdFilterBuilderProps {
   dnd?: boolean;
 }
 
-const DEFAULT_LABELS = {
-  addRule: 'Add rule',
-  addGroup: 'Add group',
-  removeRule: 'Remove rule',
-  removeGroup: 'Remove group',
-} satisfies Required<
-  Pick<FilterBuilderLabels, 'addRule' | 'addGroup' | 'removeRule' | 'removeGroup'>
->;
-
-function canUseAtomicGroup(labels: typeof DEFAULT_LABELS, classNames?: FilterBuilderClassNames) {
-  return (
-    labels.addRule === DEFAULT_LABELS.addRule &&
-    labels.addGroup === DEFAULT_LABELS.addGroup &&
-    labels.removeGroup === DEFAULT_LABELS.removeGroup &&
-    !classNames?.actions
-  );
-}
-
-function canUseAtomicRule(
-  labels: typeof DEFAULT_LABELS,
-  slots?: FilterBuilderSlots,
-  classNames?: FilterBuilderClassNames
-) {
-  return (
-    labels.removeRule === DEFAULT_LABELS.removeRule &&
-    !slots?.FieldSelector &&
-    !slots?.OperatorSelector &&
-    !slots?.ValueEditor &&
-    !classNames?.fieldSelector &&
-    !classNames?.operatorSelector &&
-    !classNames?.valueEditor &&
-    !classNames?.actions
-  );
-}
-
 export function AntdFilterBuilder({
   schema,
   value,
@@ -90,12 +58,7 @@ export function AntdFilterBuilder({
   const builder = useFilterBuilder({ value, defaultValue, onChange, schema });
   const viewModel = useFilterViewModel({ filter: builder.filter, schema: builder.schema, errors });
   const reorder = useReorderContract({ filter: builder.filter, onReorder: builder.setFilter });
-  const resolvedLabels = {
-    addRule: labels?.addRule ?? DEFAULT_LABELS.addRule,
-    addGroup: labels?.addGroup ?? DEFAULT_LABELS.addGroup,
-    removeRule: labels?.removeRule ?? DEFAULT_LABELS.removeRule,
-    removeGroup: labels?.removeGroup ?? DEFAULT_LABELS.removeGroup,
-  };
+  const resolvedLabels = resolveLabels(labels);
 
   const actions = useMemo<FilterBuilderActionHandlers>(
     () => ({

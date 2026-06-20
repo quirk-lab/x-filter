@@ -49,6 +49,14 @@ export {
   needsStringQuoting,
   replaceCurrentSegment,
 } from './dsl-completion-utils';
+export type { RenderMode, ResolvedLabels } from './render-decisions';
+export {
+  canUseAtomicGroup,
+  canUseAtomicRule,
+  resolveGroupRender,
+  resolveLabels,
+  resolveRuleRender,
+} from './render-decisions';
 export { getDefaultRuleUpdatesForField } from './rule-defaults';
 export { findOperator, findSchemaField, getFieldOperators } from './schema-utils';
 export { useDslEditor } from './use-dsl-editor';
