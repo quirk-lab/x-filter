@@ -21,6 +21,8 @@ export type {
   UseFilterBuilderOrchestratorOptions,
   UseFilterBuilderOrchestratorReturn,
   UseFilterBuilderReturn,
+  UseFilterHistoryOptions,
+  UseFilterHistoryReturn,
   UseFilterPresetsOptions,
   UseFilterPresetsReturn,
   UseFilterUrlSyncOptions,
@@ -79,6 +81,7 @@ export { useDslEditor } from './use-dsl-editor';
 export { useDslEditorInteraction } from './use-dsl-editor-interaction';
 export { useFilterBuilder } from './use-filter-builder';
 export { useFilterBuilderOrchestrator } from './use-filter-builder-orchestrator';
+export { useFilterHistory } from './use-filter-history';
 export { useFilterPresets } from './use-filter-presets';
 export { useFilterUrlSync } from './use-filter-url-sync';
 export { useFilterValidation } from './use-filter-validation';

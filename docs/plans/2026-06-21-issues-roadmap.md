@@ -60,7 +60,7 @@
 - [x] #20 Lock/Disable → PR #36：core `locked` 字段 + isLocked + 标准/IC mutation 守卫（update/remove/move/add/negate/setCombinator 锁定时静默忽略；clone 允许且解锁副本）+ ViewModel 暴露 locked + shadcn/antd 锁定禁用控件并隐藏 add/clone/remove（atomic+fallback）。defer: 锁定继承（子节点跟随父组锁定）、toJSON 序列化 locked
 - [x] #16 Notion/GitHub Storybook Demo → 4 场景 Story（Scenarios/Notion·GitHub·IC Mode·Validation）+ scenario-data 共享 fixtures/演示用 evaluateFilter/结果联动表。复用 #13 校验、#14 DslTokenInput、#15 IC、#17 URL。验证：storybook build + 全量 typecheck。defer: 点击展开 popover 行内编辑、dark mode/locale 切换
 - [x] #22 Summary/ReadOnly View → ShadcnFilterBuilder/AntdFilterBuilder 新增 `readOnly` prop：复用 #20 locked 渲染（viewmodel 在 readOnly 时强制所有节点 locked + 缓存失效），builder 层额外隐藏 DSL 编辑器 / 关闭 DnD。新增 react viewmodel 测试 + shadcn/antd readonly 集成测试 + Storybook `Scenarios/Read-only View` demo。验证：924 测试全过、覆盖率达标、storybook build。defer: 在 core mutation 层硬阻断（当前 readOnly 为 UI 视觉层，自定义 slot 仍可改）
-- [ ] #23 Undo/Redo
+- [x] #23 Undo/Redo → 新增 `useFilterHistory` hook（past/present/future 栈，`current`/`setFilter`/`undo`/`redo`/`canUndo`/`canRedo`/`clear`，`maxHistory` 默认 50，相同引用 no-op）。导出 + 10 个单测 + Storybook `Scenarios/Undo Redo` demo（工具栏按钮 + Ctrl/Cmd+Z / Shift+Z 快捷键）。验证：934 测试全过、覆盖率达标、storybook build。UI 快捷键留给消费者（按 issue「UI 可选」）
 - [ ] #21 i18n 多语言
 - [ ] #24 Import Filter UI
 - [ ] #25 Keyboard Navigation

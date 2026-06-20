@@ -124,6 +124,28 @@ export interface UseFilterValidationOptions {
   schema: FieldSchema[];
 }
 
+export interface UseFilterHistoryOptions {
+  /** The starting filter. Defaults to an empty `and` group. */
+  initialFilter?: Filter;
+  /** Maximum number of past states retained for undo. Defaults to 50. */
+  maxHistory?: number;
+}
+
+export interface UseFilterHistoryReturn {
+  /** The current filter — wire this to a builder's `value`. */
+  current: Filter;
+  /** Commits a new filter (or updater) and pushes the previous onto the undo stack. */
+  setFilter: (filter: Filter | ((prev: Filter) => Filter)) => void;
+  /** Reverts to the previous state. No-op when `canUndo` is false. */
+  undo: () => void;
+  /** Re-applies the most recently undone state. No-op when `canRedo` is false. */
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  /** Clears the undo/redo history while keeping the current filter. */
+  clear: () => void;
+}
+
 export type MoveOperation = {
   type: 'rule' | 'group';
   id: string;
