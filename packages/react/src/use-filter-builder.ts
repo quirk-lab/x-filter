@@ -1,5 +1,15 @@
-import type { Filter, FilterGroup, FilterRule } from '@x-filter/core';
+import type {
+  Combinator,
+  Filter,
+  FilterAny,
+  FilterGroup,
+  FilterGroupIC,
+  FilterIC,
+  FilterRule,
+} from '@x-filter/core';
 import {
+  addGroupIC,
+  addRuleIC,
   addGroup as coreAddGroup,
   addRule as coreAddRule,
   moveRule as coreMoveRule,
@@ -8,19 +18,35 @@ import {
   updateGroup as coreUpdateGroup,
   updateRule as coreUpdateRule,
   createFilter,
+  generateId,
+  moveRuleIC,
+  removeGroupIC,
+  removeRuleIC,
+  setCombinatorIC,
+  updateGroupIC,
+  updateRuleIC,
 } from '@x-filter/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { UseFilterBuilderOptions, UseFilterBuilderReturn } from './types';
 
-export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBuilderReturn {
-  const { value, defaultValue, onChange, schema } = options;
-  const isControlled = value !== undefined;
+function createEmptyFilter(mode: 'standard' | 'ic'): FilterAny {
+  if (mode === 'ic') {
+    const empty: FilterIC = { id: generateId(), children: [] };
+    return empty;
+  }
+  return createFilter();
+}
 
-  const [internalFilter, setInternalFilter] = useState<Filter>(
-    () => defaultValue ?? createFilter()
+export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBuilderReturn {
+  const { value, defaultValue, onChange, schema, mode = 'standard' } = options;
+  const isControlled = value !== undefined;
+  const isIC = mode === 'ic';
+
+  const [internalFilter, setInternalFilter] = useState<FilterAny>(
+    () => defaultValue ?? createEmptyFilter(mode)
   );
 
-  const filter = isControlled ? value : internalFilter;
+  const filter: FilterAny = isControlled ? value : internalFilter;
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
   const latestFilterRef = useRef(filter);
@@ -30,14 +56,14 @@ export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBui
   }, [filter]);
 
   const applyMutation = useCallback(
-    (mutator: (prev: Filter) => Filter) => {
+    (mutator: (prev: FilterAny) => FilterAny) => {
       const nextFilter = mutator(latestFilterRef.current);
       latestFilterRef.current = nextFilter;
 
       if (!isControlled) {
         setInternalFilter(nextFilter);
       }
-      onChangeRef.current?.(nextFilter);
+      onChangeRef.current?.(nextFilter as Filter);
     },
     [isControlled]
   );
@@ -45,7 +71,7 @@ export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBui
   const setFilter = useCallback(
     (filterOrUpdater: Filter | ((prev: Filter) => Filter)) => {
       if (typeof filterOrUpdater === 'function') {
-        applyMutation(filterOrUpdater);
+        applyMutation((prev) => filterOrUpdater(prev as Filter));
       } else {
         applyMutation(() => filterOrUpdater);
       }
@@ -55,55 +81,91 @@ export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBui
 
   const addRule = useCallback(
     (groupId: string, rule?: Partial<FilterRule>) => {
-      applyMutation((prev) => coreAddRule(prev, groupId, rule ?? {}));
+      applyMutation((prev) =>
+        isIC
+          ? addRuleIC(prev as FilterIC, groupId, rule ?? {})
+          : coreAddRule(prev as Filter, groupId, rule ?? {})
+      );
     },
-    [applyMutation]
+    [applyMutation, isIC]
   );
 
   const removeRule = useCallback(
     (ruleId: string) => {
-      applyMutation((prev) => coreRemoveRule(prev, ruleId));
+      applyMutation((prev) =>
+        isIC ? removeRuleIC(prev as FilterIC, ruleId) : coreRemoveRule(prev as Filter, ruleId)
+      );
     },
-    [applyMutation]
+    [applyMutation, isIC]
   );
 
   const updateRule = useCallback(
     (ruleId: string, updates: Partial<Omit<FilterRule, 'id'>>) => {
-      applyMutation((prev) => coreUpdateRule(prev, ruleId, updates));
+      applyMutation((prev) =>
+        isIC
+          ? updateRuleIC(prev as FilterIC, ruleId, updates)
+          : coreUpdateRule(prev as Filter, ruleId, updates)
+      );
     },
-    [applyMutation]
+    [applyMutation, isIC]
   );
 
   const addGroup = useCallback(
     (parentGroupId: string, group?: Partial<FilterGroup>) => {
-      applyMutation((prev) => coreAddGroup(prev, parentGroupId, group));
+      applyMutation((prev) =>
+        isIC
+          ? addGroupIC(prev as FilterIC, parentGroupId, group as Partial<FilterGroupIC> | undefined)
+          : coreAddGroup(prev as Filter, parentGroupId, group)
+      );
     },
-    [applyMutation]
+    [applyMutation, isIC]
   );
 
   const removeGroup = useCallback(
     (groupId: string) => {
-      applyMutation((prev) => coreRemoveGroup(prev, groupId));
+      applyMutation((prev) =>
+        isIC ? removeGroupIC(prev as FilterIC, groupId) : coreRemoveGroup(prev as Filter, groupId)
+      );
     },
-    [applyMutation]
+    [applyMutation, isIC]
   );
 
   const updateGroupFn = useCallback(
     (groupId: string, updates: Partial<Pick<FilterGroup, 'combinator' | 'not'>>) => {
-      applyMutation((prev) => coreUpdateGroup(prev, groupId, updates));
+      applyMutation((prev) =>
+        isIC
+          ? updateGroupIC(prev as FilterIC, groupId, updates as Partial<Pick<FilterGroupIC, 'not'>>)
+          : coreUpdateGroup(prev as Filter, groupId, updates)
+      );
     },
-    [applyMutation]
+    [applyMutation, isIC]
   );
 
   const moveRuleFn = useCallback(
     (ruleId: string, targetGroupId: string, position: number) => {
-      applyMutation((prev) => coreMoveRule(prev, ruleId, targetGroupId, position));
+      applyMutation((prev) =>
+        isIC
+          ? moveRuleIC(prev as FilterIC, ruleId, targetGroupId, position)
+          : coreMoveRule(prev as Filter, ruleId, targetGroupId, position)
+      );
     },
-    [applyMutation]
+    [applyMutation, isIC]
+  );
+
+  const setCombinatorFn = useCallback(
+    (groupId: string, comboIndex: number, combinator: Combinator) => {
+      applyMutation((prev) =>
+        isIC
+          ? setCombinatorIC(prev as FilterIC, groupId, comboIndex, combinator)
+          : // Standard groups carry a single combinator; map every inline slot onto it.
+            coreUpdateGroup(prev as Filter, groupId, { combinator })
+      );
+    },
+    [applyMutation, isIC]
   );
 
   return {
-    filter,
+    filter: filter as Filter,
     setFilter,
     addRule,
     removeRule,
@@ -112,6 +174,7 @@ export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBui
     removeGroup,
     updateGroup: updateGroupFn,
     moveRule: moveRuleFn,
+    setCombinator: setCombinatorFn,
     schema,
   };
 }

@@ -10,6 +10,8 @@ export type { ShadcnFilterBuilderProps } from './filter-builder';
 export { ShadcnFilterBuilder } from './filter-builder';
 export type { ShadcnFilterGroupProps } from './group-block';
 export { ShadcnFilterGroup } from './group-block';
+export type { ShadcnInlineCombinatorProps } from './inline-combinator';
+export { ShadcnInlineCombinator } from './inline-combinator';
 export type { ShadcnNotToggleProps } from './not-toggle';
 export { ShadcnNotToggle } from './not-toggle';
 export type { ShadcnOperatorSelectorProps } from './operator-selector';

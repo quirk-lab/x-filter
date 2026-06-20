@@ -1,9 +1,11 @@
 import type {
+  Combinator,
   CompletionItem,
   FieldSchema,
   Filter,
   FilterAny,
   FilterGroup,
+  FilterGroupIC,
   FilterRule,
   OperatorDef,
   ValidationError,
@@ -11,11 +13,15 @@ import type {
 import type React from 'react';
 import type { ReactNode } from 'react';
 
+export type FilterBuilderMode = 'standard' | 'ic';
+
 export interface UseFilterBuilderOptions {
-  value?: Filter;
-  defaultValue?: Filter;
+  value?: FilterAny;
+  defaultValue?: FilterAny;
   onChange?: (filter: Filter) => void;
   schema: FieldSchema[];
+  /** `'ic'` drives an inline-combinator (FilterGroupIC) tree. Defaults to `'standard'`. */
+  mode?: FilterBuilderMode;
 }
 
 export interface UseFilterBuilderReturn {
@@ -28,6 +34,7 @@ export interface UseFilterBuilderReturn {
   removeGroup: (groupId: string) => void;
   updateGroup: (groupId: string, updates: Partial<Pick<FilterGroup, 'combinator' | 'not'>>) => void;
   moveRule: (ruleId: string, targetGroupId: string, position: number) => void;
+  setCombinator: (groupId: string, comboIndex: number, combinator: Combinator) => void;
   schema: FieldSchema[];
 }
 
@@ -62,7 +69,7 @@ export interface UseFilterUrlSyncReturn {
 }
 
 export interface UseFilterViewModelOptions {
-  filter: Filter;
+  filter: FilterAny;
   schema: FieldSchema[];
   errors?: Record<string, ValidationError[]>;
 }
@@ -91,6 +98,7 @@ export type FilterBuilderActionHandlers = {
   addGroup: (groupId: string, group?: Partial<FilterGroup>) => void;
   removeGroup: (groupId: string) => void;
   updateGroup: (groupId: string, updates: Partial<Pick<FilterGroup, 'combinator' | 'not'>>) => void;
+  setCombinator: (groupId: string, comboIndex: number, combinator: Combinator) => void;
   moveItem: (operation: MoveOperation) => void;
   canDrop: (dragId: string, targetGroupId: string) => boolean;
 };
@@ -111,9 +119,15 @@ export type FilterRuleViewModel = {
 export type FilterGroupViewModel = {
   kind: 'group';
   id: string;
-  group: FilterGroup;
+  group: FilterGroup | FilterGroupIC;
   depth: number;
   children: FilterNodeViewModel[];
+  /**
+   * Inline (IC) combinators between children: `combinators[i]` sits between
+   * `children[i]` and `children[i + 1]`. Present only for IC groups (length
+   * `children.length - 1`); `undefined` for standard groups.
+   */
+  combinators?: Combinator[];
   aria: {
     label: string;
     describedBy?: string;
@@ -179,11 +193,13 @@ export interface UseReorderContractReturn {
 }
 
 export interface UseFilterBuilderOrchestratorOptions {
-  value?: Filter;
-  defaultValue?: Filter;
+  value?: FilterAny;
+  defaultValue?: FilterAny;
   onChange?: (filter: Filter) => void;
   schema: FieldSchema[];
   errors?: Record<string, ValidationError[]>;
+  /** `'ic'` drives an inline-combinator (FilterGroupIC) tree. Defaults to `'standard'`. */
+  mode?: FilterBuilderMode;
 }
 
 export interface UseFilterBuilderOrchestratorReturn {

@@ -14,9 +14,9 @@ import { useReorderContract } from './use-reorder-contract';
 export function useFilterBuilderOrchestrator(
   options: UseFilterBuilderOrchestratorOptions
 ): UseFilterBuilderOrchestratorReturn {
-  const { value, defaultValue, onChange, schema, errors } = options;
+  const { value, defaultValue, onChange, schema, errors, mode } = options;
 
-  const builder = useFilterBuilder({ value, defaultValue, onChange, schema });
+  const builder = useFilterBuilder({ value, defaultValue, onChange, schema, mode });
   const viewModel = useFilterViewModel({
     filter: builder.filter,
     schema: builder.schema,
@@ -32,6 +32,7 @@ export function useFilterBuilderOrchestrator(
       addGroup: builder.addGroup,
       removeGroup: builder.removeGroup,
       updateGroup: builder.updateGroup,
+      setCombinator: builder.setCombinator,
       moveItem: reorder.moveItem,
       canDrop: reorder.canDrop,
     }),
@@ -42,6 +43,7 @@ export function useFilterBuilderOrchestrator(
       builder.addGroup,
       builder.removeGroup,
       builder.updateGroup,
+      builder.setCombinator,
       reorder.moveItem,
       reorder.canDrop,
     ]

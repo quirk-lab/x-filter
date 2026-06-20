@@ -212,7 +212,7 @@ export function AntdFilterBuilder({
           <Space className={classNames?.actions} wrap>
             <AntdCombinatorSelector
               label={labels?.combinator}
-              value={group.group.combinator}
+              value={'combinator' in group.group ? group.group.combinator : 'and'}
               onChange={(combinator) => actions.updateGroup(group.id, { combinator })}
             />
             <AntdNotToggle

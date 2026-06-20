@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import type { FieldSchema, Filter, FilterRule, ValidationError } from '@x-filter/core';
+import type { FieldSchema, Filter, FilterIC, FilterRule, ValidationError } from '@x-filter/core';
 import {
   Button,
   Card,
@@ -12,6 +12,7 @@ import {
   ShadcnFilterBuilder,
   ShadcnFilterGroup,
   ShadcnFilterRule,
+  ShadcnInlineCombinator,
   ShadcnNotToggle,
   ShadcnOperatorSelector,
   ShadcnValueEditor,
@@ -568,4 +569,67 @@ test('ShadcnFilterBuilder export coexists with legacy ValidatedInput export', ()
         (typeof exported === 'object' && exported !== null && '$$typeof' in exported)
     )
   ).toBe(true);
+});
+
+describe('ShadcnFilterBuilder IC (inline combinator) mode', () => {
+  const icFilter: FilterIC = {
+    id: 'root',
+    children: [
+      { id: 'r1', field: 'name', operator: 'equals', value: 'Ada' },
+      'and',
+      { id: 'r2', field: 'name', operator: 'equals', value: 'Bob' },
+      'or',
+      { id: 'r3', field: 'name', operator: 'equals', value: 'Cay' },
+    ],
+  };
+
+  const asIC = (filter: unknown): FilterIC => filter as FilterIC;
+
+  test('ShadcnInlineCombinator renders AND/OR and reports changes', () => {
+    const onChange = jest.fn();
+    render(<ShadcnInlineCombinator value="and" onChange={onChange} />);
+
+    const select = screen.getByRole('combobox', { name: 'Inline combinator' });
+    expect((select as HTMLSelectElement).value).toBe('and');
+
+    fireEvent.change(select, { target: { value: 'or' } });
+    expect(onChange).toHaveBeenCalledWith('or');
+  });
+
+  test('renders one inline combinator per gap and hides the group-level combinator', () => {
+    render(<ShadcnFilterBuilder schema={schema} mode="ic" value={icFilter} onChange={jest.fn()} />);
+
+    const combinators = screen.getAllByRole('combobox', { name: 'Inline combinator' });
+    expect(combinators).toHaveLength(2);
+    expect((combinators[0] as HTMLSelectElement).value).toBe('and');
+    expect((combinators[1] as HTMLSelectElement).value).toBe('or');
+    // group-level combinator selector should be absent in IC mode
+    expect(screen.queryByRole('combobox', { name: 'Combinator' })).toBeNull();
+  });
+
+  test('changing one inline combinator emits an IC filter with only that slot updated', () => {
+    const onChange = jest.fn();
+    render(<ShadcnFilterBuilder schema={schema} mode="ic" value={icFilter} onChange={onChange} />);
+
+    const combinators = screen.getAllByRole('combobox', { name: 'Inline combinator' });
+    fireEvent.change(combinators[1], { target: { value: 'and' } });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const next = asIC(onChange.mock.calls[0][0]);
+    expect(next.children[1]).toBe('and');
+    expect(next.children[3]).toBe('and');
+  });
+
+  test('uncontrolled IC mode adds rules separated by inline combinators', () => {
+    const emptyIC: FilterIC = { id: 'root', children: [] };
+    render(<ShadcnFilterBuilder schema={schema} mode="ic" defaultValue={emptyIC} />);
+
+    expect(screen.queryAllByRole('combobox', { name: 'Inline combinator' })).toHaveLength(0);
+
+    const addRule = screen.getByRole('button', { name: 'Add rule' });
+    fireEvent.click(addRule);
+    fireEvent.click(addRule);
+
+    expect(screen.getAllByRole('combobox', { name: 'Inline combinator' })).toHaveLength(1);
+  });
 });

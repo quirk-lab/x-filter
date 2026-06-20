@@ -4,6 +4,7 @@ export type {
   FilterBuilderActionHandlers,
   FilterBuilderClassNames,
   FilterBuilderLabels,
+  FilterBuilderMode,
   FilterBuilderSlotProps,
   FilterBuilderSlots,
   FilterGroupViewModel,

@@ -36,7 +36,7 @@ export function ShadcnFilterGroup({
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-2">
           <ShadcnCombinatorSelector
-            value={group.group.combinator}
+            value={'combinator' in group.group ? group.group.combinator : 'and'}
             onChange={(combinator) => onCombinatorChange(group.id, combinator)}
           />
           <ShadcnNotToggle
