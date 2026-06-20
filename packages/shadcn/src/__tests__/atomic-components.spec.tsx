@@ -50,6 +50,8 @@ const schema: FieldSchema[] = [
   },
   { name: 'enabled', label: 'Enabled', type: 'boolean' },
   { name: 'createdAt', label: 'Created at', type: 'date' },
+  { name: 'startTime', label: 'Start time', type: 'time' },
+  { name: 'happenedAt', label: 'Happened at', type: 'dateTime' },
   { name: 'emptyStatus', label: 'Empty status', type: 'select' },
   { name: 'emptyTags', label: 'Empty tags', type: 'multiSelect' },
   {
@@ -175,6 +177,58 @@ describe('shadcn atomic components', () => {
     );
     fireEvent.change(screen.getByLabelText('Value'), { target: { value: '2026-05-29' } });
     expect(onDateChange).toHaveBeenCalledWith('2026-05-29');
+  });
+
+  test('ShadcnValueEditor renders native time / datetime-local inputs', () => {
+    const onTimeChange = jest.fn();
+    const { rerender } = render(
+      <ShadcnValueEditor
+        schema={schema}
+        rule={{ id: 'r-time', field: 'startTime', operator: 'after', value: '09:00' }}
+        onChange={onTimeChange}
+      />
+    );
+    const timeInput = screen.getByLabelText('Value');
+    expect(timeInput.getAttribute('type')).toBe('time');
+    fireEvent.change(timeInput, { target: { value: '10:30' } });
+    expect(onTimeChange).toHaveBeenCalledWith('10:30');
+
+    const onDateTimeChange = jest.fn();
+    rerender(
+      <ShadcnValueEditor
+        schema={schema}
+        rule={{ id: 'r-dt', field: 'happenedAt', operator: 'before', value: '2026-01-01T09:00' }}
+        onChange={onDateTimeChange}
+      />
+    );
+    const dateTimeInput = screen.getByLabelText('Value');
+    expect(dateTimeInput.getAttribute('type')).toBe('datetime-local');
+    fireEvent.change(dateTimeInput, { target: { value: '2026-02-02T10:30' } });
+    expect(onDateTimeChange).toHaveBeenCalledWith('2026-02-02T10:30');
+  });
+
+  test('ShadcnValueEditor renders two datetime-local inputs for between operators', () => {
+    const onChange = jest.fn();
+    render(
+      <ShadcnValueEditor
+        schema={schema}
+        rule={{
+          id: 'r-between-dt',
+          field: 'happenedAt',
+          operator: 'between',
+          value: ['2026-01-01T00:00', '2026-12-31T23:59'],
+        }}
+        onChange={onChange}
+      />
+    );
+
+    const start = screen.getByLabelText('Start value');
+    const end = screen.getByLabelText('End value');
+    expect(start.getAttribute('type')).toBe('datetime-local');
+    expect(end.getAttribute('type')).toBe('datetime-local');
+
+    fireEvent.change(start, { target: { value: '2026-02-01T08:00' } });
+    expect(onChange).toHaveBeenCalledWith(['2026-02-01T08:00', '2026-12-31T23:59']);
   });
 
   test('ShadcnValueEditor renders two number inputs for between operators', () => {

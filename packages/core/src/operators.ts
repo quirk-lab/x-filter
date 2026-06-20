@@ -23,7 +23,10 @@ const numberOperators: OperatorDef[] = [
   { name: 'isNotEmpty', label: 'is not empty', arity: 'unary' },
 ];
 
-const dateOperators: OperatorDef[] = [
+// Shared by `date`, `time`, and `dateTime`: equality, ordering (before/after),
+// range (between), and emptiness. The value editor varies per type, but the
+// operator semantics are identical.
+const temporalOperators: OperatorDef[] = [
   { name: 'equals', label: 'equals', arity: 'binary' },
   { name: 'notEquals', label: 'not equals', arity: 'binary' },
   { name: 'before', label: 'before', arity: 'binary' },
@@ -52,7 +55,9 @@ const booleanOperators: OperatorDef[] = [{ name: 'equals', label: 'equals', arit
 export const defaultOperators: Record<FieldType, OperatorDef[]> = {
   text: textOperators,
   number: numberOperators,
-  date: dateOperators,
+  date: temporalOperators,
+  time: temporalOperators,
+  dateTime: temporalOperators,
   select: selectOperators,
   multiSelect: multiSelectOperators,
   boolean: booleanOperators,

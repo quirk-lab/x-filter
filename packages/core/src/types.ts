@@ -1,4 +1,12 @@
-export type FieldType = 'text' | 'number' | 'date' | 'select' | 'multiSelect' | 'boolean';
+export type FieldType =
+  | 'text'
+  | 'number'
+  | 'date'
+  | 'time'
+  | 'dateTime'
+  | 'select'
+  | 'multiSelect'
+  | 'boolean';
 
 export interface OperatorDef {
   name: string;

@@ -1,4 +1,4 @@
-import type { FieldSchema, FilterRule, OperatorDef } from '@x-filter/core';
+import type { FieldSchema, FieldType, FilterRule, OperatorDef } from '@x-filter/core';
 import {
   asArrayValue,
   asPairValue,
@@ -28,6 +28,14 @@ function asOptionalNumber(value: unknown): number | undefined {
   return typeof value === 'number' ? value : undefined;
 }
 
+// Temporal field types map to native HTML input types. Values are kept as the
+// input's string representation (`yyyy-mm-dd`, `HH:mm`, `yyyy-mm-ddTHH:mm`).
+const temporalInputType: Partial<Record<FieldType, 'date' | 'time' | 'datetime-local'>> = {
+  date: 'date',
+  time: 'time',
+  dateTime: 'datetime-local',
+};
+
 export function AntdValueEditor({
   schema,
   rule,
@@ -44,6 +52,7 @@ export function AntdValueEditor({
   const selectedField = field ?? findSchemaField(schema, rule.field);
   const selectedOperator = operator ?? findOperator(selectedField, rule.operator);
   const isDisabled = disabled || selectedOperator?.arity === 'unary';
+  const temporalType = selectedField ? temporalInputType[selectedField.type] : undefined;
 
   if (selectedOperator?.arity === 'unary') {
     return (
@@ -79,21 +88,21 @@ export function AntdValueEditor({
       );
     }
 
-    if (selectedField?.type === 'date') {
+    if (temporalType) {
       return (
         <Space.Compact className={className}>
           <Input
             aria-label={startLabel}
             disabled={disabled}
             onChange={(event) => onChange(updatePairValue(rule.value, 0, event.target.value))}
-            type="date"
+            type={temporalType}
             value={asStringValue(firstValue)}
           />
           <Input
             aria-label={endLabel}
             disabled={disabled}
             onChange={(event) => onChange(updatePairValue(rule.value, 1, event.target.value))}
-            type="date"
+            type={temporalType}
             value={asStringValue(secondValue)}
           />
         </Space.Compact>
@@ -160,14 +169,14 @@ export function AntdValueEditor({
     );
   }
 
-  if (selectedField?.type === 'date') {
+  if (temporalType) {
     return (
       <Input
         aria-label={label}
         className={className}
         disabled={isDisabled}
         onChange={(event) => onChange(event.target.value)}
-        type="date"
+        type={temporalType}
         value={asStringValue(rule.value)}
       />
     );
