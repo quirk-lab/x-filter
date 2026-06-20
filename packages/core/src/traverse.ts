@@ -64,22 +64,29 @@ function findPathHelper(node: FilterAny, targetId: string, path: string[]): bool
   return false;
 }
 
-export type TraverseCallback = (node: AnyNode, depth: number) => void;
+export type WalkCallback = (node: AnyNode, depth: number) => void;
 
-export function traverse(filter: FilterAny, callback: TraverseCallback): void {
-  traverseNode(filter, callback, 0);
+export function walk(filter: FilterAny, callback: WalkCallback): void {
+  walkNode(filter, callback, 0);
 }
 
-function traverseNode(node: AnyNode, callback: TraverseCallback, depth: number): void {
+function walkNode(node: AnyNode, callback: WalkCallback, depth: number): void {
   callback(node, depth);
 
   if (isGroupLike(node)) {
     const group = node as FilterGroup | FilterGroupIC;
     for (const c of group.conditions) {
       if (typeof c === 'string') continue;
-      traverseNode(c, callback, depth + 1);
+      walkNode(c, callback, depth + 1);
     }
   }
+}
+
+/** @deprecated Use `walk` instead. */
+export type TraverseCallback = WalkCallback;
+
+export function traverse(filter: FilterAny, callback: TraverseCallback): void {
+  walk(filter, callback);
 }
 
 export function flattenRules(filter: FilterAny): FilterRule[] {

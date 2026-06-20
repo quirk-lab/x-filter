@@ -44,8 +44,8 @@ export {
 export { negateGroup, negateRule } from './negate';
 export { defaultOperators, getOperators } from './operators';
 export { fromJSON, toJSON } from './serialize-json';
-export type { TraverseCallback } from './traverse';
-export { findById, findParent, flattenRules, getPath, traverse } from './traverse';
+export type { TraverseCallback, WalkCallback } from './traverse';
+export { findById, findParent, flattenRules, getPath, traverse, walk } from './traverse';
 export type {
   Combinator,
   FieldSchema,
