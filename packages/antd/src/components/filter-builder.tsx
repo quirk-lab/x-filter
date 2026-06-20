@@ -9,7 +9,12 @@ import type {
   FilterNodeViewModel,
   FilterRuleViewModel,
 } from '@x-filter/react';
-import { useFilterBuilder, useFilterViewModel, useReorderContract } from '@x-filter/react';
+import {
+  getDefaultRuleUpdatesForField,
+  useFilterBuilder,
+  useFilterViewModel,
+  useReorderContract,
+} from '@x-filter/react';
 import { Button, Card, Space } from 'antd';
 import { useMemo } from 'react';
 import { AntdCombinatorSelector } from './combinator-selector';
@@ -18,7 +23,6 @@ import { AntdFieldSelector } from './field-selector';
 import { AntdFilterGroup } from './group-block';
 import { AntdNotToggle } from './not-toggle';
 import { AntdOperatorSelector } from './operator-selector';
-import { getDefaultRuleUpdatesForField } from './rule-defaults';
 import { AntdFilterRule } from './rule-row';
 import { SortableFilterContext, SortableFilterItem } from './sortable-context';
 import { AntdValueEditor } from './value-editor';

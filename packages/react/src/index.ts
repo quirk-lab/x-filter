@@ -42,6 +42,7 @@ export function useFilteredArray<T>(array: readonly (T | null | undefined)[]): T
   );
 }
 
+export { getDefaultRuleUpdatesForField } from './rule-defaults';
 export { useDslEditor } from './use-dsl-editor';
 export { useFilterBuilder } from './use-filter-builder';
 export { useFilterDsl } from './use-filter-dsl';

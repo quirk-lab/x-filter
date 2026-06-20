@@ -1,10 +1,10 @@
 import type { FieldSchema, FilterRule } from '@x-filter/core';
 import type { FilterRuleViewModel } from '@x-filter/react';
+import { getDefaultRuleUpdatesForField } from '@x-filter/react';
 import { ShadcnFieldSelector } from './field-selector';
 import { ShadcnNotToggle } from './not-toggle';
 import { ShadcnOperatorSelector } from './operator-selector';
 import { Button, cn } from './primitives';
-import { getDefaultRuleUpdatesForField } from './rule-defaults';
 import { ShadcnValueEditor } from './value-editor';
 
 export interface ShadcnFilterRuleProps {
