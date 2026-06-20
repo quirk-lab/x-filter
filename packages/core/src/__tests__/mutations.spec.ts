@@ -397,6 +397,86 @@ describe('moveRule', () => {
     expect(result.conditions[0]).toMatchObject({ id: 'r2' });
     expect(result.conditions[1]).toMatchObject({ id: 'r1' });
   });
+
+  it('moves rule forward within same group (currentIdx < position)', () => {
+    const filter: Filter = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [
+        { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+        { id: 'r2', field: 'b', operator: 'eq', value: 2 },
+        { id: 'r3', field: 'c', operator: 'eq', value: 3 },
+      ],
+    };
+    // Move r1 (index 0) to position 2 (after removal, this means index 2 in the 2-element array)
+    const result = moveRule(filter, 'r1', 'root', 2);
+    expect(result.conditions[0]).toMatchObject({ id: 'r2' });
+    expect(result.conditions[1]).toMatchObject({ id: 'r3' });
+    expect(result.conditions[2]).toMatchObject({ id: 'r1' });
+  });
+
+  it('moves rule backward within same group (currentIdx > position)', () => {
+    const filter: Filter = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [
+        { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+        { id: 'r2', field: 'b', operator: 'eq', value: 2 },
+        { id: 'r3', field: 'c', operator: 'eq', value: 3 },
+      ],
+    };
+    // Move r3 (index 2) to position 0
+    const result = moveRule(filter, 'r3', 'root', 0);
+    expect(result.conditions[0]).toMatchObject({ id: 'r3' });
+    expect(result.conditions[1]).toMatchObject({ id: 'r1' });
+    expect(result.conditions[2]).toMatchObject({ id: 'r2' });
+  });
+
+  it('moves rule to same position (no-op within same group)', () => {
+    const filter: Filter = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [
+        { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+        { id: 'r2', field: 'b', operator: 'eq', value: 2 },
+      ],
+    };
+    const result = moveRule(filter, 'r1', 'root', 0);
+    expect(result.conditions[0]).toMatchObject({ id: 'r1' });
+    expect(result.conditions[1]).toMatchObject({ id: 'r2' });
+  });
+
+  it('cross-group move does not leave duplicate in source', () => {
+    const filter: Filter = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [
+        {
+          id: 'g1',
+          combinator: 'or',
+          conditions: [
+            { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+            { id: 'r2', field: 'b', operator: 'eq', value: 2 },
+          ],
+        },
+        {
+          id: 'g2',
+          combinator: 'and',
+          conditions: [],
+        },
+      ],
+    };
+    const result = moveRule(filter, 'r1', 'g2', 0);
+    const g1 = result.conditions[0] as Filter;
+    const g2 = result.conditions[1] as Filter;
+    expect(g1.conditions).toHaveLength(1);
+    expect(g1.conditions[0]).toMatchObject({ id: 'r2' });
+    expect(g2.conditions).toHaveLength(1);
+    expect(g2.conditions[0]).toMatchObject({ id: 'r1' });
+    // Verify no duplicate r1 anywhere in the tree
+    const r1Count = JSON.stringify(result).split('"id":"r1"').length - 1;
+    expect(r1Count).toBe(1);
+  });
 });
 
 describe('addGroup', () => {
