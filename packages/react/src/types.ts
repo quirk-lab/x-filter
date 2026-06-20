@@ -70,6 +70,38 @@ export interface UseFilterUrlSyncReturn {
   error: string | null;
 }
 
+export interface FilterPreset {
+  name: string;
+  filter: Filter;
+  createdAt: number;
+}
+
+/** Minimal Web Storage surface so the hook stays SSR-safe and test-injectable. */
+export interface PresetStorage {
+  getItem: (key: string) => string | null;
+  setItem: (key: string, value: string) => void;
+}
+
+export interface UseFilterPresetsOptions {
+  /** localStorage key the preset list is persisted under. Defaults to `'x-filter-presets'`. */
+  storageKey?: string;
+  /** Cap on stored presets; oldest are dropped FIFO once exceeded. Defaults to `10`. */
+  maxPresets?: number;
+  /** Injectable storage (defaults to `window.localStorage`, falling back to in-memory under SSR). */
+  storage?: PresetStorage;
+  serialize?: (filter: Filter) => string;
+  deserialize?: (raw: string) => Filter;
+}
+
+export interface UseFilterPresetsReturn {
+  presets: FilterPreset[];
+  save: (name: string, filter: Filter) => void;
+  load: (index: number) => Filter | null;
+  remove: (index: number) => void;
+  rename: (index: number, name: string) => void;
+  clear: () => void;
+}
+
 export interface UseFilterViewModelOptions {
   filter: FilterAny;
   schema: FieldSchema[];
