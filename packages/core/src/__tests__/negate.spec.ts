@@ -1,5 +1,5 @@
 import { negateGroup, negateRule } from '../negate';
-import type { Filter } from '../types';
+import type { Filter, FilterIC } from '../types';
 
 describe('negateRule', () => {
   it('sets not to true on rule without not', () => {
@@ -178,5 +178,63 @@ describe('negateGroup', () => {
     expect(result).not.toBe(filter);
     expect(filter.conditions[0]).not.toHaveProperty('not');
     expect(result.conditions[0]).toMatchObject({ not: true });
+  });
+});
+
+describe('negateRule on IC mode', () => {
+  it('toggles not on an IC rule (skips combinator strings)', () => {
+    const ic: FilterIC = {
+      id: 'root',
+      conditions: [
+        { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+        'and',
+        { id: 'r2', field: 'b', operator: 'eq', value: 2 },
+      ],
+    };
+    const result = negateRule(ic, 'r2');
+    expect(result.conditions[1]).toBe('and');
+    expect(result.conditions[2]).toMatchObject({ id: 'r2', not: true });
+  });
+
+  it('negates rule inside nested IC group', () => {
+    const ic: FilterIC = {
+      id: 'root',
+      conditions: [
+        {
+          id: 'g1',
+          conditions: [
+            { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+            'or',
+            { id: 'r2', field: 'b', operator: 'eq', value: 2 },
+          ],
+        },
+      ],
+    };
+    const result = negateRule(ic, 'r1');
+    const g1 = result.conditions[0] as FilterIC;
+    expect(g1.conditions[0]).toMatchObject({ id: 'r1', not: true });
+    expect(g1.conditions[1]).toBe('or');
+  });
+});
+
+describe('negateGroup on IC mode', () => {
+  it('toggles not on an IC group', () => {
+    const ic: FilterIC = {
+      id: 'root',
+      conditions: [
+        { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+        'and',
+        { id: 'g1', conditions: [] },
+      ],
+    };
+    const result = negateGroup(ic, 'g1');
+    expect(result.conditions[2]).toMatchObject({ id: 'g1', not: true });
+    expect(result.conditions[1]).toBe('and');
+  });
+
+  it('negates root IC group', () => {
+    const ic: FilterIC = { id: 'root', conditions: [] };
+    const result = negateGroup(ic, 'root');
+    expect(result).toMatchObject({ id: 'root', not: true });
   });
 });
