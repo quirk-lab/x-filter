@@ -15,6 +15,7 @@ import {
   MoveControls,
   resolveLabels,
   useFilterBuilderOrchestrator,
+  useFilterKeyboardNav,
 } from '@x-filter/react';
 import type { ReactNode } from 'react';
 import { ShadcnCombinatorSelector } from './combinator-selector';
@@ -69,6 +70,48 @@ export function ShadcnFilterBuilder({
   const resolvedLabels = resolveLabels(labels);
   // Drag-and-drop is an editing affordance; suppress it entirely in read-only.
   const dndEnabled = dnd && !readOnly;
+
+  const rootId = viewModel.root.id;
+  const keyboard = useFilterKeyboardNav({
+    // The root group is structural and cannot be removed/cloned via keyboard.
+    onDeleteNode: readOnly
+      ? undefined
+      : (id, kind) => {
+          if (id === rootId) return;
+          if (kind === 'group') actions.removeGroup(id);
+          else actions.removeRule(id);
+        },
+    onCloneNode: readOnly
+      ? undefined
+      : (id, kind) => {
+          if (id === rootId) return;
+          if (kind === 'group') actions.cloneGroup(id);
+          else actions.cloneRule(id);
+        },
+  });
+  // Global pre-order index for roving tabindex; reset every render. The index is
+  // claimed BEFORE rendering descendants so parents precede their children.
+  let treeItemIndex = 0;
+
+  // Wraps a node as an ARIA `treeitem`. The treeitem must be the OUTERMOST
+  // wrapper of every node so that interactive affordances rendered alongside the
+  // node (e.g. the drag handle) live inside a treeitem and never become direct,
+  // disallowed children of the `tree`. `renderInner` is a thunk so the node's
+  // own index is claimed before its descendants' (pre-order).
+  const renderTreeItem = (node: FilterNodeViewModel, renderInner: () => ReactNode): ReactNode => {
+    const index = treeItemIndex++;
+    const inner = renderInner();
+    const expanded = node.kind === 'group' && node.children.length > 0 ? true : undefined;
+    const itemProps = keyboard.getItemProps(node.id, index, node.kind, {
+      label: node.aria.label,
+      expanded,
+    });
+    return (
+      <div {...itemProps} key={node.id}>
+        {inner}
+      </div>
+    );
+  };
 
   const renderRule = (rule: FilterRuleViewModel) => {
     if (slots?.Rule) {
@@ -170,7 +213,7 @@ export function ShadcnFilterBuilder({
     );
   };
 
-  const renderNode = (node: FilterNodeViewModel) => {
+  const renderNode = (node: FilterNodeViewModel): ReactNode => {
     if (node.kind === 'rule') {
       return renderRule(node);
     }
@@ -178,7 +221,7 @@ export function ShadcnFilterBuilder({
     return renderGroup(node);
   };
 
-  const renderGroup = (group: FilterGroupViewModel) => {
+  const renderGroup = (group: FilterGroupViewModel): ReactNode => {
     // IC groups carry per-position combinators; render them interleaved between
     // rules (and skip DnD, which is a standard-mode concern).
     const isIC = group.combinators !== undefined;
@@ -197,15 +240,15 @@ export function ShadcnFilterBuilder({
             />
           );
         }
-        interleaved.push(<div key={child.id}>{renderNode(child)}</div>);
+        interleaved.push(renderTreeItem(child, () => renderNode(child)));
       });
       return renderGroupShell(group, interleaved, group.children.length > 0);
     }
 
     const children = group.children.map((child, index) =>
-      dndEnabled ? (
-        <SortableFilterItem key={child.id} id={child.id}>
-          <div>
+      renderTreeItem(child, () =>
+        dndEnabled ? (
+          <SortableFilterItem id={child.id}>
             <MoveControls
               canMoveChild={canMoveChild}
               child={child}
@@ -215,10 +258,10 @@ export function ShadcnFilterBuilder({
               moveChild={moveChild}
             />
             {renderNode(child)}
-          </div>
-        </SortableFilterItem>
-      ) : (
-        <div key={child.id}>{renderNode(child)}</div>
+          </SortableFilterItem>
+        ) : (
+          renderNode(child)
+        )
       )
     );
     const orderedChildren = dndEnabled ? (
@@ -323,7 +366,12 @@ export function ShadcnFilterBuilder({
     );
   };
 
-  const tree = renderGroup(viewModel.root);
+  // The root group is itself a treeitem so its header controls (and the DnD live
+  // region) are shielded from the `tree`'s required-children check.
+  const tree = renderTreeItem(viewModel.root, () => renderGroup(viewModel.root));
+  // The tree region owns keyboard navigation; the DSL editor sits outside it so
+  // its textarea is not treated as a tree node.
+  const treeRegion = <div {...keyboard.containerProps}>{tree}</div>;
   const dslEditor =
     dsl && !readOnly ? (
       <ShadcnDslEditor
@@ -338,10 +386,10 @@ export function ShadcnFilterBuilder({
   const children = dslEditor ? (
     <div className="flex flex-col gap-4">
       {dslEditor}
-      {tree}
+      {treeRegion}
     </div>
   ) : (
-    tree
+    treeRegion
   );
 
   if (slots?.Root) {

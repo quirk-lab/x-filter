@@ -63,7 +63,7 @@
 - [x] #23 Undo/Redo → 新增 `useFilterHistory` hook（past/present/future 栈，`current`/`setFilter`/`undo`/`redo`/`canUndo`/`canRedo`/`clear`，`maxHistory` 默认 50，相同引用 no-op）。导出 + 10 个单测 + Storybook `Scenarios/Undo Redo` demo（工具栏按钮 + Ctrl/Cmd+Z / Shift+Z 快捷键）。验证：934 测试全过、覆盖率达标、storybook build。UI 快捷键留给消费者（按 issue「UI 可选」）
 - [x] #21 i18n 多语言 → 内置 locale 包 `enUS`/`zhCN`/`jaJP`（均为 `Required<FilterBuilderLabels>`，编译期保证 key 齐全）+ `locales` 注册表 + `LocaleCode` 类型，从 @x-filter/react 导出。传给现有 `labels` prop 即可。新增 locales 单测（key parity / 非空 / 注册表）+ Storybook `Scenarios/i18n` 语言切换 demo + README 章节。验证：938 测试全过、覆盖率达标（注意：locale 测试需经 @x-filter/react 桶文件导入以覆盖 re-export getter）、storybook build
 - [x] #24 Import Filter UI → 共享 `parseFilterInput`（react，DSL/JSON → Filter 判别式结果）+ `ShadcnImportFilterDialog`（自建 overlay dialog）/ `AntdImportFilterDialog`（antd Modal）：格式切换 DSL/JSON、解析、预览、确认导入、错误内联。新增 react 解析单测 + shadcn/antd 对话框集成测试 + Storybook `Scenarios/Import` demo。验证：955 测试全过、覆盖率达标、storybook build
-- [ ] #25 Keyboard Navigation
+- [x] #25 Keyboard Navigation → headless `useFilterKeyboardNav`（roving tabindex + WAI-ARIA tree 键盘语义：↑/↓、Home/End、Enter 进入控件、Esc 退回行、Delete 删除、Ctrl/Cmd+D 克隆）。Builder 整棵树渲染为 ARIA `tree`，每个 rule/group 是 `treeitem`（根分组本身也是 treeitem，以屏蔽其头部控件 + DnD live region，满足 `aria-required-children`），group 带 `aria-expanded`、聚焦行带 `aria-selected`；根分组不可键盘删除/克隆，readOnly 下禁用改动型快捷键但保留浏览。hook 全权拥有 ARIA 属性（spread 输出 `role`/`aria-*`）。新增 hook 单测 + shadcn/antd builder 集成测试 + Storybook `Scenarios/Keyboard Navigation` demo + README 章节。验证：976 测试全过、覆盖率达标、typecheck、biome
 - [ ] #28 time/dateTime 字段类型
 - [ ] #26 JsonLogic/MongoDB/ES 导出
 - [ ] #27 Responsive 移动端适配
