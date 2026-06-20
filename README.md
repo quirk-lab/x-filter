@@ -116,6 +116,23 @@ function Demo() {
 
 可选项：`paramName`（默认 `filter`）、`getSearchParams` / `setSearchParams`（自定义适配器，便于 Next.js router 或 SSR 测试注入）。解析失败时 `error` 会返回错误信息而非抛出。
 
+## 🌐 国际化 (i18n)
+
+`@x-filter/react` 内置多语言文案包，直接传给 `labels` prop 即可，无需逐条翻译：
+
+```tsx
+import { zhCN, enUS, jaJP, locales } from '@x-filter/react';
+import { ShadcnFilterBuilder } from '@x-filter/shadcn';
+
+<ShadcnFilterBuilder schema={schema} labels={zhCN} />;
+
+// 或用 locale 注册表做语言切换
+const [code, setCode] = useState<'en-US' | 'zh-CN' | 'ja-JP'>('zh-CN');
+<ShadcnFilterBuilder schema={schema} labels={locales[code]} />;
+```
+
+内置 `en-US`、`zh-CN`、`ja-JP`，均为完整 `FilterBuilderLabels`（编译期 `Required` 校验，保证 key 齐全）。仍可只覆盖部分 key：`labels={{ ...zhCN, addRule: '新增条件' }}`。
+
 ## 📖 文档
 
 每个包都有自己的 README 文档，详细说明了使用方法和 API。

@@ -65,6 +65,8 @@ export {
   removeConditionFromDsl,
   removeLastChipFromDsl,
 } from './dsl-token-utils';
+export type { LocaleCode } from './locales';
+export { enUS, jaJP, locales, zhCN } from './locales';
 export type { MoveControlsProps } from './move-controls';
 export { MoveControls } from './move-controls';
 export type { RenderMode, ResolvedLabels } from './render-decisions';
