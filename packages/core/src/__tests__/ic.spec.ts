@@ -747,4 +747,58 @@ describe('moveRuleIC', () => {
     };
     expect(() => moveRuleIC(ic, 'r1', 'nope', 0)).toThrow('Target group not found: nope');
   });
+
+  it('moves rule from descendant group to ancestor group without duplicates', () => {
+    const ic: FilterIC = {
+      id: 'root',
+      conditions: [
+        {
+          id: 'g1',
+          conditions: [
+            {
+              id: 'g2',
+              conditions: [{ id: 'r1', field: 'a', operator: 'eq', value: 1 }],
+            },
+          ],
+        },
+      ],
+    };
+    // Move r1 from g2 (descendant) to g1 (ancestor) at item position 0
+    const result = moveRuleIC(ic, 'r1', 'g1', 0);
+    const g1 = result.conditions[0] as FilterIC;
+    expect(icItemIds(g1.conditions)).toEqual(['r1', 'g2']);
+    const g2 = g1.conditions[2] as FilterIC;
+    expect(icItemIds(g2.conditions)).toEqual([]);
+    // Verify no duplicate r1 anywhere in the tree
+    const r1Count = JSON.stringify(result).split('"id":"r1"').length - 1;
+    expect(r1Count).toBe(1);
+  });
+
+  it('moves rule from ancestor group to descendant group without duplicates', () => {
+    const ic: FilterIC = {
+      id: 'root',
+      conditions: [
+        {
+          id: 'g1',
+          conditions: [
+            { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+            'and',
+            {
+              id: 'g2',
+              conditions: [{ id: 'r2', field: 'b', operator: 'eq', value: 2 }],
+            },
+          ],
+        },
+      ],
+    };
+    // Move r1 from g1 (ancestor) to g2 (descendant) at item position 1
+    const result = moveRuleIC(ic, 'r1', 'g2', 1);
+    const g1 = result.conditions[0] as FilterIC;
+    expect(icItemIds(g1.conditions)).toEqual(['g2']);
+    const g2 = g1.conditions[0] as FilterIC;
+    expect(icItemIds(g2.conditions)).toEqual(['r2', 'r1']);
+    // Verify no duplicate r1 anywhere in the tree
+    const r1Count = JSON.stringify(result).split('"id":"r1"').length - 1;
+    expect(r1Count).toBe(1);
+  });
 });

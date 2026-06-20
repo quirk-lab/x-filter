@@ -11,6 +11,14 @@ import { negateGroup as coreNegateGroup, negateRule as coreNegateRule } from './
 import type { FilterAny, FilterGroup, FilterGroupIC, FilterRule } from './types';
 
 /**
+ * Maps a filter type to its corresponding group type.
+ * `FilterGroup` → `FilterGroup`, `FilterGroupIC` → `FilterGroupIC`.
+ * This ensures `addGroup` accepts the correct group shape per mode
+ * (e.g. IC groups reject `combinator` at compile time).
+ */
+type GroupOf<T extends FilterAny> = T extends FilterGroup ? FilterGroup : FilterGroupIC;
+
+/**
  * Abstract mutation interface that normalizes parameter differences between
  * standard and IC modes. Contract tests run the same logical scenarios
  * (asserted via item-id lists, not raw array structure) against both
@@ -26,7 +34,7 @@ export interface MutationAdapter<TFilter extends FilterAny = FilterAny> {
   updateRule(filter: TFilter, ruleId: string, updates: Partial<Omit<FilterRule, 'id'>>): TFilter;
   removeRule(filter: TFilter, ruleId: string): TFilter;
   moveRule(filter: TFilter, ruleId: string, targetGroupId: string, position: number): TFilter;
-  addGroup(filter: TFilter, parentGroupId: string, group?: Partial<FilterGroup>): TFilter;
+  addGroup(filter: TFilter, parentGroupId: string, group?: Partial<GroupOf<TFilter>>): TFilter;
   removeGroup(filter: TFilter, groupId: string): TFilter;
   negateRule(filter: TFilter, ruleId: string): TFilter;
   negateGroup(filter: TFilter, groupId: string): TFilter;

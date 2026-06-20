@@ -10,7 +10,7 @@ The two modes have parameter differences that prevent a single unified API: `add
 
 Keep **parallel function names** (`addRule` / `addRuleIC`, `updateGroup` / `updateGroupIC`, etc.) rather than unifying into FilterAny functions. Introduce an abstract `MutationAdapter` interface that both modes implement. Contract tests run the same logical scenarios (asserted via item-id lists, not raw array structure) against both adapter implementations.
 
-Shared tree-mutation primitives (`updateGroupInTree`, `updateRuleInTree`, `removeConditionFromTree`) are extracted into `tree-mutations.ts` as FilterAny versions that skip string combinators. Both `mutations.ts`, `ic.ts`, and `negate.ts` import from it. `negateRule` / `negateGroup` are generalized to FilterAny—no IC variants needed.
+Shared tree-mutation primitives (`updateGroupInTreeAny`, `updateRuleInTreeAny`, `removeConditionFromTreeAny`) are extracted into `tree-mutations.ts` as FilterAny versions that skip string combinators. Both `mutations.ts`, `ic.ts`, and `negate.ts` import from it. `negateRule` / `negateGroup` are generalized to FilterAny—no IC variants needed.
 
 ## Rejected: unified FilterAny functions
 
