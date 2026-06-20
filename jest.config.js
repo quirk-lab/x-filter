@@ -50,7 +50,6 @@ module.exports = {
   },
   projects: [
     makeProject('core'),
-    makeProject('utils'),
     makeProject('react'),
     makeProject('playground'),
     makeProject('antd'),
