@@ -133,6 +133,47 @@ test('ShadcnFilterBuilder passes external validation errors to rule slots', () =
   expect(screen.getByText('Name is invalid')).not.toBeNull();
 });
 
+test('ShadcnFilterBuilder renders inline validation on the atomic value editor', () => {
+  const errors: Record<string, ValidationError[]> = {
+    r1: [{ type: 'missingValue', message: 'Value is required' }],
+  };
+
+  render(
+    <ShadcnFilterBuilder
+      schema={schema}
+      defaultValue={singleRuleFilter({ id: 'r1', field: 'name', operator: 'equals', value: '' })}
+      errors={errors}
+    />
+  );
+
+  const valueInput = screen.getByRole('textbox', { name: 'Value' });
+  const message = screen.getByText('Value is required');
+
+  expect(valueInput.getAttribute('aria-invalid')).toBe('true');
+  expect(valueInput.className).toContain('border-destructive');
+  expect(message.getAttribute('id')).toBe('r1-errors');
+  expect(valueInput.getAttribute('aria-describedby')).toBe('r1-errors');
+});
+
+test('ShadcnFilterBuilder leaves the value editor unmarked when a rule is valid', () => {
+  render(
+    <ShadcnFilterBuilder
+      schema={schema}
+      defaultValue={singleRuleFilter({
+        id: 'r1',
+        field: 'name',
+        operator: 'equals',
+        value: 'Ada',
+      })}
+    />
+  );
+
+  const valueInput = screen.getByRole('textbox', { name: 'Value' });
+  expect(valueInput.getAttribute('aria-invalid')).toBeNull();
+  expect(valueInput.getAttribute('aria-describedby')).toBeNull();
+  expect(valueInput.className).not.toContain('border-destructive');
+});
+
 test('ShadcnFilterBuilder applies classNames and custom action labels', () => {
   const onChange = jest.fn();
   const { container } = render(

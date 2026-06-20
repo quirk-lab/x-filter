@@ -52,6 +52,8 @@ export const ShadcnFilterRule = memo(function ShadcnFilterRule({
         onChange={(operator) => onChange(rule.id, { operator })}
       />
       <ShadcnValueEditor
+        errorId={rule.aria.describedBy}
+        errors={rule.errors}
         field={rule.field}
         operator={rule.operator}
         schema={schema}

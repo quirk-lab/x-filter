@@ -118,6 +118,8 @@ export function ShadcnFilterBuilder({
           <ShadcnValueEditor
             className={classNames?.valueEditor}
             endLabel={labels?.endValue}
+            errorId={rule.aria.describedBy}
+            errors={rule.errors}
             field={rule.field}
             label={labels?.value}
             noValueLabel={labels?.noValue}
