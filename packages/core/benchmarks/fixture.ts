@@ -6,6 +6,20 @@
 import { convertToIC } from '../src/ic';
 import type { FieldSchema, Filter, FilterGroup, FilterGroupIC, FilterRule } from '../src/types';
 
+// ── Deterministic PRNG (mulberry32) ───────────────────────────────────
+
+let rngState = 1;
+function seedRng(seed: number): void {
+  rngState = seed;
+}
+function random(): number {
+  rngState |= 0;
+  rngState = (rngState + 0x6d2b79f5) | 0;
+  let t = Math.imul(rngState ^ (rngState >>> 15), 1 | rngState);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
 let idCounter = 0;
 function makeId(): string {
   return `n${(idCounter++).toString(36)}`;
@@ -13,6 +27,7 @@ function makeId(): string {
 
 export function resetIds(): void {
   idCounter = 0;
+  seedRng(42);
 }
 
 // ── 25 fields covering all FieldType variants ──────────────────────────
@@ -99,26 +114,26 @@ function opsForType(type: FieldSchema['type']): string[] {
 function randomValue(field: FieldSchema): unknown {
   switch (field.type) {
     case 'text':
-      return `value_${Math.random().toString(36).slice(2, 8)}`;
+      return `value_${random().toString(36).slice(2, 8)}`;
     case 'number':
-      return Math.floor(Math.random() * 1000);
+      return Math.floor(random() * 1000);
     case 'date':
-      return `2024-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`;
+      return `2024-${String(Math.floor(random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(random() * 28) + 1).padStart(2, '0')}`;
     case 'select':
-      return field.values?.[Math.floor(Math.random() * field.values.length)]?.value ?? 'open';
+      return field.values?.[Math.floor(random() * field.values.length)]?.value ?? 'open';
     case 'multiSelect':
       return field.values?.[0]?.value ?? 'tag1';
     case 'boolean':
-      return Math.random() > 0.5;
+      return random() > 0.5;
   }
 }
 
 // ── Standard filter tree builder ──────────────────────────────────────
 
 function makeRule(schema: FieldSchema[]): FilterRule {
-  const field = schema[Math.floor(Math.random() * schema.length)];
+  const field = schema[Math.floor(random() * schema.length)];
   const ops = opsForType(field.type);
-  const op = ops[Math.floor(Math.random() * ops.length)];
+  const op = ops[Math.floor(random() * ops.length)];
   let value: unknown;
   if (op === 'isEmpty' || op === 'isNotEmpty') {
     value = null;
@@ -143,9 +158,9 @@ export function makeFilter(targetRules: number = 100, maxDepth: number = 3): Fil
     let left = remaining;
 
     while (left > 0) {
-      if (depth < maxDepth && left > 5 && Math.random() < 0.25) {
+      if (depth < maxDepth && left > 5 && random() < 0.25) {
         // nested group
-        const groupSize = Math.max(2, Math.floor(left * (0.2 + Math.random() * 0.3)));
+        const groupSize = Math.max(2, Math.floor(left * (0.2 + random() * 0.3)));
         children.push(buildGroup(groupSize, depth + 1));
         left -= groupSize;
       } else {
@@ -156,7 +171,7 @@ export function makeFilter(targetRules: number = 100, maxDepth: number = 3): Fil
 
     return {
       id: makeId(),
-      combinator: Math.random() > 0.3 ? 'and' : 'or',
+      combinator: random() > 0.3 ? 'and' : 'or',
       children,
     };
   }

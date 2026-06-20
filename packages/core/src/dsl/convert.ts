@@ -1,4 +1,5 @@
 import type { IdGenerator } from '../id';
+import { generateId } from '../id';
 import type { Filter, FilterGroup, FilterRule } from '../types';
 import { isFilterRule } from '../types';
 import type { ASTCondition, ASTNode, ASTValue } from './types';
@@ -60,18 +61,10 @@ function convertNode(node: ASTNode, gen: IdGenerator): FilterRule | FilterGroup 
   }
 }
 
-export function astToFilter(ast: ASTNode, idGenerator?: IdGenerator): Filter {
-  let gen: IdGenerator;
-  if (idGenerator) {
-    gen = idGenerator;
-  } else {
-    const ts = Date.now().toString(36);
-    let n = 0;
-    gen = () => `${ts}-${(n++).toString(36)}`;
-  }
-  const result = convertNode(ast, gen);
+export function astToFilter(ast: ASTNode, idGenerator: IdGenerator = generateId): Filter {
+  const result = convertNode(ast, idGenerator);
   if ('combinator' in result) return result;
-  return { id: gen(), combinator: 'and', children: [result] };
+  return { id: idGenerator(), combinator: 'and', children: [result] };
 }
 
 function convertValueToAST(value: unknown): ASTValue | null {

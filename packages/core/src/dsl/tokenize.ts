@@ -21,7 +21,7 @@ const CC_LBRACE = 123;
 const CC_RBRACE = 125;
 
 function isWhitespace(cc: number): boolean {
-  return cc === CC_SPACE || cc === CC_TAB || cc === CC_LF || cc === CC_CR;
+  return cc === CC_SPACE || cc === CC_TAB || cc === CC_LF || cc === CC_CR || cc === 11 || cc === 12;
 }
 
 function isDigitCode(cc: number): boolean {
