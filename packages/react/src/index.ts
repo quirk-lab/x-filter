@@ -42,6 +42,11 @@ export function useFilteredArray<T>(array: readonly (T | null | undefined)[]): T
   );
 }
 
+export {
+  formatCompletionValue,
+  needsStringQuoting,
+  replaceCurrentSegment,
+} from './dsl-completion-utils';
 export { getDefaultRuleUpdatesForField } from './rule-defaults';
 export { findOperator, findSchemaField, getFieldOperators } from './schema-utils';
 export { useDslEditor } from './use-dsl-editor';

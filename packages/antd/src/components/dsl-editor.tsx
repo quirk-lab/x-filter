@@ -1,6 +1,6 @@
 import type { CompletionItem, FieldSchema, Filter } from '@x-filter/core';
 import type { FilterBuilderLabels } from '@x-filter/react';
-import { useDslEditor } from '@x-filter/react';
+import { replaceCurrentSegment, useDslEditor } from '@x-filter/react';
 import { Alert, Button, Input, Space } from 'antd';
 import type React from 'react';
 import { useState } from 'react';
@@ -13,51 +13,6 @@ export interface AntdDslEditorProps {
   completionMenuClassName?: string;
   labels?: FilterBuilderLabels;
   onCommit: (filter: Filter) => void;
-}
-
-function needsStringQuoting(value: string): boolean {
-  if (value.length === 0) return true;
-  if (!/^[a-zA-Z0-9_.]+$/.test(value)) return true;
-  if (value.includes('..')) return true;
-  const upperValue = value.toUpperCase();
-  if (upperValue === 'AND' || upperValue === 'OR' || upperValue === 'NOT') return true;
-  if (value === 'true' || value === 'false') return true;
-  if (/^\d+(\.\d+)?$/.test(value)) return true;
-  return false;
-}
-
-function formatCompletionValue(item: CompletionItem): string {
-  if (item.kind !== 'value' || !needsStringQuoting(item.value)) {
-    return item.value;
-  }
-
-  return `"${item.value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
-}
-
-function replaceCurrentSegment(draft: string, cursor: number, item: CompletionItem) {
-  const value = formatCompletionValue(item);
-
-  if (draft === '()') {
-    return { nextDraft: value, nextCursor: value.length };
-  }
-
-  const beforeCursor = draft.slice(0, cursor);
-  const afterCursor = draft.slice(cursor);
-  const match = beforeCursor.match(/[\s()][^\s()]*$/);
-  const segmentStart = match ? beforeCursor.length - match[0].length + 1 : 0;
-  const segment = beforeCursor.slice(segmentStart);
-  const parts = segment.split(':');
-  const replacement =
-    parts.length === 1
-      ? value
-      : parts.length === 2
-        ? `${parts[0]}:${value}`
-        : `${parts[0]}:${parts[1]}:${value}`;
-
-  return {
-    nextDraft: `${beforeCursor.slice(0, segmentStart)}${replacement}${afterCursor}`,
-    nextCursor: segmentStart + replacement.length,
-  };
 }
 
 export function AntdDslEditor({
