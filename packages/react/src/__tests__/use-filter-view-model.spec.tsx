@@ -508,4 +508,38 @@ describe('useFilterViewModel', () => {
       expect(result.current.root.children[0].locked).toBe(true);
     });
   });
+
+  describe('readOnly', () => {
+    it('forces locked=true on every node when readOnly is set', () => {
+      const { result } = renderHook(() => useFilterViewModel({ filter, schema, readOnly: true }));
+
+      expect(result.current.root.locked).toBe(true);
+      expect(result.current.root.children[0].locked).toBe(true);
+      const group = result.current.root.children[1] as typeof result.current.root;
+      expect(group.locked).toBe(true);
+      expect(group.children[0].locked).toBe(true);
+    });
+
+    it('leaves locked derived from data when readOnly is false', () => {
+      const { result } = renderHook(() => useFilterViewModel({ filter, schema, readOnly: false }));
+
+      expect(result.current.root.locked).toBe(false);
+      expect(result.current.root.children[0].locked).toBe(false);
+    });
+
+    it('updates locked when readOnly toggles (cache invalidation)', () => {
+      const { result, rerender } = renderHook(
+        ({ readOnly }: { readOnly: boolean }) => useFilterViewModel({ filter, schema, readOnly }),
+        { initialProps: { readOnly: false } }
+      );
+
+      expect(result.current.root.children[0].locked).toBe(false);
+
+      rerender({ readOnly: true });
+      expect(result.current.root.children[0].locked).toBe(true);
+
+      rerender({ readOnly: false });
+      expect(result.current.root.children[0].locked).toBe(false);
+    });
+  });
 });

@@ -42,6 +42,12 @@ export interface ShadcnFilterBuilderProps {
   dnd?: boolean;
   /** `'ic'` renders editable inline combinators between rules. Defaults to `'standard'`. */
   mode?: FilterBuilderMode;
+  /**
+   * Renders a read-only view: every control is disabled, action buttons and the
+   * DSL editor are hidden, and drag-and-drop is turned off. Useful for showing a
+   * saved filter without allowing edits.
+   */
+  readOnly?: boolean;
 }
 
 export function ShadcnFilterBuilder({
@@ -56,10 +62,13 @@ export function ShadcnFilterBuilder({
   dsl,
   dnd,
   mode,
+  readOnly,
 }: ShadcnFilterBuilderProps) {
   const { builder, viewModel, actions, slotProps, canMoveChild, moveChild, handleSortableMove } =
-    useFilterBuilderOrchestrator({ value, defaultValue, onChange, schema, errors, mode });
+    useFilterBuilderOrchestrator({ value, defaultValue, onChange, schema, errors, mode, readOnly });
   const resolvedLabels = resolveLabels(labels);
+  // Drag-and-drop is an editing affordance; suppress it entirely in read-only.
+  const dndEnabled = dnd && !readOnly;
 
   const renderRule = (rule: FilterRuleViewModel) => {
     if (slots?.Rule) {
@@ -194,13 +203,13 @@ export function ShadcnFilterBuilder({
     }
 
     const children = group.children.map((child, index) =>
-      dnd ? (
+      dndEnabled ? (
         <SortableFilterItem key={child.id} id={child.id}>
           <div>
             <MoveControls
               canMoveChild={canMoveChild}
               child={child}
-              dnd={dnd}
+              dnd={dndEnabled}
               group={group}
               index={index}
               moveChild={moveChild}
@@ -212,7 +221,7 @@ export function ShadcnFilterBuilder({
         <div key={child.id}>{renderNode(child)}</div>
       )
     );
-    const orderedChildren = dnd ? (
+    const orderedChildren = dndEnabled ? (
       <SortableFilterContext
         items={group.children.map((child) => child.id)}
         onMove={(activeId, overId) => handleSortableMove(group, activeId, overId)}
@@ -315,16 +324,17 @@ export function ShadcnFilterBuilder({
   };
 
   const tree = renderGroup(viewModel.root);
-  const dslEditor = dsl ? (
-    <ShadcnDslEditor
-      className={classNames?.dslEditor}
-      completionMenuClassName={classNames?.completionMenu}
-      filter={builder.filter}
-      labels={labels}
-      schema={builder.schema}
-      onCommit={builder.setFilter}
-    />
-  ) : null;
+  const dslEditor =
+    dsl && !readOnly ? (
+      <ShadcnDslEditor
+        className={classNames?.dslEditor}
+        completionMenuClassName={classNames?.completionMenu}
+        filter={builder.filter}
+        labels={labels}
+        schema={builder.schema}
+        onCommit={builder.setFilter}
+      />
+    ) : null;
   const children = dslEditor ? (
     <div className="flex flex-col gap-4">
       {dslEditor}
