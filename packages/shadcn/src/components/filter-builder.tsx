@@ -141,7 +141,7 @@ export function ShadcnFilterBuilder({
         aria-describedby={rule.aria.describedBy}
         aria-label={rule.aria.label}
         className={cn(
-          'flex flex-wrap items-center gap-2',
+          'flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center',
           locked && 'opacity-60',
           classNames?.rule
         )}

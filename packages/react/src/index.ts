@@ -96,6 +96,7 @@ export { useFilterPresets } from './use-filter-presets';
 export { useFilterUrlSync } from './use-filter-url-sync';
 export { useFilterValidation } from './use-filter-validation';
 export { useFilterViewModel } from './use-filter-view-model';
+export { DEFAULT_MOBILE_BREAKPOINT, useIsMobile } from './use-is-mobile';
 export { useReorderContract } from './use-reorder-contract';
 export {
   asArrayValue,

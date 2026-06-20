@@ -1,6 +1,6 @@
 import type { FieldSchema, FilterRule } from '@x-filter/core';
 import type { FilterRuleViewModel } from '@x-filter/react';
-import { getDefaultRuleUpdatesForField } from '@x-filter/react';
+import { getDefaultRuleUpdatesForField, useIsMobile } from '@x-filter/react';
 import { Button, Space } from 'antd';
 import { memo } from 'react';
 import { AntdFieldSelector } from './field-selector';
@@ -34,15 +34,18 @@ export const AntdFilterRule = memo(function AntdFilterRule({
 }: AntdFilterRuleProps) {
   // Locked rules are read-only: disable controls and hide mutating actions.
   const locked = rule.locked;
+  // On narrow viewports stack the controls vertically so each takes a full row.
+  const isMobile = useIsMobile();
   return (
     <Space
       aria-describedby={rule.aria.describedBy}
       aria-label={rule.aria.label}
       className={className}
       data-locked={locked || undefined}
+      direction={isMobile ? 'vertical' : 'horizontal'}
       role="group"
-      style={locked ? { opacity: 0.6 } : undefined}
-      wrap
+      style={{ ...(isMobile ? { width: '100%' } : null), ...(locked ? { opacity: 0.6 } : null) }}
+      wrap={!isMobile}
     >
       <AntdNotToggle
         checked={Boolean(rule.rule.not)}

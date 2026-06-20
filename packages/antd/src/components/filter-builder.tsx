@@ -15,6 +15,7 @@ import {
   resolveLabels,
   useFilterBuilderOrchestrator,
   useFilterKeyboardNav,
+  useIsMobile,
 } from '@x-filter/react';
 import { Button, Card, Space } from 'antd';
 import type { ReactNode } from 'react';
@@ -65,6 +66,8 @@ export function AntdFilterBuilder({
   const resolvedLabels = resolveLabels(labels);
   // Drag-and-drop is an editing affordance; suppress it entirely in read-only.
   const dndEnabled = dnd && !readOnly;
+  // On narrow viewports stack rule controls vertically (one per row).
+  const isMobile = useIsMobile();
 
   const rootId = viewModel.root.id;
   const keyboard = useFilterKeyboardNav({
@@ -137,9 +140,10 @@ export function AntdFilterBuilder({
         aria-label={rule.aria.label}
         className={classNames?.rule}
         data-locked={locked || undefined}
+        direction={isMobile ? 'vertical' : 'horizontal'}
         role="group"
-        style={locked ? { opacity: 0.6 } : undefined}
-        wrap
+        style={{ ...(isMobile ? { width: '100%' } : null), ...(locked ? { opacity: 0.6 } : null) }}
+        wrap={!isMobile}
       >
         <AntdNotToggle
           checked={Boolean(rule.rule.not)}
