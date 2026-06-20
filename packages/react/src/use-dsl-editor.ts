@@ -3,9 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { UseDslEditorOptions, UseDslEditorReturn } from './types';
 
 const formatParseError = (errors: { code: string; message: string }[]): string =>
-  errors.length > 0
-    ? errors.map((error) => `[${error.code}] ${error.message}`).join('; ')
-    : 'Failed to parse DSL expression';
+  errors.map((error) => `[${error.code}] ${error.message}`).join('; ');
 
 export function useDslEditor(options: UseDslEditorOptions): UseDslEditorReturn {
   const { filter, schema, onCommit, cursor } = options;
