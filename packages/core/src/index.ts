@@ -40,7 +40,8 @@ export {
 } from './ic';
 export type { IdGenerator } from './id';
 export { generateId } from './id';
-
+export type { MutationAdapter } from './mutation-adapter';
+export { icMutationAdapter, standardMutationAdapter } from './mutation-adapter';
 export type { MutationOptions } from './mutations';
 export {
   addGroup,
@@ -51,7 +52,6 @@ export {
   updateGroup,
   updateRule,
 } from './mutations';
-
 export { negateGroup, negateRule } from './negate';
 export { defaultOperators, getOperators } from './operators';
 export { fromJSON, toJSON } from './serialize-json';
