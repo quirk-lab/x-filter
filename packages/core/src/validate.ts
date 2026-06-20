@@ -1,5 +1,6 @@
 import { isFilterGroupIC } from './ic';
-import { getOperators } from './operators';
+import type { SchemaIndex } from './schema-index';
+import { buildSchemaIndex } from './schema-index';
 import type {
   FieldSchema,
   FieldType,
@@ -34,30 +35,12 @@ export interface ValidatePrevState {
   errors: Record<string, ValidationError[]>;
 }
 
+// ── Identity-aware error carry-forward ─────────────────────────────────
+
 type NodeErrorsCache = WeakMap<
   FilterRule | FilterGroup | FilterGroupIC,
   ValidationError[] | undefined
 >;
-
-export function validate(
-  filter: FilterAny,
-  schema: FieldSchema[],
-  prevState?: ValidatePrevState
-): ValidationResult {
-  const errors: Record<string, ValidationError[]> = {};
-  const prevNodeErrors = prevState ? buildPrevNodeErrors(prevState) : undefined;
-
-  if (isFilterGroupIC(filter)) {
-    validateGroupIC(filter, schema, errors, prevNodeErrors);
-  } else {
-    validateGroup(filter as FilterGroup, schema, errors, prevNodeErrors);
-  }
-
-  return {
-    valid: Object.keys(errors).length === 0,
-    errors,
-  };
-}
 
 function buildPrevNodeErrors(prevState: ValidatePrevState): NodeErrorsCache {
   const map: NodeErrorsCache = new WeakMap();
@@ -87,32 +70,34 @@ function carryForwardNodeErrors(
   return true;
 }
 
+// ── Group validation ───────────────────────────────────────────────────
+
 function validateGroup(
   group: FilterGroup,
-  schema: FieldSchema[],
+  index: SchemaIndex,
   errors: Record<string, ValidationError[]>,
   prevNodeErrors?: NodeErrorsCache
 ): void {
   if (carryForwardNodeErrors(group.id, prevNodeErrors, group, errors)) {
     for (const c of group.children) {
       if (isFilterGroup(c)) {
-        validateGroup(c as FilterGroup, schema, errors, prevNodeErrors);
+        validateGroup(c as FilterGroup, index, errors, prevNodeErrors);
       } else if (isFilterRule(c)) {
-        validateRule(c as FilterRule, schema, errors, prevNodeErrors);
+        validateRule(c as FilterRule, index, errors, prevNodeErrors);
       }
     }
     return;
   }
 
   if (group.combinator !== 'and' && group.combinator !== 'or') {
-    addError(errors, group.id, {
+    pushError(errors, group.id, {
       type: 'invalidCombinator',
       message: `Combinator "${String(group.combinator)}" is not valid`,
     });
   }
 
   if (!Array.isArray(group.children)) {
-    addError(errors, group.id, {
+    pushError(errors, group.id, {
       type: 'invalidGroup',
       message: 'Group children must be an array',
     });
@@ -121,11 +106,11 @@ function validateGroup(
 
   for (const c of group.children) {
     if (isFilterGroup(c)) {
-      validateGroup(c as FilterGroup, schema, errors, prevNodeErrors);
+      validateGroup(c as FilterGroup, index, errors, prevNodeErrors);
     } else if (isFilterRule(c)) {
-      validateRule(c as FilterRule, schema, errors, prevNodeErrors);
+      validateRule(c as FilterRule, index, errors, prevNodeErrors);
     } else {
-      addError(errors, group.id, {
+      pushError(errors, group.id, {
         type: 'invalidGroup',
         message: 'Group child must be a Rule or Group',
       });
@@ -135,7 +120,7 @@ function validateGroup(
 
 function validateGroupIC(
   group: FilterGroupIC,
-  schema: FieldSchema[],
+  index: SchemaIndex,
   errors: Record<string, ValidationError[]>,
   prevNodeErrors?: NodeErrorsCache
 ): void {
@@ -143,16 +128,16 @@ function validateGroupIC(
     for (const c of group.children) {
       if (typeof c === 'string') continue;
       if (isFilterGroupIC(c)) {
-        validateGroupIC(c, schema, errors, prevNodeErrors);
+        validateGroupIC(c, index, errors, prevNodeErrors);
       } else if (isFilterRule(c)) {
-        validateRule(c as FilterRule, schema, errors, prevNodeErrors);
+        validateRule(c as FilterRule, index, errors, prevNodeErrors);
       }
     }
     return;
   }
 
   if (!Array.isArray(group.children)) {
-    addError(errors, group.id, {
+    pushError(errors, group.id, {
       type: 'invalidGroup',
       message: 'IC group children must be an array',
     });
@@ -160,39 +145,39 @@ function validateGroupIC(
   }
 
   if (group.children.length > 0 && group.children.length % 2 === 0) {
-    addError(errors, group.id, {
+    pushError(errors, group.id, {
       type: 'invalidCombinator',
       message: 'IC group children must end with a rule or group',
     });
   }
 
-  for (let index = 0; index < group.children.length; index++) {
-    const c = group.children[index];
-    const expectsCombinator = index % 2 === 1;
+  for (let i = 0; i < group.children.length; i++) {
+    const c = group.children[i];
+    const expectsCombinator = i % 2 === 1;
 
     if (typeof c === 'string') {
       if (!expectsCombinator || (c !== 'and' && c !== 'or')) {
-        addError(errors, group.id, {
+        pushError(errors, group.id, {
           type: 'invalidCombinator',
-          message: `Invalid IC combinator "${c}" at index ${index}`,
+          message: `Invalid IC combinator "${c}" at index ${i}`,
         });
       }
       continue;
     }
 
     if (expectsCombinator) {
-      addError(errors, group.id, {
+      pushError(errors, group.id, {
         type: 'invalidCombinator',
-        message: `Expected IC combinator at index ${index}`,
+        message: `Expected IC combinator at index ${i}`,
       });
     }
 
     if (isFilterGroupIC(c)) {
-      validateGroupIC(c, schema, errors, prevNodeErrors);
+      validateGroupIC(c, index, errors, prevNodeErrors);
     } else if (isFilterRule(c)) {
-      validateRule(c as FilterRule, schema, errors, prevNodeErrors);
+      validateRule(c as FilterRule, index, errors, prevNodeErrors);
     } else {
-      addError(errors, group.id, {
+      pushError(errors, group.id, {
         type: 'invalidGroup',
         message: 'IC group child must be a Rule or Group',
       });
@@ -200,17 +185,25 @@ function validateGroupIC(
   }
 }
 
-function addError(
+// ── Error helpers ──────────────────────────────────────────────────────
+
+function pushError(
   errors: Record<string, ValidationError[]>,
   id: string,
   error: ValidationError
 ): void {
-  errors[id] = [...(errors[id] ?? []), error];
+  if (errors[id]) {
+    errors[id].push(error);
+  } else {
+    errors[id] = [error];
+  }
 }
+
+// ── Rule validation ────────────────────────────────────────────────────
 
 function validateRule(
   rule: FilterRule,
-  schema: FieldSchema[],
+  index: SchemaIndex,
   errors: Record<string, ValidationError[]>,
   prevNodeErrors?: NodeErrorsCache
 ): void {
@@ -218,18 +211,17 @@ function validateRule(
 
   const ruleErrors: ValidationError[] = [];
 
-  const field = schema.find((f) => f.name === rule.field);
+  const field = index.fieldByName.get(rule.field);
   if (!field) {
     ruleErrors.push({
       type: 'invalidField',
       message: `Field "${rule.field}" is not defined in schema`,
     });
-    if (ruleErrors.length > 0) errors[rule.id] = ruleErrors;
+    errors[rule.id] = ruleErrors;
     return;
   }
 
-  const operators = getOperators(field.type, field.operators);
-  const operatorDef = operators.find((op) => op.name === rule.operator);
+  const operatorDef = index.opByName.get(field.name)?.get(rule.operator);
   if (!operatorDef) {
     ruleErrors.push({
       type: 'invalidOperator',
@@ -246,7 +238,7 @@ function validateRule(
     } else {
       const valueError = validateValue(rule.value, field.type, operatorDef);
       if (valueError) ruleErrors.push(valueError);
-      const optionError = validateOptions(rule.value, field);
+      const optionError = validateOptions(rule.value, field, index);
       if (optionError) ruleErrors.push(optionError);
     }
   }
@@ -255,6 +247,8 @@ function validateRule(
     errors[rule.id] = ruleErrors;
   }
 }
+
+// ── Value validation ───────────────────────────────────────────────────
 
 function validateValue(
   value: unknown,
@@ -332,15 +326,18 @@ function validateValue(
   return null;
 }
 
-function validateOptions(value: unknown, field: FieldSchema): ValidationError | null {
-  if (!field.values || field.values.length === 0) return null;
-  if (field.type !== 'select' && field.type !== 'multiSelect') return null;
+function validateOptions(
+  value: unknown,
+  field: FieldSchema,
+  index: SchemaIndex
+): ValidationError | null {
+  const allowed = index.allowedValues.get(field.name);
+  if (!allowed) return null;
 
-  const allowedValues = new Set(field.values.map((option) => option.value));
   const values = Array.isArray(value) ? value : [value];
 
   for (const item of values) {
-    if (typeof item !== 'string' || !allowedValues.has(item)) {
+    if (typeof item !== 'string' || !allowed.has(item)) {
       return {
         type: 'invalidValue',
         message: `Value "${String(item)}" is not an allowed option for field "${field.name}"`,
@@ -349,4 +346,27 @@ function validateOptions(value: unknown, field: FieldSchema): ValidationError | 
   }
 
   return null;
+}
+
+// ── Public API ─────────────────────────────────────────────────────────
+
+export function validate(
+  filter: FilterAny,
+  schema: FieldSchema[],
+  prevState?: ValidatePrevState
+): ValidationResult {
+  const errors: Record<string, ValidationError[]> = {};
+  const prevNodeErrors = prevState ? buildPrevNodeErrors(prevState) : undefined;
+  const index = buildSchemaIndex(schema);
+
+  if (isFilterGroupIC(filter)) {
+    validateGroupIC(filter, index, errors, prevNodeErrors);
+  } else {
+    validateGroup(filter as FilterGroup, index, errors, prevNodeErrors);
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+  };
 }

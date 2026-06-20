@@ -1,5 +1,4 @@
 import type { IdGenerator } from '../id';
-import { generateId } from '../id';
 import type { Filter, FilterGroup, FilterRule } from '../types';
 import { isFilterRule } from '../types';
 import type { ASTCondition, ASTNode, ASTValue } from './types';
@@ -19,11 +18,13 @@ function convertASTValue(value: ASTValue): unknown {
   }
 }
 
-function collectOperands(node: ASTNode, op: 'and' | 'or'): ASTNode[] {
+function collectOperands(node: ASTNode, op: 'and' | 'or', out: ASTNode[]): void {
   if (node.type === 'binary' && node.operator === op) {
-    return [...collectOperands(node.left, op), ...collectOperands(node.right, op)];
+    collectOperands(node.left, op, out);
+    collectOperands(node.right, op, out);
+  } else {
+    out.push(node);
   }
-  return [node];
 }
 
 function convertNode(node: ASTNode, gen: IdGenerator): FilterRule | FilterGroup {
@@ -48,7 +49,8 @@ function convertNode(node: ASTNode, gen: IdGenerator): FilterRule | FilterGroup 
       return convertNode(node.expression, gen);
 
     case 'binary': {
-      const operands = collectOperands(node, node.operator);
+      const operands: ASTNode[] = [];
+      collectOperands(node, node.operator, operands);
       return {
         id: gen(),
         combinator: node.operator,
@@ -58,10 +60,18 @@ function convertNode(node: ASTNode, gen: IdGenerator): FilterRule | FilterGroup 
   }
 }
 
-export function astToFilter(ast: ASTNode, idGenerator: IdGenerator = generateId): Filter {
-  const result = convertNode(ast, idGenerator);
+export function astToFilter(ast: ASTNode, idGenerator?: IdGenerator): Filter {
+  let gen: IdGenerator;
+  if (idGenerator) {
+    gen = idGenerator;
+  } else {
+    const ts = Date.now().toString(36);
+    let n = 0;
+    gen = () => `${ts}-${(n++).toString(36)}`;
+  }
+  const result = convertNode(ast, gen);
   if ('combinator' in result) return result;
-  return { id: idGenerator(), combinator: 'and', children: [result] };
+  return { id: gen(), combinator: 'and', children: [result] };
 }
 
 function convertValueToAST(value: unknown): ASTValue | null {
