@@ -77,6 +77,7 @@ export function HeadlessFilter() {
 ```tsx
 import type { FieldSchema, Filter } from '@x-filter/core';
 import { useDslEditor } from '@x-filter/react';
+import { useState } from 'react';
 
 export function DslTextarea({
   filter,
@@ -87,14 +88,21 @@ export function DslTextarea({
   schema: FieldSchema[];
   onCommit: (filter: Filter) => void;
 }) {
-  const editor = useDslEditor({ filter, schema, onCommit });
+  const [cursor, setCursor] = useState<number | undefined>();
+  const editor = useDslEditor({ filter, schema, onCommit, cursor });
 
   return (
     <div>
       <textarea
         aria-label="Filter DSL"
         value={editor.draftDSL}
-        onChange={(event) => editor.setDraftDSL(event.target.value)}
+        onChange={(event) => {
+          editor.setDraftDSL(event.target.value);
+          setCursor(event.target.selectionStart ?? event.target.value.length);
+        }}
+        onSelect={(event) =>
+          setCursor((event.target as HTMLTextAreaElement).selectionStart ?? editor.draftDSL.length)
+        }
       />
       <button type="button" onClick={editor.commit}>
         Apply DSL

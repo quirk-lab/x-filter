@@ -3,9 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { UseDslEditorOptions, UseDslEditorReturn } from './types';
 
 const formatParseError = (errors: { code: string; message: string }[]): string =>
-  errors.length > 0
-    ? errors.map((error) => `[${error.code}] ${error.message}`).join('; ')
-    : 'Failed to parse DSL expression';
+  errors.map((error) => `[${error.code}] ${error.message}`).join('; ');
 
 export function useDslEditor(options: UseDslEditorOptions): UseDslEditorReturn {
   const { filter, schema, onCommit, cursor } = options;
@@ -31,11 +29,13 @@ export function useDslEditor(options: UseDslEditorOptions): UseDslEditorReturn {
 
   const completions = useMemo(
     () =>
-      getDslCompletions({
-        input: draftDSL,
-        cursor: cursor ?? draftDSL.length,
-        schema,
-      }),
+      cursor === undefined
+        ? []
+        : getDslCompletions({
+            input: draftDSL,
+            cursor,
+            schema,
+          }),
     [cursor, draftDSL, schema]
   );
 
@@ -52,11 +52,17 @@ export function useDslEditor(options: UseDslEditorOptions): UseDslEditorReturn {
     return false;
   }, [draftDSL]);
 
+  const resetDraft = useCallback(() => {
+    setDraftDSLState(formatDSL(filter));
+    setParseError(null);
+  }, [filter]);
+
   return {
     draftDSL,
     setDraftDSL,
     parseError,
     completions,
     commit,
+    resetDraft,
   };
 }

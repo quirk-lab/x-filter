@@ -50,11 +50,15 @@ describe('useDslEditor', () => {
   it('returns completions for field, operator, and value contexts', () => {
     const filter = makeFilter();
     const onCommit = jest.fn();
-    const { result } = renderHook(() => useDslEditor({ filter, schema, onCommit }));
+    const { result, rerender } = renderHook(
+      ({ cursor }) => useDslEditor({ filter, schema, onCommit, cursor }),
+      { initialProps: { cursor: 0 } }
+    );
 
     act(() => {
       result.current.setDraftDSL('sta');
     });
+    rerender({ cursor: 3 });
     expect(result.current.completions).toEqual([
       expect.objectContaining({ kind: 'field', value: 'status' }),
     ]);
@@ -62,12 +66,14 @@ describe('useDslEditor', () => {
     act(() => {
       result.current.setDraftDSL('status:');
     });
+    rerender({ cursor: 7 });
     expect(completionValues(result.current.completions)).toEqual(['equals', 'notEquals']);
     expect(completionKinds(result.current.completions)).toEqual(['operator', 'operator']);
 
     act(() => {
       result.current.setDraftDSL('status:equals:');
     });
+    rerender({ cursor: 14 });
     expect(completionValues(result.current.completions)).toEqual(['open', 'closed']);
     expect(completionKinds(result.current.completions)).toEqual(['value', 'value']);
   });
@@ -148,7 +154,7 @@ describe('useDslEditor', () => {
     const onCommit = jest.fn();
     const { result, rerender } = renderHook(
       ({ cursor }) => useDslEditor({ filter, schema, onCommit, cursor }),
-      { initialProps: { cursor: undefined as number | undefined } }
+      { initialProps: { cursor: 24 } }
     );
 
     act(() => {
@@ -159,5 +165,117 @@ describe('useDslEditor', () => {
     rerender({ cursor: 'status:'.length });
 
     expect(completionValues(result.current.completions)).toEqual(['equals', 'notEquals']);
+  });
+
+  it('resetDraft resets to current filter DSL and clears parseError', () => {
+    const filter = makeFilter();
+    const onCommit = jest.fn();
+    const { result } = renderHook(() => useDslEditor({ filter, schema, onCommit }));
+
+    const originalDSL = result.current.draftDSL;
+
+    act(() => {
+      result.current.setDraftDSL('something:different:value');
+    });
+    expect(result.current.draftDSL).toBe('something:different:value');
+
+    act(() => {
+      result.current.resetDraft();
+    });
+
+    expect(result.current.draftDSL).toBe(originalDSL);
+    expect(result.current.parseError).toBeNull();
+  });
+
+  it('resetDraft clears a previous parseError', () => {
+    const filter = makeFilter();
+    const onCommit = jest.fn();
+    const { result } = renderHook(() => useDslEditor({ filter, schema, onCommit }));
+
+    act(() => {
+      result.current.setDraftDSL('@@@ invalid');
+    });
+    act(() => {
+      result.current.commit();
+    });
+    expect(result.current.parseError).not.toBeNull();
+
+    act(() => {
+      result.current.resetDraft();
+    });
+    expect(result.current.parseError).toBeNull();
+  });
+
+  it('resetDraft does not prevent subsequent external filter resync', () => {
+    const filter = makeFilter();
+    const nextFilter = makeFilter('priority', 'gt', 10);
+    const onCommit = jest.fn();
+    const { result, rerender } = renderHook(
+      ({ currentFilter }) => useDslEditor({ filter: currentFilter, schema, onCommit }),
+      { initialProps: { currentFilter: filter } }
+    );
+
+    act(() => {
+      result.current.setDraftDSL('something:different:value');
+    });
+    act(() => {
+      result.current.resetDraft();
+    });
+    expect(result.current.draftDSL).toBe(formatDSL(filter));
+
+    rerender({ currentFilter: nextFilter });
+    expect(result.current.draftDSL).toBe(formatDSL(nextFilter));
+  });
+
+  it('returns empty completions when cursor is undefined', () => {
+    const filter = makeFilter();
+    const onCommit = jest.fn();
+    const { result } = renderHook(() => useDslEditor({ filter, schema, onCommit }));
+
+    act(() => {
+      result.current.setDraftDSL('sta');
+    });
+    expect(result.current.completions).toEqual([]);
+  });
+
+  it('commit with empty expression sets parseError', () => {
+    const emptyFilter: Filter = { id: 'root', combinator: 'and', children: [] };
+    const onCommit = jest.fn();
+    const { result } = renderHook(() => useDslEditor({ filter: emptyFilter, schema, onCommit }));
+
+    act(() => {
+      result.current.setDraftDSL('');
+    });
+
+    let success = true;
+    act(() => {
+      success = result.current.commit();
+    });
+
+    expect(success).toBe(false);
+    expect(result.current.parseError).toBeTruthy();
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+
+  it('successful commit prevents re-sync on same filter reference', () => {
+    const filter = makeFilter();
+    const onCommit = jest.fn();
+    const { result, rerender } = renderHook(
+      ({ currentFilter }) => useDslEditor({ filter: currentFilter, schema, onCommit }),
+      { initialProps: { currentFilter: filter } }
+    );
+
+    act(() => {
+      result.current.setDraftDSL('priority:gt:18');
+    });
+    act(() => {
+      result.current.commit();
+    });
+
+    const dslAfterCommit = result.current.draftDSL;
+
+    rerender({ currentFilter: filter });
+
+    expect(result.current.draftDSL).toBe(dslAfterCommit);
   });
 });

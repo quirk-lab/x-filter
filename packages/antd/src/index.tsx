@@ -31,5 +31,4 @@ export type {
   FilterNodeViewModel,
   FilterRuleViewModel,
   UseFilterBuilderReturn,
-  UseFilterDslReturn,
 } from '@x-filter/react';

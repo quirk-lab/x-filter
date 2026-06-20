@@ -19,7 +19,7 @@
 
 - [ ] T001 [US-2] 创建 `specs/004-ui-modules/contracts/dsl-grammar.md`，冻结 DSL 语法（括号/引号/转义/数组/范围）
 - [ ] T002 [US-2] 创建 `specs/004-ui-modules/contracts/dsl-error-codes.md`，定义 parser 错误码与错误位置信息结构
-- [ ] T003 [US-1] 创建 `specs/004-ui-modules/contracts/react-headless-api.md`，冻结 `useFilterBuilder/useFilterDsl/useFilterUrlSync/useReorderContract` API
+- [x] T003 [US-1] `useFilterDsl` 合并至 `useDslEditor`（见 ADR 0004）；headless API 契约由 `useDslEditor`/`useFilterBuilder`/`useFilterUrlSync`/`useReorderContract` 组成
 - [ ] T004 [US-4] 创建 `specs/004-ui-modules/contracts/ui-atom-matrix.md`，列出 shadcn/antd 一一对应原子组件矩阵
 - [ ] T005 [US-5] 创建 `specs/004-ui-modules/contracts/reorder-contract.md`，定义 DnD 输入/输出契约（不依赖 UI 库）
 - [ ] T006 [US-7] 创建 `specs/004-ui-modules/contracts/a11y-keyboard-spec.md`，冻结键盘路径与 aria 规范

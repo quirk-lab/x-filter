@@ -30,20 +30,6 @@ export interface UseFilterBuilderReturn {
   schema: FieldSchema[];
 }
 
-export interface UseFilterDslOptions {
-  filter: Filter;
-  schema: FieldSchema[];
-  onCommit: (filter: Filter) => void;
-}
-
-export interface UseFilterDslReturn {
-  draftDSL: string;
-  setDraftDSL: (dsl: string) => void;
-  parseError: string | null;
-  commitDSL: () => boolean;
-  resetDraft: () => void;
-}
-
 export interface UseDslEditorOptions {
   filter: Filter;
   schema: FieldSchema[];
@@ -57,6 +43,7 @@ export interface UseDslEditorReturn {
   parseError: string | null;
   completions: CompletionItem[];
   commit: () => boolean;
+  resetDraft: () => void;
 }
 
 export interface UseFilterUrlSyncOptions {

@@ -225,7 +225,7 @@
   - `getDslCompletions(context) -> CompletionItem[]`
 - `@x-filter/react`
   - `useFilterBuilder({ value?, defaultValue?, onChange?, schema })`
-  - `useFilterDsl({ filter, schema, onCommit })`
+  - `useDslEditor({ filter, schema, onCommit, cursor? })`
   - `useFilterUrlSync({ mode: 'dsl' | 'json', ... })`
   - `useReorderContract({ onMoveRule, onMoveGroup })`
 - `@x-filter/shadcn` / `@x-filter/antd`
