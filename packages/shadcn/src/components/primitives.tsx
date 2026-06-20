@@ -78,6 +78,34 @@ export function Select({ className, options = [], placeholder, multiple, ...prop
   );
 }
 
+export type BadgeVariant = 'default' | 'field' | 'operator' | 'value' | 'combinator' | 'group';
+
+const BADGE_VARIANTS: Record<BadgeVariant, string> = {
+  default: 'bg-secondary text-secondary-foreground',
+  field: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100',
+  operator: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100',
+  value: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100',
+  combinator: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100',
+  group: 'bg-muted text-muted-foreground',
+};
+
+export type BadgeProps = ComponentPropsWithoutRef<'span'> & {
+  variant?: BadgeVariant;
+};
+
+export function Badge({ className, variant = 'default', ...props }: BadgeProps) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium',
+        BADGE_VARIANTS[variant],
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
 export type CardProps = ComponentPropsWithoutRef<'div'>;
 
 export function Card({ className, ...props }: CardProps) {

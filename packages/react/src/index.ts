@@ -51,6 +51,14 @@ export {
   needsStringQuoting,
   replaceCurrentSegment,
 } from './dsl-completion-utils';
+export type { DslChipType, DslTokenChip } from './dsl-token-utils';
+export {
+  dslToTokenChips,
+  foldPendingIntoDsl,
+  hasUnclosedQuote,
+  removeConditionFromDsl,
+  removeLastChipFromDsl,
+} from './dsl-token-utils';
 export type { MoveControlsProps } from './move-controls';
 export { MoveControls } from './move-controls';
 export type { RenderMode, ResolvedLabels } from './render-decisions';

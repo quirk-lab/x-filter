@@ -52,8 +52,8 @@
 ## 进度追踪
 
 - [x] #13 行内校验闭环 → PR #30
-- [x] #15 IC 行级 Combinator → core `setCombinatorIC` + ViewModel `combinators` + orchestrator `mode='ic'` + `ShadcnInlineCombinator`
-- [ ] #14 DSL 单行 Token 输入
+- [x] #15 IC 行级 Combinator → PR #31
+- [x] #14 DSL 单行 Token 输入 → ShadcnDslTokenInput + dsl-token-utils（defer: 点击编辑 popover / Tab 导航）
 - [ ] #19 Clone Rule/Group
 - [ ] #18 Presets / Saved Searches
 - [ ] #17 URL 同步 Demo
