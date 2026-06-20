@@ -124,7 +124,7 @@ export const sqlFieldMap = {
 export const starterFilter: Filter = {
   id: 'root',
   combinator: 'and',
-  conditions: [
+  children: [
     {
       id: 'tier',
       field: 'accountTier',
@@ -149,7 +149,7 @@ export const starterFilter: Filter = {
 export const nestedFilter: Filter = {
   id: 'root',
   combinator: 'and',
-  conditions: [
+  children: [
     {
       id: 'tier',
       field: 'accountTier',
@@ -165,7 +165,7 @@ export const nestedFilter: Filter = {
     {
       id: 'owner',
       combinator: 'or',
-      conditions: [
+      children: [
         {
           id: 'active',
           field: 'ownerActive',
@@ -186,7 +186,7 @@ export const nestedFilter: Filter = {
 export const invalidFilter: Filter = {
   id: 'root',
   combinator: 'and',
-  conditions: [
+  children: [
     {
       id: 'missing-value',
       field: 'contractValue',

@@ -20,7 +20,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
         { id: 'r2', field: 'age', operator: 'gt', value: 18 },
       ],
@@ -34,7 +34,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [],
+      children: [],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(true);
@@ -45,7 +45,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'unknownField', operator: 'equals', value: 'x' }],
+      children: [{ id: 'r1', field: 'unknownField', operator: 'equals', value: 'x' }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -58,7 +58,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'age', operator: 'contains', value: 10 }],
+      children: [{ id: 'r1', field: 'age', operator: 'contains', value: 10 }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -71,7 +71,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: null }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: null }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -83,7 +83,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: '' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: '' }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -95,7 +95,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'isEmpty', value: null }],
+      children: [{ id: 'r1', field: 'name', operator: 'isEmpty', value: null }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(true);
@@ -106,7 +106,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'age', operator: 'equals', value: '25' }],
+      children: [{ id: 'r1', field: 'age', operator: 'equals', value: '25' }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -119,7 +119,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'active', operator: 'equals', value: 'true' }],
+      children: [{ id: 'r1', field: 'active', operator: 'equals', value: 'true' }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -132,7 +132,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 123 }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 123 }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -145,7 +145,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'age', operator: 'between', value: 18 }],
+      children: [{ id: 'r1', field: 'age', operator: 'between', value: 18 }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -158,7 +158,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'age', operator: 'between', value: [18] }],
+      children: [{ id: 'r1', field: 'age', operator: 'between', value: [18] }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -170,7 +170,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'age', operator: 'between', value: ['18', '65'] }],
+      children: [{ id: 'r1', field: 'age', operator: 'between', value: ['18', '65'] }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -183,7 +183,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'birthday', operator: 'between', value: [1, 2] }],
+      children: [{ id: 'r1', field: 'birthday', operator: 'between', value: [1, 2] }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -196,7 +196,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         { id: 'r1', field: 'badField', operator: 'equals', value: 'x' },
         { id: 'r2', field: 'age', operator: 'equals', value: 'not-a-number' },
       ],
@@ -213,11 +213,11 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         {
           id: 'g1',
           combinator: 'and',
-          conditions: [{ id: 'r1', field: 'invalidField', operator: 'equals', value: 'x' }],
+          children: [{ id: 'r1', field: 'invalidField', operator: 'equals', value: 'x' }],
         },
       ],
     };
@@ -231,7 +231,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'tags', operator: 'contains', value: 'tag1' }],
+      children: [{ id: 'r1', field: 'tags', operator: 'contains', value: 'tag1' }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(true);
@@ -242,7 +242,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'tags', operator: 'contains', value: ['tag1', 'tag2'] }],
+      children: [{ id: 'r1', field: 'tags', operator: 'contains', value: ['tag1', 'tag2'] }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(true);
@@ -253,7 +253,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'tags', operator: 'contains', value: 42 }],
+      children: [{ id: 'r1', field: 'tags', operator: 'contains', value: 42 }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -265,7 +265,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'birthday', operator: 'equals', value: 20200101 }],
+      children: [{ id: 'r1', field: 'birthday', operator: 'equals', value: 20200101 }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -276,7 +276,7 @@ describe('validate', () => {
     const filter = {
       id: 'root',
       combinator: 'xor',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
     } as unknown as FilterAny;
 
     const result = validate(filter, schema);
@@ -289,7 +289,7 @@ describe('validate', () => {
     const filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'bad-condition' }],
+      children: [{ id: 'bad-condition' }],
     } as unknown as FilterAny;
 
     const result = validate(filter, schema);
@@ -301,7 +301,7 @@ describe('validate', () => {
   it('invalid IC combinator sequence is reported on the IC group id', () => {
     const filter: FilterAny = {
       id: 'root',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'Ada' },
         'and',
         'or',
@@ -318,7 +318,7 @@ describe('validate', () => {
   it('invalid IC condition shape is reported on the IC group id', () => {
     const filter = {
       id: 'root',
-      conditions: [{ id: 'bad-condition' }],
+      children: [{ id: 'bad-condition' }],
     } as unknown as FilterAny;
 
     const result = validate(filter, schema);
@@ -331,7 +331,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'status', operator: 'equals', value: 'archived' }],
+      children: [{ id: 'r1', field: 'status', operator: 'equals', value: 'archived' }],
     };
 
     const result = validate(filter, schema);
@@ -354,7 +354,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'tags', operator: 'contains', value: ['vip', 'trial'] }],
+      children: [{ id: 'r1', field: 'tags', operator: 'contains', value: ['vip', 'trial'] }],
     };
 
     const result = validate(filter, taggedSchema);
@@ -367,7 +367,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'status', operator: 'equals', value: 123 }],
+      children: [{ id: 'r1', field: 'status', operator: 'equals', value: 123 }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(false);
@@ -378,7 +378,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'age', operator: 'between', value: [18, 65] }],
+      children: [{ id: 'r1', field: 'age', operator: 'between', value: [18, 65] }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(true);
@@ -389,7 +389,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         { id: 'r1', field: 'birthday', operator: 'between', value: ['2020-01-01', '2024-12-31'] },
       ],
     };
@@ -400,7 +400,7 @@ describe('validate', () => {
   it('validates IC mode filter', () => {
     const filter: FilterAny = {
       id: 'root',
-      conditions: [
+      children: [
         { id: 'r1', field: 'unknownField', operator: 'equals', value: 'x' },
         'and',
         { id: 'r2', field: 'age', operator: 'equals', value: 'not-a-number' },
@@ -416,7 +416,7 @@ describe('validate', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'active', operator: 'equals', value: true }],
+      children: [{ id: 'r1', field: 'active', operator: 'equals', value: true }],
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(true);
@@ -426,10 +426,10 @@ describe('validate', () => {
   it('validates nested IC groups', () => {
     const filter: FilterAny = {
       id: 'root',
-      conditions: [
+      children: [
         {
           id: 'g1',
-          conditions: [
+          children: [
             { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
             'or',
             { id: 'r2', field: 'badField', operator: 'equals', value: 'x' },

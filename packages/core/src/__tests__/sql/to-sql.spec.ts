@@ -6,7 +6,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [],
+      children: [],
     };
     const result = toSQL(filter);
     expect(result).toEqual({ sql: '', params: [] });
@@ -16,7 +16,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('name = ?');
@@ -27,7 +27,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'notEquals', value: 'Jane' }],
+      children: [{ id: 'r1', field: 'name', operator: 'notEquals', value: 'Jane' }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('name <> ?');
@@ -38,7 +38,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
         { id: 'r2', field: 'age', operator: 'gt', value: 18 },
       ],
@@ -52,7 +52,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'or',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
         { id: 'r2', field: 'age', operator: 'gt', value: 18 },
       ],
@@ -66,7 +66,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'contains', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'contains', value: 'John' }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('name LIKE ?');
@@ -77,7 +77,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'notContains', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'notContains', value: 'John' }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('name NOT LIKE ?');
@@ -88,7 +88,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'startsWith', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'startsWith', value: 'John' }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('name LIKE ?');
@@ -99,7 +99,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'endsWith', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'endsWith', value: 'John' }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('name LIKE ?');
@@ -110,7 +110,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'age', operator: 'gt', value: 18 }],
+      children: [{ id: 'r1', field: 'age', operator: 'gt', value: 18 }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('age > ?');
@@ -121,7 +121,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'age', operator: 'gte', value: 18 }],
+      children: [{ id: 'r1', field: 'age', operator: 'gte', value: 18 }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('age >= ?');
@@ -132,7 +132,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'age', operator: 'lt', value: 65 }],
+      children: [{ id: 'r1', field: 'age', operator: 'lt', value: 65 }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('age < ?');
@@ -143,7 +143,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'age', operator: 'lte', value: 65 }],
+      children: [{ id: 'r1', field: 'age', operator: 'lte', value: 65 }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('age <= ?');
@@ -154,7 +154,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'age', operator: 'between', value: [18, 65] }],
+      children: [{ id: 'r1', field: 'age', operator: 'between', value: [18, 65] }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('age BETWEEN ? AND ?');
@@ -165,7 +165,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'status', operator: 'in', value: ['open', 'closed'] }],
+      children: [{ id: 'r1', field: 'status', operator: 'in', value: ['open', 'closed'] }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('status IN (?, ?)');
@@ -176,7 +176,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'status', operator: 'in', value: [] }],
+      children: [{ id: 'r1', field: 'status', operator: 'in', value: [] }],
     };
     const result = toSQL(filter);
     expect(result).toEqual({ sql: '1 = 0', params: [] });
@@ -186,7 +186,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'birthday', operator: 'before', value: '2020-01-01' }],
+      children: [{ id: 'r1', field: 'birthday', operator: 'before', value: '2020-01-01' }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('birthday < ?');
@@ -197,7 +197,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'birthday', operator: 'after', value: '2020-01-01' }],
+      children: [{ id: 'r1', field: 'birthday', operator: 'after', value: '2020-01-01' }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('birthday > ?');
@@ -208,7 +208,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'isEmpty', value: null }],
+      children: [{ id: 'r1', field: 'name', operator: 'isEmpty', value: null }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('name IS NULL');
@@ -219,7 +219,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'isNotEmpty', value: null }],
+      children: [{ id: 'r1', field: 'name', operator: 'isNotEmpty', value: null }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('name IS NOT NULL');
@@ -230,7 +230,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John', not: true }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John', not: true }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('NOT (name = ?)');
@@ -242,7 +242,7 @@ describe('toSQL', () => {
       id: 'root',
       combinator: 'and',
       not: true,
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
         { id: 'r2', field: 'age', operator: 'gt', value: 18 },
       ],
@@ -256,12 +256,12 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
         {
           id: 'g1',
           combinator: 'or',
-          conditions: [
+          children: [
             { id: 'r2', field: 'age', operator: 'lt', value: 18 },
             { id: 'r3', field: 'age', operator: 'gt', value: 65 },
           ],
@@ -277,12 +277,12 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'or',
-      conditions: [
+      children: [
         {
           id: 'g1',
           combinator: 'and',
           not: true,
-          conditions: [
+          children: [
             { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
             { id: 'r2', field: 'age', operator: 'gt', value: 18 },
           ],
@@ -299,12 +299,12 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
         {
           id: 'g1',
           combinator: 'and',
-          conditions: [],
+          children: [],
         },
       ],
     };
@@ -317,9 +317,9 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [
-        { id: 'g1', combinator: 'and', conditions: [] },
-        { id: 'g2', combinator: 'or', conditions: [] },
+      children: [
+        { id: 'g1', combinator: 'and', children: [] },
+        { id: 'g2', combinator: 'or', children: [] },
       ],
     };
     const result = toSQL(filter);
@@ -330,7 +330,7 @@ describe('toSQL', () => {
   it('IC mode filter converts to standard and generates SQL', () => {
     const filter: FilterAny = {
       id: 'root',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
         'and',
         { id: 'r2', field: 'age', operator: 'gt', value: 18 },
@@ -346,7 +346,7 @@ describe('toSQL', () => {
       id: 'root',
       combinator: 'and',
       not: true,
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const result = toSQL(filter);
     expect(result.sql).toBe('NOT (name = ?)');
@@ -357,7 +357,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'score', operator: 'customOp', value: 42 }],
+      children: [{ id: 'r1', field: 'score', operator: 'customOp', value: 42 }],
     };
     expect(() => toSQL(filter)).toThrow('Unsupported SQL operator: customOp');
   });
@@ -366,7 +366,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name) OR 1=1 --', operator: 'equals', value: 'x' }],
+      children: [{ id: 'r1', field: 'name) OR 1=1 --', operator: 'equals', value: 'x' }],
     };
     expect(() => toSQL(filter)).toThrow('Unsafe SQL field identifier');
   });
@@ -375,7 +375,7 @@ describe('toSQL', () => {
     const filter = {
       id: 'root',
       combinator: 'or); DROP TABLE users; --',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'x' },
         { id: 'r2', field: 'age', operator: 'gt', value: 1 },
       ],
@@ -388,7 +388,7 @@ describe('toSQL', () => {
     const filter: FilterAny = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'userName', operator: 'equals', value: 'Ada' }],
+      children: [{ id: 'r1', field: 'userName', operator: 'equals', value: 'Ada' }],
     };
 
     const result = toSQL(filter, {

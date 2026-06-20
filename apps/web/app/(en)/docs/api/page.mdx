@@ -12,8 +12,8 @@ This reference covers the stable surface used by the web docs and examples.
 | Type | Description |
 | --- | --- |
 | `FieldSchema` | Field name, label, type, values, default operator, and default value. |
-| `FilterRule` | A single condition with `field`, `operator`, `value`, and optional `not`. |
-| `FilterGroup` | A group with `combinator`, optional `not`, and nested conditions. |
+| `FilterRule` | A single rule with `field`, `operator`, `value`, and optional `not`. |
+| `FilterGroup` | A group with `combinator`, optional `not`, and nested children (rules and groups). |
 | `Filter` | Alias for the root `FilterGroup`. |
 | `ValidationResult` | `{ valid, errors }` after schema validation. |
 

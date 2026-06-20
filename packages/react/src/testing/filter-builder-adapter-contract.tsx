@@ -20,12 +20,12 @@ const schema: FieldSchema[] = [
   },
 ];
 
-const emptyFilter: Filter = { id: 'root', combinator: 'and', conditions: [] };
+const emptyFilter: Filter = { id: 'root', combinator: 'and', children: [] };
 
 const ruleFilter: Filter = {
   id: 'root',
   combinator: 'and',
-  conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
+  children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
 };
 
 export function runFilterBuilderAdapterContract(
@@ -40,7 +40,7 @@ export function runFilterBuilderAdapterContract(
 
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({
-        conditions: [expect.objectContaining({ field: '' })],
+        children: [expect.objectContaining({ field: '' })],
       })
     );
   });
@@ -55,7 +55,7 @@ export function runFilterBuilderAdapterContract(
 
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({
-        conditions: [expect.objectContaining({ id: 'r1', value: 'Grace' })],
+        children: [expect.objectContaining({ id: 'r1', value: 'Grace' })],
       })
     );
   });
@@ -90,7 +90,7 @@ export function runFilterBuilderAdapterContract(
 
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({
-        conditions: [expect.objectContaining({ id: 'r1', value: 'Slot value' })],
+        children: [expect.objectContaining({ id: 'r1', value: 'Slot value' })],
       })
     );
   });

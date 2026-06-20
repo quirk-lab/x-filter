@@ -14,7 +14,7 @@ const schema: FieldSchema[] = [
 const filter: Filter = {
   id: 'root',
   combinator: 'and',
-  conditions: [
+  children: [
     { id: 'r1', field: 'name', operator: 'equals', value: 'Ada' },
     { id: 'r2', field: 'name', operator: 'equals', value: 'Grace' },
   ],
@@ -39,7 +39,7 @@ test('AntdFilterBuilder exposes keyboard move action when dnd is enabled', () =>
 
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'r2' }), expect.objectContaining({ id: 'r1' })],
+      children: [expect.objectContaining({ id: 'r2' }), expect.objectContaining({ id: 'r1' })],
     })
   );
 });
@@ -51,7 +51,7 @@ test('AntdFilterBuilder moves a rule down through the DnD adapter boundary', () 
 
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'r2' }), expect.objectContaining({ id: 'r1' })],
+      children: [expect.objectContaining({ id: 'r2' }), expect.objectContaining({ id: 'r1' })],
     })
   );
 });
@@ -63,9 +63,9 @@ test('AntdFilterBuilder moves a child group through the keyboard fallback', () =
     value: {
       id: 'root',
       combinator: 'and',
-      conditions: [
-        { id: 'g1', combinator: 'and', conditions: [] },
-        { id: 'g2', combinator: 'and', conditions: [] },
+      children: [
+        { id: 'g1', combinator: 'and', children: [] },
+        { id: 'g2', combinator: 'and', children: [] },
       ],
     },
     onChange,
@@ -77,7 +77,7 @@ test('AntdFilterBuilder moves a child group through the keyboard fallback', () =
 
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'g2' }), expect.objectContaining({ id: 'g1' })],
+      children: [expect.objectContaining({ id: 'g2' }), expect.objectContaining({ id: 'g1' })],
     })
   );
 });

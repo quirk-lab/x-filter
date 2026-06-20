@@ -10,7 +10,7 @@ const schema: FieldSchema[] = [
 const makeFilter = (overrides?: Partial<Filter>): Filter => ({
   id: 'root',
   combinator: 'and',
-  conditions: [],
+  children: [],
   ...overrides,
 });
 
@@ -28,7 +28,7 @@ describe('useFilterBuilder', () => {
       const { result } = renderHook(() => useFilterBuilder({ schema }));
       expect(result.current.filter).toMatchObject({
         combinator: 'and',
-        conditions: [],
+        children: [],
       });
       expect(result.current.filter.id).toBeDefined();
     });
@@ -47,8 +47,8 @@ describe('useFilterBuilder', () => {
         result.current.addRule('root', { field: 'name', operator: 'equals', value: 'John' });
       });
 
-      expect(result.current.filter.conditions).toHaveLength(1);
-      expect(result.current.filter.conditions[0]).toMatchObject({
+      expect(result.current.filter.children).toHaveLength(1);
+      expect(result.current.filter.children[0]).toMatchObject({
         field: 'name',
         operator: 'equals',
         value: 'John',
@@ -57,7 +57,7 @@ describe('useFilterBuilder', () => {
 
     it('removeRule removes a rule', () => {
       const defaultValue = makeFilter({
-        conditions: [makeRule('r1'), makeRule('r2')],
+        children: [makeRule('r1'), makeRule('r2')],
       });
       const { result } = renderHook(() => useFilterBuilder({ defaultValue, schema }));
 
@@ -65,13 +65,13 @@ describe('useFilterBuilder', () => {
         result.current.removeRule('r1');
       });
 
-      expect(result.current.filter.conditions).toHaveLength(1);
-      expect(result.current.filter.conditions[0]).toMatchObject({ id: 'r2' });
+      expect(result.current.filter.children).toHaveLength(1);
+      expect(result.current.filter.children[0]).toMatchObject({ id: 'r2' });
     });
 
     it("updateRule updates a rule's fields", () => {
       const defaultValue = makeFilter({
-        conditions: [makeRule('r1', { field: 'name', operator: 'equals', value: 'old' })],
+        children: [makeRule('r1', { field: 'name', operator: 'equals', value: 'old' })],
       });
       const { result } = renderHook(() => useFilterBuilder({ defaultValue, schema }));
 
@@ -79,7 +79,7 @@ describe('useFilterBuilder', () => {
         result.current.updateRule('r1', { value: 'new', operator: 'contains' });
       });
 
-      expect(result.current.filter.conditions[0]).toMatchObject({
+      expect(result.current.filter.children[0]).toMatchObject({
         id: 'r1',
         field: 'name',
         operator: 'contains',
@@ -95,16 +95,16 @@ describe('useFilterBuilder', () => {
         result.current.addGroup('root', { combinator: 'or' });
       });
 
-      expect(result.current.filter.conditions).toHaveLength(1);
-      const subGroup = result.current.filter.conditions[0];
-      expect(subGroup).toMatchObject({ combinator: 'or', conditions: [] });
+      expect(result.current.filter.children).toHaveLength(1);
+      const subGroup = result.current.filter.children[0];
+      expect(subGroup).toMatchObject({ combinator: 'or', children: [] });
     });
 
     it('removeGroup removes a sub-group', () => {
       const defaultValue: Filter = {
         id: 'root',
         combinator: 'and',
-        conditions: [{ id: 'g1', combinator: 'or', conditions: [] }],
+        children: [{ id: 'g1', combinator: 'or', children: [] }],
       };
       const { result } = renderHook(() => useFilterBuilder({ defaultValue, schema }));
 
@@ -112,14 +112,14 @@ describe('useFilterBuilder', () => {
         result.current.removeGroup('g1');
       });
 
-      expect(result.current.filter.conditions).toHaveLength(0);
+      expect(result.current.filter.children).toHaveLength(0);
     });
 
     it('updateGroup updates combinator', () => {
       const defaultValue: Filter = {
         id: 'root',
         combinator: 'and',
-        conditions: [{ id: 'g1', combinator: 'and', conditions: [] }],
+        children: [{ id: 'g1', combinator: 'and', children: [] }],
       };
       const { result } = renderHook(() => useFilterBuilder({ defaultValue, schema }));
 
@@ -127,7 +127,7 @@ describe('useFilterBuilder', () => {
         result.current.updateGroup('g1', { combinator: 'or' });
       });
 
-      expect(result.current.filter.conditions[0]).toMatchObject({
+      expect(result.current.filter.children[0]).toMatchObject({
         id: 'g1',
         combinator: 'or',
       });
@@ -137,7 +137,7 @@ describe('useFilterBuilder', () => {
       const defaultValue: Filter = {
         id: 'root',
         combinator: 'and',
-        conditions: [{ id: 'g1', combinator: 'and', conditions: [] }],
+        children: [{ id: 'g1', combinator: 'and', children: [] }],
       };
       const { result } = renderHook(() => useFilterBuilder({ defaultValue, schema }));
 
@@ -145,7 +145,7 @@ describe('useFilterBuilder', () => {
         result.current.updateGroup('g1', { not: true });
       });
 
-      expect(result.current.filter.conditions[0]).toMatchObject({
+      expect(result.current.filter.children[0]).toMatchObject({
         id: 'g1',
         not: true,
       });
@@ -155,7 +155,7 @@ describe('useFilterBuilder', () => {
       const defaultValue: Filter = {
         id: 'root',
         combinator: 'and',
-        conditions: [
+        children: [
           makeRule('r1', { value: 'a' }),
           makeRule('r2', { value: 'b' }),
           makeRule('r3', { value: 'c' }),
@@ -167,18 +167,18 @@ describe('useFilterBuilder', () => {
         result.current.moveRule('r3', 'root', 0);
       });
 
-      expect(result.current.filter.conditions[0]).toMatchObject({ id: 'r3' });
-      expect(result.current.filter.conditions[1]).toMatchObject({ id: 'r1' });
-      expect(result.current.filter.conditions[2]).toMatchObject({ id: 'r2' });
+      expect(result.current.filter.children[0]).toMatchObject({ id: 'r3' });
+      expect(result.current.filter.children[1]).toMatchObject({ id: 'r1' });
+      expect(result.current.filter.children[2]).toMatchObject({ id: 'r2' });
     });
 
     it('moveRule moves a rule between groups', () => {
       const defaultValue: Filter = {
         id: 'root',
         combinator: 'and',
-        conditions: [
-          { id: 'g1', combinator: 'or', conditions: [makeRule('r1')] },
-          { id: 'g2', combinator: 'or', conditions: [] },
+        children: [
+          { id: 'g1', combinator: 'or', children: [makeRule('r1')] },
+          { id: 'g2', combinator: 'or', children: [] },
         ],
       };
       const { result } = renderHook(() => useFilterBuilder({ defaultValue, schema }));
@@ -187,11 +187,11 @@ describe('useFilterBuilder', () => {
         result.current.moveRule('r1', 'g2', 0);
       });
 
-      const g1 = result.current.filter.conditions[0] as Filter;
-      const g2 = result.current.filter.conditions[1] as Filter;
-      expect(g1.conditions).toHaveLength(0);
-      expect(g2.conditions).toHaveLength(1);
-      expect(g2.conditions[0]).toMatchObject({ id: 'r1' });
+      const g1 = result.current.filter.children[0] as Filter;
+      const g2 = result.current.filter.children[1] as Filter;
+      expect(g1.children).toHaveLength(0);
+      expect(g2.children).toHaveLength(1);
+      expect(g2.children[0]).toMatchObject({ id: 'r1' });
     });
 
     it('setFilter with direct value updates filter', () => {
@@ -207,7 +207,7 @@ describe('useFilterBuilder', () => {
     });
 
     it('setFilter with function updater updates filter', () => {
-      const defaultValue = makeFilter({ conditions: [makeRule('r1')] });
+      const defaultValue = makeFilter({ children: [makeRule('r1')] });
       const { result } = renderHook(() => useFilterBuilder({ defaultValue, schema }));
 
       act(() => {
@@ -218,7 +218,7 @@ describe('useFilterBuilder', () => {
       });
 
       expect(result.current.filter.combinator).toBe('or');
-      expect(result.current.filter.conditions).toHaveLength(1);
+      expect(result.current.filter.children).toHaveLength(1);
     });
 
     it('onChange callback is called on mutations', () => {
@@ -232,7 +232,7 @@ describe('useFilterBuilder', () => {
 
       expect(onChange).toHaveBeenCalledTimes(1);
       expect(onChange).toHaveBeenCalledWith(
-        expect.objectContaining({ conditions: expect.any(Array) })
+        expect.objectContaining({ children: expect.any(Array) })
       );
     });
 
@@ -241,7 +241,7 @@ describe('useFilterBuilder', () => {
       const defaultValue: Filter = {
         id: 'root',
         combinator: 'and',
-        conditions: [makeRule('r1'), { id: 'g1', combinator: 'or', conditions: [makeRule('r2')] }],
+        children: [makeRule('r1'), { id: 'g1', combinator: 'or', children: [makeRule('r2')] }],
       };
       const { result } = renderHook(() => useFilterBuilder({ defaultValue, onChange, schema }));
 
@@ -265,16 +265,16 @@ describe('useFilterBuilder', () => {
         result.current.addRule('root', { field: 'age', operator: 'gt', value: 18 });
       });
 
-      expect(result.current.filter.conditions).toHaveLength(2);
+      expect(result.current.filter.children).toHaveLength(2);
       expect(onChange).toHaveBeenCalledTimes(2);
-      expect(onChange.mock.calls[0][0].conditions).toHaveLength(1);
-      expect(onChange.mock.calls[1][0].conditions).toHaveLength(2);
+      expect(onChange.mock.calls[0][0].children).toHaveLength(1);
+      expect(onChange.mock.calls[1][0].children).toHaveLength(2);
     });
   });
 
   describe('controlled mode', () => {
     it('uses value prop as filter', () => {
-      const value = makeFilter({ id: 'controlled', conditions: [makeRule('r1')] });
+      const value = makeFilter({ id: 'controlled', children: [makeRule('r1')] });
       const { result } = renderHook(() => useFilterBuilder({ value, schema }));
       expect(result.current.filter).toBe(value);
     });
@@ -295,7 +295,7 @@ describe('useFilterBuilder', () => {
     it('re-renders with new value prop updates filter', () => {
       const onChange = jest.fn();
       const value1 = makeFilter({ id: 'v1' });
-      const value2 = makeFilter({ id: 'v2', conditions: [makeRule('r1')] });
+      const value2 = makeFilter({ id: 'v2', children: [makeRule('r1')] });
 
       const { result, rerender } = renderHook(
         ({ value }) => useFilterBuilder({ value, onChange, schema }),
@@ -336,8 +336,8 @@ describe('useFilterBuilder', () => {
       });
 
       expect(onChange).toHaveBeenCalledTimes(2);
-      expect(onChange.mock.calls[0][0].conditions).toHaveLength(1);
-      expect(onChange.mock.calls[1][0].conditions).toHaveLength(2);
+      expect(onChange.mock.calls[0][0].children).toHaveLength(1);
+      expect(onChange.mock.calls[1][0].children).toHaveLength(2);
     });
   });
 

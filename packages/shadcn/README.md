@@ -40,7 +40,7 @@ const schema: FieldSchema[] = [
 const initialFilter: Filter = {
   id: 'root',
   combinator: 'and',
-  conditions: [
+  children: [
     { id: 'rule-priority', field: 'priority', operator: 'gt', value: 2 },
   ],
 };

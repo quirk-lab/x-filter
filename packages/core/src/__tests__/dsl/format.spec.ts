@@ -50,7 +50,7 @@ const group = (expression: ASTNode): ASTNode => ({
 });
 
 describe('formatAST', () => {
-  describe('conditions', () => {
+  describe('children', () => {
     it('formats simple condition', () => {
       expect(formatAST(cond('field', 'op', str('value')))).toBe('field:op:value');
     });
@@ -232,7 +232,7 @@ describe('formatDSL', () => {
     const filter: Filter = {
       id: '1',
       combinator: 'and',
-      conditions: [{ id: '2', field: 'status', operator: 'equals', value: 'active' }],
+      children: [{ id: '2', field: 'status', operator: 'equals', value: 'active' }],
     };
     expect(formatDSL(filter)).toBe('status:equals:active');
   });
@@ -241,7 +241,7 @@ describe('formatDSL', () => {
     const filter: Filter = {
       id: '1',
       combinator: 'and',
-      conditions: [
+      children: [
         { id: '2', field: 'a', operator: 'eq', value: 'x' },
         { id: '3', field: 'b', operator: 'eq', value: 'y' },
       ],
@@ -253,7 +253,7 @@ describe('formatDSL', () => {
     const filter: Filter = {
       id: '1',
       combinator: 'or',
-      conditions: [
+      children: [
         { id: '2', field: 'a', operator: 'eq', value: 'x' },
         { id: '3', field: 'b', operator: 'eq', value: 'y' },
       ],
@@ -265,7 +265,7 @@ describe('formatDSL', () => {
     const filter: Filter = {
       id: '1',
       combinator: 'and',
-      conditions: [{ id: '2', field: 'status', operator: 'eq', value: 'x', not: true }],
+      children: [{ id: '2', field: 'status', operator: 'eq', value: 'x', not: true }],
     };
     expect(formatDSL(filter)).toBe('NOT status:eq:x');
   });
@@ -275,7 +275,7 @@ describe('formatDSL', () => {
       id: '1',
       combinator: 'and',
       not: true,
-      conditions: [
+      children: [
         { id: '2', field: 'a', operator: 'eq', value: 'x' },
         { id: '3', field: 'b', operator: 'eq', value: 'y' },
       ],
@@ -287,12 +287,12 @@ describe('formatDSL', () => {
     const filter: Filter = {
       id: '1',
       combinator: 'and',
-      conditions: [
+      children: [
         { id: '2', field: 'a', operator: 'eq', value: 'x' },
         {
           id: '3',
           combinator: 'or',
-          conditions: [
+          children: [
             { id: '4', field: 'b', operator: 'eq', value: 'y' },
             { id: '5', field: 'c', operator: 'eq', value: 'z' },
           ],
@@ -306,7 +306,7 @@ describe('formatDSL', () => {
     const filter: Filter = {
       id: '1',
       combinator: 'and',
-      conditions: [{ id: '2', field: 'age', operator: 'gt', value: 18 }],
+      children: [{ id: '2', field: 'age', operator: 'gt', value: 18 }],
     };
     expect(formatDSL(filter)).toBe('age:gt:18');
   });
@@ -315,7 +315,7 @@ describe('formatDSL', () => {
     const filter: Filter = {
       id: '1',
       combinator: 'and',
-      conditions: [{ id: '2', field: 'active', operator: 'eq', value: true }],
+      children: [{ id: '2', field: 'active', operator: 'eq', value: true }],
     };
     expect(formatDSL(filter)).toBe('active:eq:true');
   });
@@ -324,7 +324,7 @@ describe('formatDSL', () => {
     const filter: Filter = {
       id: '1',
       combinator: 'and',
-      conditions: [{ id: '2', field: 'tags', operator: 'in', value: ['a', 'b', 'c'] }],
+      children: [{ id: '2', field: 'tags', operator: 'in', value: ['a', 'b', 'c'] }],
     };
     expect(formatDSL(filter)).toBe('tags:in:[a,b,c]');
   });
@@ -333,7 +333,7 @@ describe('formatDSL', () => {
     const filter: Filter = {
       id: '1',
       combinator: 'and',
-      conditions: [{ id: '2', field: 'age', operator: 'between', value: [18, 65] }],
+      children: [{ id: '2', field: 'age', operator: 'between', value: [18, 65] }],
     };
     expect(formatDSL(filter)).toBe('age:between:{18..65}');
   });
@@ -342,7 +342,7 @@ describe('formatDSL', () => {
     const filter: Filter = {
       id: '1',
       combinator: 'and',
-      conditions: [{ id: '2', field: 'status', operator: 'isEmpty', value: undefined }],
+      children: [{ id: '2', field: 'status', operator: 'isEmpty', value: undefined }],
     };
     expect(formatDSL(filter)).toBe('status:isEmpty');
   });
@@ -351,7 +351,7 @@ describe('formatDSL', () => {
     const filter: Filter = {
       id: '1',
       combinator: 'and',
-      conditions: [],
+      children: [],
     };
     expect(formatAST({ type: 'group', expression: null, start: 0, end: 0 })).toBe('()');
     expect(formatDSL(filter)).toBe('()');

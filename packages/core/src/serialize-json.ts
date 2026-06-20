@@ -19,7 +19,7 @@ export function toJSON(filter: FilterAny): Record<string, unknown> {
 }
 
 function groupToJSON(group: FilterGroup): Record<string, unknown> {
-  if (group.conditions.length === 0 && group.combinator === 'and' && !group.not) {
+  if (group.children.length === 0 && group.combinator === 'and' && !group.not) {
     return {};
   }
 
@@ -28,7 +28,7 @@ function groupToJSON(group: FilterGroup): Record<string, unknown> {
   };
   if (group.not) result.not = true;
 
-  result.conditions = group.conditions.map((c) => {
+  result.children = group.children.map((c) => {
     if (isFilterGroup(c)) {
       return groupToJSON(c as FilterGroup);
     }
@@ -39,14 +39,14 @@ function groupToJSON(group: FilterGroup): Record<string, unknown> {
 }
 
 function groupICToJSON(group: FilterGroupIC): Record<string, unknown> {
-  if (group.conditions.length === 0 && !group.not) {
+  if (group.children.length === 0 && !group.not) {
     return { ic: true };
   }
 
   const result: Record<string, unknown> = { ic: true };
   if (group.not) result.not = true;
 
-  result.conditions = group.conditions.map((c) => {
+  result.children = group.children.map((c) => {
     if (typeof c === 'string') return c;
     if (isFilterGroupIC(c)) {
       return groupICToJSON(c);
@@ -76,21 +76,22 @@ export function fromJSON(json: Record<string, unknown>): FilterAny {
 
 function groupFromJSON(json: Record<string, unknown>): Filter {
   if (Object.keys(json).length === 0) {
-    return { id: generateId(), combinator: 'and', conditions: [] };
+    return { id: generateId(), combinator: 'and', children: [] };
   }
 
   const result: FilterGroup = {
     id: generateId(),
     combinator: (json.combinator as Combinator) ?? 'and',
-    conditions: [],
+    children: [],
   };
   if (json.not) result.not = true;
 
-  const conditions = json.conditions as unknown[] | undefined;
-  if (Array.isArray(conditions)) {
-    result.conditions = conditions.map((c) => {
+  // Accept both 'children' (new) and 'conditions' (legacy) keys
+  const rawChildren = (json.children ?? json.conditions) as unknown[] | undefined;
+  if (Array.isArray(rawChildren)) {
+    result.children = rawChildren.map((c) => {
       const item = c as Record<string, unknown>;
-      if ('conditions' in item || 'combinator' in item) {
+      if ('children' in item || 'conditions' in item || 'combinator' in item) {
         return groupFromJSON(item);
       }
       return ruleFromJSON(item);
@@ -103,16 +104,17 @@ function groupFromJSON(json: Record<string, unknown>): Filter {
 function groupICFromJSON(json: Record<string, unknown>): FilterIC {
   const result: FilterGroupIC = {
     id: generateId(),
-    conditions: [],
+    children: [],
   };
   if (json.not) result.not = true;
 
-  const conditions = json.conditions as unknown[] | undefined;
-  if (Array.isArray(conditions)) {
-    result.conditions = conditions.map((c) => {
+  // Accept both 'children' (new) and 'conditions' (legacy) keys
+  const rawChildren = (json.children ?? json.conditions) as unknown[] | undefined;
+  if (Array.isArray(rawChildren)) {
+    result.children = rawChildren.map((c) => {
       if (typeof c === 'string') return c as Combinator;
       const item = c as Record<string, unknown>;
-      if ('ic' in item || ('conditions' in item && !('field' in item))) {
+      if ('ic' in item || (('children' in item || 'conditions' in item) && !('field' in item))) {
         return groupICFromJSON(item);
       }
       return ruleFromJSON(item);

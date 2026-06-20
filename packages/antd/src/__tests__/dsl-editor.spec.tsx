@@ -27,7 +27,7 @@ const schema: FieldSchema[] = [
   },
 ];
 
-const filter: Filter = { id: 'root', combinator: 'and', conditions: [] };
+const filter: Filter = { id: 'root', combinator: 'and', children: [] };
 
 test('AntdFilterBuilder commits valid DSL and shows parse errors for invalid DSL', () => {
   const onChange = jest.fn();

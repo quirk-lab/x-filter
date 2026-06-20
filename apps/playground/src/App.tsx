@@ -53,7 +53,7 @@ function createInitialFilter(): Filter {
   return {
     id: 'root',
     combinator: 'and',
-    conditions: [
+    children: [
       {
         id: 'rule-status',
         field: 'status',

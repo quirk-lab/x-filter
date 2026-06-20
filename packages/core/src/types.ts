@@ -33,13 +33,13 @@ export interface FilterGroup {
   id: string;
   combinator: Combinator;
   not?: boolean;
-  conditions: (FilterRule | FilterGroup)[];
+  children: (FilterRule | FilterGroup)[];
 }
 
 export interface FilterGroupIC {
   id: string;
   not?: boolean;
-  conditions: (FilterRule | FilterGroupIC | Combinator)[];
+  children: (FilterRule | FilterGroupIC | Combinator)[];
 }
 
 export type Combinator = 'and' | 'or';
@@ -85,6 +85,6 @@ export function isFilterGroup(node: unknown): node is FilterGroup {
     node !== null &&
     'id' in node &&
     'combinator' in node &&
-    'conditions' in node
+    'children' in node
   );
 }

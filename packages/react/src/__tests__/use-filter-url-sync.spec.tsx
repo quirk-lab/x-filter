@@ -6,7 +6,7 @@ import { useFilterUrlSync } from '../use-filter-url-sync';
 const makeFilter = (): Filter => ({
   id: 'root',
   combinator: 'and',
-  conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+  children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
 });
 
 function createMockParams(initial = '') {
@@ -63,7 +63,7 @@ describe('useFilterUrlSync', () => {
       const decoded = getFromUrl(result);
       expect(decoded).not.toBeNull();
       expect(decoded).toMatchObject({
-        conditions: [expect.objectContaining({ field: 'name', operator: 'equals' })],
+        children: [expect.objectContaining({ field: 'name', operator: 'equals' })],
       });
       expect(result.current.error).toBeNull();
     });
@@ -173,7 +173,7 @@ describe('useFilterUrlSync', () => {
       const decoded = getFromUrl(result);
       expect(decoded).not.toBeNull();
       expect(decoded).toMatchObject({
-        conditions: [expect.objectContaining({ field: 'name', operator: 'equals' })],
+        children: [expect.objectContaining({ field: 'name', operator: 'equals' })],
       });
       expect(result.current.error).toBeNull();
     });
@@ -217,7 +217,7 @@ describe('useFilterUrlSync', () => {
       const decoded = getFromUrl(result);
       expect(decoded).not.toBeNull();
       expect(decoded).toMatchObject({
-        conditions: [expect.objectContaining({ field: 'name' })],
+        children: [expect.objectContaining({ field: 'name' })],
       });
     });
   });
@@ -303,7 +303,7 @@ describe('useFilterUrlSync', () => {
       const decoded = getFromUrl(result);
       expect(decoded).not.toBeNull();
       expect(decoded).toMatchObject({
-        conditions: [expect.objectContaining({ field: 'name' })],
+        children: [expect.objectContaining({ field: 'name' })],
       });
     });
   });

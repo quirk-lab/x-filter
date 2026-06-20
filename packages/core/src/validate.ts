@@ -40,15 +40,15 @@ function validateGroup(
     });
   }
 
-  if (!Array.isArray(group.conditions)) {
+  if (!Array.isArray(group.children)) {
     addError(errors, group.id, {
       type: 'invalidGroup',
-      message: 'Group conditions must be an array',
+      message: 'Group children must be an array',
     });
     return;
   }
 
-  for (const c of group.conditions) {
+  for (const c of group.children) {
     if (isFilterGroup(c)) {
       validateGroup(c as FilterGroup, schema, errors);
     } else if (isFilterRule(c)) {
@@ -56,7 +56,7 @@ function validateGroup(
     } else {
       addError(errors, group.id, {
         type: 'invalidGroup',
-        message: 'Group condition must be a rule or group',
+        message: 'Group child must be a Rule or Group',
       });
     }
   }
@@ -67,23 +67,16 @@ function validateGroupIC(
   schema: FieldSchema[],
   errors: Record<string, ValidationError[]>
 ): void {
-  if (!Array.isArray(group.conditions)) {
+  if (!Array.isArray(group.children)) {
     addError(errors, group.id, {
       type: 'invalidGroup',
-      message: 'IC group conditions must be an array',
+      message: 'IC group children must be an array',
     });
     return;
   }
 
-  if (group.conditions.length > 0 && group.conditions.length % 2 === 0) {
-    addError(errors, group.id, {
-      type: 'invalidCombinator',
-      message: 'IC group conditions must end with a rule or group',
-    });
-  }
-
-  for (let index = 0; index < group.conditions.length; index++) {
-    const c = group.conditions[index];
+  for (let index = 0; index < group.children.length; index++) {
+    const c = group.children[index];
     const expectsCombinator = index % 2 === 1;
 
     if (typeof c === 'string') {
@@ -110,7 +103,7 @@ function validateGroupIC(
     } else {
       addError(errors, group.id, {
         type: 'invalidGroup',
-        message: 'IC group condition must be a rule or group',
+        message: 'IC group child must be a Rule or Group',
       });
     }
   }

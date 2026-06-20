@@ -4,13 +4,13 @@ import { isFilterGroup, isFilterRule } from './types';
 type AnyNode = FilterRule | FilterGroup | FilterGroupIC;
 
 function isGroupLike(node: unknown): node is FilterGroup | FilterGroupIC {
-  return typeof node === 'object' && node !== null && 'conditions' in node;
+  return typeof node === 'object' && node !== null && 'children' in node;
 }
 
 export function findById(filter: FilterAny, id: string): AnyNode | undefined {
   if (filter.id === id) return filter;
 
-  for (const c of filter.conditions) {
+  for (const c of filter.children) {
     if (typeof c === 'string') continue;
     if (c.id === id) return c;
     if (isGroupLike(c)) {
@@ -23,7 +23,7 @@ export function findById(filter: FilterAny, id: string): AnyNode | undefined {
 }
 
 export function findParent(filter: FilterAny, id: string): FilterGroup | FilterGroupIC | undefined {
-  for (const c of filter.conditions) {
+  for (const c of filter.children) {
     if (typeof c === 'string') continue;
     if (c.id === id) return filter;
     if (isGroupLike(c)) {
@@ -46,7 +46,7 @@ function findPathHelper(node: FilterAny, targetId: string, path: string[]): bool
   path.push(node.id);
   if (node.id === targetId) return true;
 
-  for (const c of node.conditions) {
+  for (const c of node.children) {
     if (typeof c === 'string') continue;
     if (!isGroupLike(c)) {
       if (c.id === targetId) {
@@ -75,7 +75,7 @@ function traverseNode(node: AnyNode, callback: TraverseCallback, depth: number):
 
   if (isGroupLike(node)) {
     const group = node as FilterGroup | FilterGroupIC;
-    for (const c of group.conditions) {
+    for (const c of group.children) {
       if (typeof c === 'string') continue;
       traverseNode(c, callback, depth + 1);
     }

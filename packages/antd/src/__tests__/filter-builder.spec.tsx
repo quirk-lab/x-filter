@@ -17,7 +17,7 @@ const schema: FieldSchema[] = [
   },
 ];
 
-const filter: Filter = { id: 'root', combinator: 'and', conditions: [] };
+const filter: Filter = { id: 'root', combinator: 'and', children: [] };
 
 const wideSchema: FieldSchema[] = [
   {
@@ -77,7 +77,7 @@ const wideSchema: FieldSchema[] = [
 ];
 
 function singleRuleFilter(rule: FilterRule): Filter {
-  return { id: 'root', combinator: 'and', conditions: [rule] };
+  return { id: 'root', combinator: 'and', children: [rule] };
 }
 
 function openSelect(name: string) {
@@ -97,7 +97,7 @@ test('AntdFilterBuilder adds a rule through the full builder', () => {
 
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ field: '' })],
+      children: [expect.objectContaining({ field: '' })],
     })
   );
 });
@@ -109,7 +109,7 @@ test('AntdFilterBuilder renders custom ValueEditor slot', () => {
       defaultValue={{
         id: 'root',
         combinator: 'and',
-        conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
+        children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
       }}
       slots={{ ValueEditor: () => <div>Custom value</div> }}
     />
@@ -129,7 +129,7 @@ test('AntdFilterBuilder passes external validation errors to rule slots', () => 
       defaultValue={{
         id: 'root',
         combinator: 'and',
-        conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
+        children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
       }}
       errors={errors}
       slots={{
@@ -149,7 +149,7 @@ test('AntdFilterBuilder emits controlled rule updates', () => {
       value={{
         id: 'root',
         combinator: 'and',
-        conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
+        children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
       }}
       onChange={onChange}
     />
@@ -160,9 +160,7 @@ test('AntdFilterBuilder emits controlled rule updates', () => {
 
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [
-        expect.objectContaining({ id: 'r1', field: 'age', operator: 'gt', value: null }),
-      ],
+      children: [expect.objectContaining({ id: 'r1', field: 'age', operator: 'gt', value: null })],
     })
   );
 });
@@ -193,20 +191,20 @@ test('AntdFilterBuilder forwards default atomic rule controls', () => {
 
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'r1', not: true })],
+      children: [expect.objectContaining({ id: 'r1', not: true })],
     })
   );
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'r1', operator: 'contains' })],
+      children: [expect.objectContaining({ id: 'r1', operator: 'contains' })],
     })
   );
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'r1', value: 'Grace' })],
+      children: [expect.objectContaining({ id: 'r1', value: 'Grace' })],
     })
   );
-  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ conditions: [] }));
+  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ children: [] }));
 });
 
 test('AntdFilterBuilder removes child groups but not the root group', () => {
@@ -217,7 +215,7 @@ test('AntdFilterBuilder removes child groups but not the root group', () => {
       value={{
         id: 'root',
         combinator: 'and',
-        conditions: [{ id: 'g1', combinator: 'or', conditions: [] }],
+        children: [{ id: 'g1', combinator: 'or', children: [] }],
       }}
       onChange={onChange}
     />
@@ -228,7 +226,7 @@ test('AntdFilterBuilder removes child groups but not the root group', () => {
 
   fireEvent.click(screen.getByRole('button', { name: /remove group/i }));
 
-  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ conditions: [] }));
+  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ children: [] }));
 });
 
 test('AntdFilterBuilder applies classNames and custom action labels', () => {
@@ -240,15 +238,15 @@ test('AntdFilterBuilder applies classNames and custom action labels', () => {
       defaultValue={{
         id: 'root',
         combinator: 'and',
-        conditions: [
+        children: [
           { id: 'r1', field: 'age', operator: 'gt', value: 41 },
-          { id: 'g1', combinator: 'or', conditions: [] },
+          { id: 'g1', combinator: 'or', children: [] },
         ],
       }}
       labels={{
-        addRule: 'New condition',
+        addRule: 'New rule',
         addGroup: 'New group',
-        removeRule: 'Delete condition',
+        removeRule: 'Delete rule',
       }}
       classNames={{
         root: 'builder-root',
@@ -269,14 +267,14 @@ test('AntdFilterBuilder applies classNames and custom action labels', () => {
   expect(container.querySelector('.builder-operator')).not.toBeNull();
   expect(container.querySelector('.builder-value')).not.toBeNull();
   expect(container.querySelector('.builder-actions')).not.toBeNull();
-  expect(screen.getAllByRole('button', { name: 'New condition' })).toHaveLength(2);
+  expect(screen.getAllByRole('button', { name: 'New rule' })).toHaveLength(2);
   expect(screen.getAllByRole('button', { name: 'New group' })).toHaveLength(2);
-  expect(screen.getByRole('button', { name: 'Delete condition' })).not.toBeNull();
+  expect(screen.getByRole('button', { name: 'Delete rule' })).not.toBeNull();
 
   fireEvent.click(screen.getAllByRole('checkbox', { name: 'Not' })[0]);
   fireEvent.mouseDown(screen.getAllByRole('combobox', { name: 'Combinator' })[0]);
   clickLastText('OR');
-  fireEvent.click(screen.getAllByRole('button', { name: 'New condition' })[0]);
+  fireEvent.click(screen.getAllByRole('button', { name: 'New rule' })[0]);
   fireEvent.click(screen.getAllByRole('button', { name: 'New group' })[0]);
   fireEvent.click(screen.getAllByRole('button', { name: 'Remove group' })[0]);
 
@@ -289,12 +287,12 @@ test('AntdFilterBuilder applies classNames and custom action labels', () => {
   fireEvent.change(within(ruleControls).getByRole('textbox', { name: 'Value' }), {
     target: { value: 'Grace' },
   });
-  fireEvent.click(within(ruleControls).getByRole('button', { name: 'Delete condition' }));
+  fireEvent.click(within(ruleControls).getByRole('button', { name: 'Delete rule' }));
 
   expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ not: true }));
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: expect.arrayContaining([expect.objectContaining({ field: 'name' })]),
+      children: expect.arrayContaining([expect.objectContaining({ field: 'name' })]),
     })
   );
 });
@@ -312,7 +310,7 @@ test('AntdFilterBuilder emits group updates through the default group atomic', (
   expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ not: true }));
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ combinator: 'and' })],
+      children: [expect.objectContaining({ combinator: 'and' })],
     })
   );
 });
@@ -325,7 +323,7 @@ test('AntdFilterBuilder wires Root, Group, Rule, FieldSelector, and OperatorSele
       defaultValue={{
         id: 'root',
         combinator: 'and',
-        conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
+        children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
       }}
       onChange={onChange}
       slots={{
@@ -360,7 +358,7 @@ test('AntdFilterBuilder wires Root, Group, Rule, FieldSelector, and OperatorSele
       defaultValue={{
         id: 'root',
         combinator: 'and',
-        conditions: [{ id: 'r2', field: 'name', operator: 'equals', value: 'Ada' }],
+        children: [{ id: 'r2', field: 'name', operator: 'equals', value: 'Ada' }],
       }}
       slots={{
         FieldSelector: ({ rule, actions }) => (
@@ -383,12 +381,12 @@ test('AntdFilterBuilder wires Root, Group, Rule, FieldSelector, and OperatorSele
 
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'r2', field: 'age' })],
+      children: [expect.objectContaining({ id: 'r2', field: 'age' })],
     })
   );
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'r2', operator: 'gt' })],
+      children: [expect.objectContaining({ id: 'r2', operator: 'gt' })],
     })
   );
 });
@@ -401,9 +399,9 @@ test('AntdFilterBuilder moveItem slot action moves rules between groups', () => 
       defaultValue={{
         id: 'root',
         combinator: 'and',
-        conditions: [
+        children: [
           { id: 'r1', field: 'name', operator: 'equals', value: 'Ada' },
-          { id: 'g1', combinator: 'and', conditions: [] },
+          { id: 'g1', combinator: 'and', children: [] },
         ],
       }}
       onChange={onChange}
@@ -436,10 +434,10 @@ test('AntdFilterBuilder moveItem slot action moves rules between groups', () => 
 
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [
+      children: [
         expect.objectContaining({
           id: 'g1',
-          conditions: [expect.objectContaining({ id: 'r1' })],
+          children: [expect.objectContaining({ id: 'r1' })],
         }),
       ],
     })
@@ -454,9 +452,9 @@ test('AntdFilterBuilder moveItem slot action moves child groups', () => {
       defaultValue={{
         id: 'root',
         combinator: 'and',
-        conditions: [
+        children: [
           { id: 'r1', field: 'name', operator: 'equals', value: 'Ada' },
-          { id: 'g1', combinator: 'and', conditions: [] },
+          { id: 'g1', combinator: 'and', children: [] },
         ],
       }}
       onChange={onChange}
@@ -487,7 +485,7 @@ test('AntdFilterBuilder moveItem slot action moves child groups', () => {
 
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'g1' }), expect.objectContaining({ id: 'r1' })],
+      children: [expect.objectContaining({ id: 'g1' }), expect.objectContaining({ id: 'r1' })],
     })
   );
 });
@@ -499,15 +497,15 @@ test('AntdFilterBuilder canDrop rejects missing drag ids and group descendant ta
       defaultValue={{
         id: 'root',
         combinator: 'and',
-        conditions: [
+        children: [
           {
             id: 'g1',
             combinator: 'and',
-            conditions: [
+            children: [
               {
                 id: 'g2',
                 combinator: 'or',
-                conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
+                children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
               },
             ],
           },
@@ -546,7 +544,7 @@ test('AntdFilterBuilder renders default value editors for supported field types'
   fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '42' } });
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'number', value: 42 })],
+      children: [expect.objectContaining({ id: 'number', value: 42 })],
     })
   );
 
@@ -568,12 +566,12 @@ test('AntdFilterBuilder renders default value editors for supported field types'
   fireEvent.change(numberRangeInputs[1], { target: { value: '60' } });
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'number-between', value: [21, 65] })],
+      children: [expect.objectContaining({ id: 'number-between', value: [21, 65] })],
     })
   );
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'number-between', value: [18, 60] })],
+      children: [expect.objectContaining({ id: 'number-between', value: [18, 60] })],
     })
   );
 
@@ -593,14 +591,14 @@ test('AntdFilterBuilder renders default value editors for supported field types'
   fireEvent.change(screen.getByLabelText('End value'), { target: { value: '2026-05-28' } });
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [
+      children: [
         expect.objectContaining({ id: 'date-between', value: ['2026-05-03', '2026-05-31'] }),
       ],
     })
   );
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [
+      children: [
         expect.objectContaining({ id: 'date-between', value: ['2026-05-01', '2026-05-28'] }),
       ],
     })
@@ -622,7 +620,7 @@ test('AntdFilterBuilder renders default value editors for supported field types'
   clickLastText('Inactive');
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'status', value: 'inactive' })],
+      children: [expect.objectContaining({ id: 'status', value: 'inactive' })],
     })
   );
 
@@ -642,7 +640,7 @@ test('AntdFilterBuilder renders default value editors for supported field types'
   clickLastText('Trial');
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'tags', value: ['vip', 'trial'] })],
+      children: [expect.objectContaining({ id: 'tags', value: ['vip', 'trial'] })],
     })
   );
 
@@ -661,7 +659,7 @@ test('AntdFilterBuilder renders default value editors for supported field types'
   fireEvent.click(screen.getByRole('checkbox', { name: 'Value' }));
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'enabled', value: true })],
+      children: [expect.objectContaining({ id: 'enabled', value: true })],
     })
   );
 
@@ -680,7 +678,7 @@ test('AntdFilterBuilder renders default value editors for supported field types'
   fireEvent.change(screen.getByLabelText('Value'), { target: { value: '2026-05-28' } });
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'created', value: '2026-05-28' })],
+      children: [expect.objectContaining({ id: 'created', value: '2026-05-28' })],
     })
   );
 
@@ -713,7 +711,7 @@ test('AntdFilterBuilder renders default value editors for supported field types'
   fireEvent.change(screen.getByDisplayValue('123'), { target: { value: 'fallback' } });
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
-      conditions: [expect.objectContaining({ id: 'missing', value: 'fallback' })],
+      children: [expect.objectContaining({ id: 'missing', value: 'fallback' })],
     })
   );
 

@@ -7,7 +7,7 @@ function updateRuleInTree(
   updater: (rule: FilterRule) => FilterRule
 ): FilterGroup {
   let changed = false;
-  const newConditions = root.conditions.map((c) => {
+  const newChildren = root.children.map((c) => {
     if (isFilterGroup(c)) {
       const updated = updateRuleInTree(c, ruleId, updater);
       if (updated !== c) {
@@ -23,7 +23,7 @@ function updateRuleInTree(
     return c;
   });
 
-  return changed ? { ...root, conditions: newConditions } : root;
+  return changed ? { ...root, children: newChildren } : root;
 }
 
 function updateGroupInTree(
@@ -36,7 +36,7 @@ function updateGroupInTree(
   }
 
   let changed = false;
-  const newConditions = root.conditions.map((c) => {
+  const newChildren = root.children.map((c) => {
     if (isFilterGroup(c)) {
       const updated = updateGroupInTree(c, targetId, updater);
       if (updated !== c) {
@@ -47,7 +47,7 @@ function updateGroupInTree(
     return c;
   });
 
-  return changed ? { ...root, conditions: newConditions } : root;
+  return changed ? { ...root, children: newChildren } : root;
 }
 
 export function negateRule(filter: Filter, ruleId: string): Filter {

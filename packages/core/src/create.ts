@@ -10,7 +10,7 @@ export function createFilter(options?: CreateFilterOptions): Filter {
   return {
     id: (options?.idGenerator ?? generateId)(),
     combinator: options?.combinator ?? 'and',
-    conditions: [],
+    children: [],
   };
 }
 
@@ -47,7 +47,7 @@ export function createGroup(options?: CreateGroupOptions): FilterGroup {
   const group: FilterGroup = {
     id: options?.id ?? (options?.idGenerator ?? generateId)(),
     combinator: options?.combinator ?? 'and',
-    conditions: [],
+    children: [],
   };
   if (options?.not !== undefined) {
     group.not = options.not;

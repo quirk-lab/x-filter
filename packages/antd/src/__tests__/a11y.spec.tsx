@@ -33,12 +33,12 @@ const schema: FieldSchema[] = [
 const filter: Filter = {
   id: 'root',
   combinator: 'and',
-  conditions: [
+  children: [
     { id: 'r1', field: 'name', operator: 'equals', value: 'Ada' },
     {
       id: 'g1',
       combinator: 'or',
-      conditions: [{ id: 'r2', field: 'age', operator: 'gt', value: 30 }],
+      children: [{ id: 'r2', field: 'age', operator: 'gt', value: 30 }],
     },
   ],
 };
@@ -61,7 +61,7 @@ const rangeSchema: FieldSchema[] = [
 const rangeFilter: Filter = {
   id: 'root',
   combinator: 'and',
-  conditions: [
+  children: [
     { id: 'age-range', field: 'age', operator: 'between', value: [18, 65] },
     {
       id: 'created-range',

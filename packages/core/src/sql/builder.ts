@@ -51,11 +51,11 @@ export function buildRuleSQL(rule: FilterRule, options: SQLBuildOptions = {}): S
 }
 
 export function buildGroupSQL(group: FilterGroup, options: SQLBuildOptions = {}): SQLResult {
-  if (group.conditions.length === 0) {
+  if (group.children.length === 0) {
     return { sql: '', params: [] };
   }
 
-  const parts: SQLResult[] = group.conditions.map((c) => {
+  const parts: SQLResult[] = group.children.map((c) => {
     if (isFilterGroup(c)) {
       return buildGroupSQL(c as FilterGroup, options);
     }

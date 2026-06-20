@@ -9,18 +9,18 @@ function removeGroupFromTree(
 ):
   | { root: FilterGroup; removed: undefined; sourceGroupId: undefined; sourceIndex: undefined }
   | { root: FilterGroup; removed: FilterGroup; sourceGroupId: string; sourceIndex: number } {
-  const directIndex = root.conditions.findIndex(
-    (condition) => isFilterGroup(condition) && condition.id === groupId
+  const directIndex = root.children.findIndex(
+    (child) => isFilterGroup(child) && child.id === groupId
   );
   if (directIndex !== -1) {
-    const removed = root.conditions[directIndex];
+    const removed = root.children[directIndex];
     if (!isFilterGroup(removed)) {
       return { root, removed: undefined, sourceGroupId: undefined, sourceIndex: undefined };
     }
     return {
       root: {
         ...root,
-        conditions: root.conditions.filter((_, index) => index !== directIndex),
+        children: root.children.filter((_, index) => index !== directIndex),
       },
       removed,
       sourceGroupId: root.id,
@@ -28,17 +28,17 @@ function removeGroupFromTree(
     };
   }
 
-  for (let index = 0; index < root.conditions.length; index++) {
-    const condition = root.conditions[index];
-    if (!isFilterGroup(condition)) continue;
+  for (let index = 0; index < root.children.length; index++) {
+    const child = root.children[index];
+    if (!isFilterGroup(child)) continue;
 
-    const result = removeGroupFromTree(condition, groupId);
+    const result = removeGroupFromTree(child, groupId);
     if (!result.removed) continue;
 
-    const newConditions = [...root.conditions];
-    newConditions[index] = result.root;
+    const newChildren = [...root.children];
+    newChildren[index] = result.root;
     return {
-      root: { ...root, conditions: newConditions },
+      root: { ...root, children: newChildren },
       removed: result.removed,
       sourceGroupId: result.sourceGroupId,
       sourceIndex: result.sourceIndex,
@@ -55,22 +55,22 @@ function insertGroupIntoTree(
   targetIndex: number
 ): { root: FilterGroup; inserted: boolean } {
   if (root.id === targetGroupId) {
-    const nextConditions = [...root.conditions];
-    const safeIndex = Math.min(Math.max(targetIndex, 0), nextConditions.length);
-    nextConditions.splice(safeIndex, 0, group);
-    return { root: { ...root, conditions: nextConditions }, inserted: true };
+    const nextChildren = [...root.children];
+    const safeIndex = Math.min(Math.max(targetIndex, 0), nextChildren.length);
+    nextChildren.splice(safeIndex, 0, group);
+    return { root: { ...root, children: nextChildren }, inserted: true };
   }
 
-  for (let index = 0; index < root.conditions.length; index++) {
-    const condition = root.conditions[index];
-    if (!isFilterGroup(condition)) continue;
+  for (let index = 0; index < root.children.length; index++) {
+    const child = root.children[index];
+    if (!isFilterGroup(child)) continue;
 
-    const result = insertGroupIntoTree(condition, targetGroupId, group, targetIndex);
+    const result = insertGroupIntoTree(child, targetGroupId, group, targetIndex);
     if (!result.inserted) continue;
 
-    const newConditions = [...root.conditions];
-    newConditions[index] = result.root;
-    return { root: { ...root, conditions: newConditions }, inserted: true };
+    const newChildren = [...root.children];
+    newChildren[index] = result.root;
+    return { root: { ...root, children: newChildren }, inserted: true };
   }
 
   return { root, inserted: false };
@@ -131,7 +131,7 @@ export function useReorderContract(options: UseReorderContractOptions): UseReord
       if (isFilterGroup(dragNode)) {
         const isDescendant = (node: FilterGroup): boolean => {
           if (node.id === targetGroupId) return true;
-          return node.conditions.some((c) => isFilterGroup(c) && isDescendant(c));
+          return node.children.some((c) => isFilterGroup(c) && isDescendant(c));
         };
         if (isDescendant(dragNode)) return false;
       }

@@ -5,7 +5,7 @@ describe('isFilterGroupIC', () => {
   it('returns true for IC group (object with id, conditions, no combinator)', () => {
     const icGroup: FilterIC = {
       id: 'root',
-      conditions: [],
+      children: [],
     };
     expect(isFilterGroupIC(icGroup)).toBe(true);
   });
@@ -14,7 +14,7 @@ describe('isFilterGroupIC', () => {
     const standardGroup: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [],
+      children: [],
     };
     expect(isFilterGroupIC(standardGroup)).toBe(false);
   });
@@ -41,11 +41,11 @@ describe('convertToIC', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [],
+      children: [],
     };
     const ic = convertToIC(filter);
     expect(ic.id).toBe('root');
-    expect(ic.conditions).toEqual([]);
+    expect(ic.children).toEqual([]);
     expect('combinator' in ic).toBe(false);
   });
 
@@ -53,23 +53,23 @@ describe('convertToIC', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const ic = convertToIC(filter);
-    expect(ic.conditions).toEqual([{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }]);
+    expect(ic.children).toEqual([{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }]);
   });
 
   it('multiple rules: combinator interleaved', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
         { id: 'r2', field: 'age', operator: 'gt', value: 18 },
       ],
     };
     const ic = convertToIC(filter);
-    expect(ic.conditions).toEqual([
+    expect(ic.children).toEqual([
       { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
       'and',
       { id: 'r2', field: 'age', operator: 'gt', value: 18 },
@@ -81,7 +81,7 @@ describe('convertToIC', () => {
       id: 'root',
       combinator: 'and',
       not: true,
-      conditions: [],
+      children: [],
     };
     const ic = convertToIC(filter);
     expect(ic.not).toBe(true);
@@ -91,22 +91,22 @@ describe('convertToIC', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
         {
           id: 'g1',
           combinator: 'or',
-          conditions: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
+          children: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
         },
       ],
     };
     const ic = convertToIC(filter);
-    expect(ic.conditions).toEqual([
+    expect(ic.children).toEqual([
       { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
       'and',
       {
         id: 'g1',
-        conditions: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
+        children: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
       },
     ]);
   });
@@ -116,22 +116,22 @@ describe('convertFromIC', () => {
   it("empty IC converts to standard with combinator 'and'", () => {
     const ic: FilterIC = {
       id: 'root',
-      conditions: [],
+      children: [],
     };
     const filter = convertFromIC(ic);
     expect(filter.id).toBe('root');
     expect(filter.combinator).toBe('and');
-    expect(filter.conditions).toEqual([]);
+    expect(filter.children).toEqual([]);
   });
 
   it("single rule: combinator defaults to 'and'", () => {
     const ic: FilterIC = {
       id: 'root',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const filter = convertFromIC(ic);
     expect(filter.combinator).toBe('and');
-    expect(filter.conditions).toEqual([
+    expect(filter.children).toEqual([
       { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
     ]);
   });
@@ -139,7 +139,7 @@ describe('convertFromIC', () => {
   it('all same combinators: simple conversion', () => {
     const ic: FilterIC = {
       id: 'root',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
         'and',
         { id: 'r2', field: 'age', operator: 'gt', value: 18 },
@@ -147,15 +147,15 @@ describe('convertFromIC', () => {
     };
     const filter = convertFromIC(ic);
     expect(filter.combinator).toBe('and');
-    expect(filter.conditions).toHaveLength(2);
-    expect((filter.conditions[0] as FilterRule).id).toBe('r1');
-    expect((filter.conditions[1] as FilterRule).id).toBe('r2');
+    expect(filter.children).toHaveLength(2);
+    expect((filter.children[0] as FilterRule).id).toBe('r1');
+    expect((filter.children[1] as FilterRule).id).toBe('r2');
   });
 
   it('mixed combinators: groups by AND precedence', () => {
     const ic: FilterIC = {
       id: 'root',
-      conditions: [
+      children: [
         { id: 'r1', field: 'a', operator: 'eq', value: 1 },
         'and',
         { id: 'r2', field: 'b', operator: 'eq', value: 2 },
@@ -165,13 +165,13 @@ describe('convertFromIC', () => {
     };
     const filter = convertFromIC(ic);
     expect(filter.combinator).toBe('or');
-    expect(filter.conditions).toHaveLength(2);
-    const firstSeg = filter.conditions[0] as Filter;
-    const secondRule = filter.conditions[1] as FilterRule;
+    expect(filter.children).toHaveLength(2);
+    const firstSeg = filter.children[0] as Filter;
+    const secondRule = filter.children[1] as FilterRule;
     expect(firstSeg.combinator).toBe('and');
-    expect(firstSeg.conditions).toHaveLength(2);
-    expect((firstSeg.conditions[0] as FilterRule).id).toBe('r1');
-    expect((firstSeg.conditions[1] as FilterRule).id).toBe('r2');
+    expect(firstSeg.children).toHaveLength(2);
+    expect((firstSeg.children[0] as FilterRule).id).toBe('r1');
+    expect((firstSeg.children[1] as FilterRule).id).toBe('r2');
     expect(secondRule.id).toBe('r3');
   });
 
@@ -179,7 +179,7 @@ describe('convertFromIC', () => {
     const ic: FilterIC = {
       id: 'root',
       not: true,
-      conditions: [],
+      children: [],
     };
     const filter = convertFromIC(ic);
     expect(filter.not).toBe(true);
@@ -189,7 +189,7 @@ describe('convertFromIC', () => {
 describe('addRuleIC', () => {
   const icFilter: FilterIC = {
     id: 'root',
-    conditions: [
+    children: [
       { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
       'and',
       { id: 'r2', field: 'age', operator: 'gt', value: 18 },
@@ -197,14 +197,14 @@ describe('addRuleIC', () => {
   };
 
   it('adds first rule without combinator', () => {
-    const empty: FilterIC = { id: 'root', conditions: [] };
+    const empty: FilterIC = { id: 'root', children: [] };
     const result = addRuleIC(empty, 'root', {
       id: 'r1',
       field: 'name',
       operator: 'equals',
       value: 'John',
     });
-    expect(result.conditions).toEqual([
+    expect(result.children).toEqual([
       { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
     ]);
   });
@@ -212,7 +212,7 @@ describe('addRuleIC', () => {
   it("adds second rule with default combinator ('and')", () => {
     const single: FilterIC = {
       id: 'root',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const result = addRuleIC(single, 'root', {
       id: 'r2',
@@ -220,7 +220,7 @@ describe('addRuleIC', () => {
       operator: 'gt',
       value: 18,
     });
-    expect(result.conditions).toEqual([
+    expect(result.children).toEqual([
       { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
       'and',
       { id: 'r2', field: 'age', operator: 'gt', value: 18 },
@@ -230,7 +230,7 @@ describe('addRuleIC', () => {
   it("adds rule with custom combinator ('or')", () => {
     const single: FilterIC = {
       id: 'root',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const result = addRuleIC(
       single,
@@ -238,7 +238,7 @@ describe('addRuleIC', () => {
       { id: 'r2', field: 'age', operator: 'gt', value: 18 },
       'or'
     );
-    expect(result.conditions).toEqual([
+    expect(result.children).toEqual([
       { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
       'or',
       { id: 'r2', field: 'age', operator: 'gt', value: 18 },
@@ -261,27 +261,27 @@ describe('removeRuleIC', () => {
   it('removes first rule (and following combinator)', () => {
     const ic: FilterIC = {
       id: 'root',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
         'and',
         { id: 'r2', field: 'age', operator: 'gt', value: 18 },
       ],
     };
     const result = removeRuleIC(ic, 'r1');
-    expect(result.conditions).toEqual([{ id: 'r2', field: 'age', operator: 'gt', value: 18 }]);
+    expect(result.children).toEqual([{ id: 'r2', field: 'age', operator: 'gt', value: 18 }]);
   });
 
   it('removes last rule (and preceding combinator)', () => {
     const ic: FilterIC = {
       id: 'root',
-      conditions: [
+      children: [
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
         'and',
         { id: 'r2', field: 'age', operator: 'gt', value: 18 },
       ],
     };
     const result = removeRuleIC(ic, 'r2');
-    expect(result.conditions).toEqual([
+    expect(result.children).toEqual([
       { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
     ]);
   });
@@ -289,29 +289,29 @@ describe('removeRuleIC', () => {
   it('removes only rule (no combinator to remove)', () => {
     const ic: FilterIC = {
       id: 'root',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const result = removeRuleIC(ic, 'r1');
-    expect(result.conditions).toEqual([]);
+    expect(result.children).toEqual([]);
   });
 
   it('returns unchanged when ruleId not found', () => {
     const ic: FilterIC = {
       id: 'root',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const result = removeRuleIC(ic, 'nonexistent');
     expect(result).toBe(ic);
-    expect(result.conditions).toEqual(ic.conditions);
+    expect(result.children).toEqual(ic.children);
   });
 
   it('removes rule from nested IC group', () => {
     const ic: FilterIC = {
       id: 'root',
-      conditions: [
+      children: [
         {
           id: 'g1',
-          conditions: [
+          children: [
             { id: 'r1', field: 'a', operator: 'eq', value: 1 },
             'and',
             { id: 'r2', field: 'b', operator: 'eq', value: 2 },
@@ -320,8 +320,8 @@ describe('removeRuleIC', () => {
       ],
     };
     const result = removeRuleIC(ic, 'r1');
-    const g1 = result.conditions[0] as FilterIC;
-    expect(g1.conditions).toEqual([{ id: 'r2', field: 'b', operator: 'eq', value: 2 }]);
+    const g1 = result.children[0] as FilterIC;
+    expect(g1.children).toEqual([{ id: 'r2', field: 'b', operator: 'eq', value: 2 }]);
   });
 });
 
@@ -329,10 +329,10 @@ describe('addRuleIC (nested groups)', () => {
   it('adds rule to nested IC group', () => {
     const ic: FilterIC = {
       id: 'root',
-      conditions: [
+      children: [
         {
           id: 'g1',
-          conditions: [{ id: 'r1', field: 'a', operator: 'eq', value: 1 }],
+          children: [{ id: 'r1', field: 'a', operator: 'eq', value: 1 }],
         },
       ],
     };
@@ -342,14 +342,14 @@ describe('addRuleIC (nested groups)', () => {
       operator: 'eq',
       value: 2,
     });
-    const g1 = result.conditions[0] as FilterIC;
-    expect(g1.conditions).toHaveLength(3);
-    expect(g1.conditions[1]).toBe('and');
-    expect(g1.conditions[2]).toMatchObject({ id: 'r2' });
+    const g1 = result.children[0] as FilterIC;
+    expect(g1.children).toHaveLength(3);
+    expect(g1.children[1]).toBe('and');
+    expect(g1.children[2]).toMatchObject({ id: 'r2' });
   });
 
   it('adds rule with not flag', () => {
-    const ic: FilterIC = { id: 'root', conditions: [] };
+    const ic: FilterIC = { id: 'root', children: [] };
     const result = addRuleIC(ic, 'root', {
       id: 'r1',
       field: 'a',
@@ -357,15 +357,15 @@ describe('addRuleIC (nested groups)', () => {
       value: 1,
       not: true,
     });
-    expect(result.conditions[0]).toMatchObject({ id: 'r1', not: true });
+    expect(result.children[0]).toMatchObject({ id: 'r1', not: true });
   });
 
   it('adds rule with custom idGenerator', () => {
-    const ic: FilterIC = { id: 'root', conditions: [] };
+    const ic: FilterIC = { id: 'root', children: [] };
     const result = addRuleIC(ic, 'root', { field: 'a', operator: 'eq', value: 1 }, 'and', {
       idGenerator: () => 'custom-id',
     });
-    expect(result.conditions[0]).toMatchObject({ id: 'custom-id' });
+    expect(result.children[0]).toMatchObject({ id: 'custom-id' });
   });
 });
 
@@ -373,10 +373,10 @@ describe('convertFromIC (nested IC groups)', () => {
   it('converts nested IC groups recursively', () => {
     const ic: FilterIC = {
       id: 'root',
-      conditions: [
+      children: [
         {
           id: 'g1',
-          conditions: [
+          children: [
             { id: 'r1', field: 'a', operator: 'eq', value: 1 },
             'or',
             { id: 'r2', field: 'b', operator: 'eq', value: 2 },
@@ -386,9 +386,9 @@ describe('convertFromIC (nested IC groups)', () => {
     };
     const filter = convertFromIC(ic);
     expect(filter.combinator).toBe('and');
-    expect(filter.conditions).toHaveLength(1);
-    const g1 = filter.conditions[0] as Filter;
+    expect(filter.children).toHaveLength(1);
+    const g1 = filter.children[0] as Filter;
     expect(g1.combinator).toBe('or');
-    expect(g1.conditions).toHaveLength(2);
+    expect(g1.children).toHaveLength(2);
   });
 });

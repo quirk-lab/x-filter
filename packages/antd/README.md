@@ -37,7 +37,7 @@ const schema: FieldSchema[] = [
 const initialFilter: Filter = {
   id: 'root',
   combinator: 'and',
-  conditions: [
+  children: [
     { id: 'rule-status', field: 'status', operator: 'equals', value: 'open' },
   ],
 };

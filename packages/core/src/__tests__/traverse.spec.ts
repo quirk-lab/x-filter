@@ -4,17 +4,17 @@ import type { Filter } from '../types';
 const filter: Filter = {
   id: 'root',
   combinator: 'and',
-  conditions: [
+  children: [
     { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
     {
       id: 'g1',
       combinator: 'or',
-      conditions: [
+      children: [
         { id: 'r2', field: 'age', operator: 'gt', value: 18 },
         {
           id: 'g2',
           combinator: 'and',
-          conditions: [{ id: 'r3', field: 'status', operator: 'equals', value: 'active' }],
+          children: [{ id: 'r3', field: 'status', operator: 'equals', value: 'active' }],
         },
       ],
     },
@@ -145,7 +145,7 @@ describe('traverse', () => {
     traverse(filter, (node) => {
       if ('field' in node && 'operator' in node) {
         rules.push(node.id);
-      } else if ('conditions' in node) {
+      } else if ('children' in node) {
         groups.push(node.id);
       }
     });
@@ -168,7 +168,7 @@ describe('flattenRules', () => {
     const emptyFilter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [],
+      children: [],
     };
     const rules = flattenRules(emptyFilter);
     expect(rules).toEqual([]);

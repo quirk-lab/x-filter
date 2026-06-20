@@ -22,12 +22,12 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     const dsl = formatDSL({
       id: 'x',
       combinator: 'and',
-      conditions: [{ id: 'y', field: 'status', operator: 'equals', value: 'active' }],
+      children: [{ id: 'y', field: 'status', operator: 'equals', value: 'active' }],
     });
     resetIds();
     const result = parseDSL(dsl, testIdGen);
-    expect(result.conditions).toHaveLength(1);
-    expect(result.conditions[0]).toMatchObject({
+    expect(result.children).toHaveLength(1);
+    expect(result.children[0]).toMatchObject({
       field: 'status',
       operator: 'equals',
       value: 'active',
@@ -38,7 +38,7 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     const filter: Filter = {
       id: testIdGen(),
       combinator: 'and',
-      conditions: [
+      children: [
         { id: testIdGen(), field: 'a', operator: 'eq', value: 'x' },
         { id: testIdGen(), field: 'b', operator: 'eq', value: 'y' },
         { id: testIdGen(), field: 'c', operator: 'eq', value: 'z' },
@@ -53,7 +53,7 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     const filter: Filter = {
       id: testIdGen(),
       combinator: 'or',
-      conditions: [
+      children: [
         { id: testIdGen(), field: 'a', operator: 'eq', value: 'x' },
         { id: testIdGen(), field: 'b', operator: 'eq', value: 'y' },
       ],
@@ -67,12 +67,12 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     const dsl = formatDSL({
       id: 'x',
       combinator: 'and',
-      conditions: [{ id: 'y', field: 'status', operator: 'eq', value: 'active', not: true }],
+      children: [{ id: 'y', field: 'status', operator: 'eq', value: 'active', not: true }],
     });
     resetIds();
     const result = parseDSL(dsl, testIdGen);
-    expect(result.conditions).toHaveLength(1);
-    expect(result.conditions[0]).toMatchObject({
+    expect(result.children).toHaveLength(1);
+    expect(result.children[0]).toMatchObject({
       field: 'status',
       operator: 'eq',
       value: 'active',
@@ -82,8 +82,8 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
 
   it('double NOT cancels out when parsed into a filter', () => {
     const result = parseDSL('NOT NOT status:equals:active', testIdGen);
-    expect(result.conditions).toHaveLength(1);
-    expect(result.conditions[0]).toMatchObject({
+    expect(result.children).toHaveLength(1);
+    expect(result.children[0]).toMatchObject({
       field: 'status',
       operator: 'equals',
       value: 'active',
@@ -96,7 +96,7 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
       id: testIdGen(),
       combinator: 'and',
       not: true,
-      conditions: [
+      children: [
         { id: testIdGen(), field: 'a', operator: 'eq', value: 'x' },
         { id: testIdGen(), field: 'b', operator: 'eq', value: 'y' },
       ],
@@ -110,44 +110,44 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     const dsl = formatDSL({
       id: 'x',
       combinator: 'and',
-      conditions: [{ id: 'y', field: 'age', operator: 'gt', value: 42 }],
+      children: [{ id: 'y', field: 'age', operator: 'gt', value: 42 }],
     });
     resetIds();
     const result = parseDSL(dsl, testIdGen);
-    expect(result.conditions[0]).toMatchObject({ field: 'age', operator: 'gt', value: 42 });
+    expect(result.children[0]).toMatchObject({ field: 'age', operator: 'gt', value: 42 });
   });
 
   it('negative number value', () => {
     const dsl = formatDSL({
       id: 'x',
       combinator: 'and',
-      conditions: [{ id: 'y', field: 'balance', operator: 'lt', value: -5 }],
+      children: [{ id: 'y', field: 'balance', operator: 'lt', value: -5 }],
     });
     resetIds();
     const result = parseDSL(dsl, testIdGen);
-    expect(result.conditions[0]).toMatchObject({ field: 'balance', operator: 'lt', value: -5 });
+    expect(result.children[0]).toMatchObject({ field: 'balance', operator: 'lt', value: -5 });
   });
 
   it('boolean value', () => {
     const dsl = formatDSL({
       id: 'x',
       combinator: 'and',
-      conditions: [{ id: 'y', field: 'active', operator: 'eq', value: true }],
+      children: [{ id: 'y', field: 'active', operator: 'eq', value: true }],
     });
     resetIds();
     const result = parseDSL(dsl, testIdGen);
-    expect(result.conditions[0]).toMatchObject({ field: 'active', operator: 'eq', value: true });
+    expect(result.children[0]).toMatchObject({ field: 'active', operator: 'eq', value: true });
   });
 
   it('array value', () => {
     const dsl = formatDSL({
       id: 'x',
       combinator: 'and',
-      conditions: [{ id: 'y', field: 'tags', operator: 'in', value: ['a', 'b', 'c'] }],
+      children: [{ id: 'y', field: 'tags', operator: 'in', value: ['a', 'b', 'c'] }],
     });
     resetIds();
     const result = parseDSL(dsl, testIdGen);
-    expect(result.conditions[0]).toMatchObject({
+    expect(result.children[0]).toMatchObject({
       field: 'tags',
       operator: 'in',
       value: ['a', 'b', 'c'],
@@ -158,11 +158,11 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     const dsl = formatDSL({
       id: 'x',
       combinator: 'and',
-      conditions: [{ id: 'y', field: 'age', operator: 'between', value: [18, 65] }],
+      children: [{ id: 'y', field: 'age', operator: 'between', value: [18, 65] }],
     });
     resetIds();
     const result = parseDSL(dsl, testIdGen);
-    expect(result.conditions[0]).toMatchObject({
+    expect(result.children[0]).toMatchObject({
       field: 'age',
       operator: 'between',
       value: [18, 65],
@@ -173,17 +173,17 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     const filter: Filter = {
       id: testIdGen(),
       combinator: 'and',
-      conditions: [
+      children: [
         { id: testIdGen(), field: 'a', operator: 'eq', value: 'x' },
         {
           id: testIdGen(),
           combinator: 'or',
-          conditions: [
+          children: [
             { id: testIdGen(), field: 'b', operator: 'eq', value: 'y' },
             {
               id: testIdGen(),
               combinator: 'and',
-              conditions: [
+              children: [
                 { id: testIdGen(), field: 'c', operator: 'eq', value: 'z' },
                 { id: testIdGen(), field: 'd', operator: 'eq', value: 'w' },
               ],
@@ -201,12 +201,12 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     const filter: Filter = {
       id: testIdGen(),
       combinator: 'and',
-      conditions: [
+      children: [
         { id: testIdGen(), field: 'a', operator: 'eq', value: 'x' },
         {
           id: testIdGen(),
           combinator: 'or',
-          conditions: [
+          children: [
             { id: testIdGen(), field: 'b', operator: 'eq', value: 'y' },
             { id: testIdGen(), field: 'c', operator: 'eq', value: 'z' },
           ],
@@ -222,11 +222,11 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     const dsl = formatDSL({
       id: 'x',
       combinator: 'and',
-      conditions: [{ id: 'y', field: 'status', operator: 'isEmpty', value: undefined }],
+      children: [{ id: 'y', field: 'status', operator: 'isEmpty', value: undefined }],
     });
     resetIds();
     const result = parseDSL(dsl, testIdGen);
-    expect(result.conditions[0]).toMatchObject({
+    expect(result.children[0]).toMatchObject({
       field: 'status',
       operator: 'isEmpty',
       value: undefined,
@@ -237,7 +237,7 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     const filter: Filter = {
       id: 'x',
       combinator: 'and',
-      conditions: [{ id: 'y', field: 'meta', operator: 'eq', value: { foo: 'bar' } }],
+      children: [{ id: 'y', field: 'meta', operator: 'eq', value: { foo: 'bar' } }],
     };
     const dsl = formatDSL(filter);
     expect(dsl).toContain('meta:eq:');
@@ -247,7 +247,7 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     const filter: Filter = {
       id: 'x',
       combinator: 'and',
-      conditions: [{ id: 'y', field: 'status', operator: 'isEmpty', value: null }],
+      children: [{ id: 'y', field: 'status', operator: 'isEmpty', value: null }],
     };
     const dsl = formatDSL(filter);
     expect(dsl).toBe('status:isEmpty');
@@ -256,7 +256,7 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
   it('range DSL string is correctly parsed', () => {
     resetIds();
     const filter = parseDSL('age:between:{18..65}', testIdGen);
-    expect(filter.conditions[0]).toMatchObject({
+    expect(filter.children[0]).toMatchObject({
       field: 'age',
       operator: 'between',
       value: [18, 65],
@@ -266,7 +266,7 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
   it('negative range DSL string is correctly parsed', () => {
     resetIds();
     const filter = parseDSL('temperature:between:{-10..10}', testIdGen);
-    expect(filter.conditions[0]).toMatchObject({
+    expect(filter.children[0]).toMatchObject({
       field: 'temperature',
       operator: 'between',
       value: [-10, 10],
@@ -277,13 +277,13 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     const filter: Filter = {
       id: 'x',
       combinator: 'and',
-      conditions: [],
+      children: [],
     };
     const dsl = formatDSL(filter);
     resetIds();
     const result = parseDSL(dsl, testIdGen);
     expect(result.combinator).toBe('and');
-    expect(result.conditions).toEqual([]);
+    expect(result.children).toEqual([]);
   });
 });
 

@@ -6,10 +6,10 @@ describe('negateRule', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const result = negateRule(filter, 'r1');
-    const r1 = result.conditions[0];
+    const r1 = result.children[0];
     expect(r1).toMatchObject({ id: 'r1', not: true });
   });
 
@@ -17,10 +17,10 @@ describe('negateRule', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John', not: true }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John', not: true }],
     };
     const result = negateRule(filter, 'r1');
-    const r1 = result.conditions[0];
+    const r1 = result.children[0];
     expect(r1).toMatchObject({ id: 'r1', not: false });
   });
 
@@ -28,10 +28,10 @@ describe('negateRule', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John', not: false }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John', not: false }],
     };
     const result = negateRule(filter, 'r1');
-    const r1 = result.conditions[0];
+    const r1 = result.children[0];
     expect(r1).toMatchObject({ id: 'r1', not: true });
   });
 
@@ -39,42 +39,42 @@ describe('negateRule', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const result = negateRule(filter, 'nonexistent');
     expect(result).toBe(filter);
-    expect(result.conditions[0]).toMatchObject({ id: 'r1' });
-    expect(result.conditions[0]).not.toHaveProperty('not');
+    expect(result.children[0]).toMatchObject({ id: 'r1' });
+    expect(result.children[0]).not.toHaveProperty('not');
   });
 
   it('negateRule preserves immutability (original unchanged)', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
     };
     const result = negateRule(filter, 'r1');
     expect(result).not.toBe(filter);
-    expect(filter.conditions[0]).not.toHaveProperty('not');
-    expect(result.conditions[0]).toMatchObject({ not: true });
+    expect(filter.children[0]).not.toHaveProperty('not');
+    expect(result.children[0]).toMatchObject({ not: true });
   });
 
   it('negateRule on rule inside nested group', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         {
           id: 'g1',
           combinator: 'or',
-          conditions: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
+          children: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
         },
       ],
     };
     const result = negateRule(filter, 'r2');
-    const g1 = result.conditions[0];
-    if ('conditions' in g1) {
-      expect(g1.conditions[0]).toMatchObject({ id: 'r2', not: true });
+    const g1 = result.children[0];
+    if ('children' in g1) {
+      expect(g1.children[0]).toMatchObject({ id: 'r2', not: true });
     }
   });
 
@@ -82,19 +82,19 @@ describe('negateRule', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         {
           id: 'g1',
           combinator: 'or',
-          conditions: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
+          children: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
         },
         { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
       ],
     };
     const result = negateRule(filter, 'r1');
-    expect(result.conditions[1]).toMatchObject({ id: 'r1', not: true });
-    if ('conditions' in result.conditions[0]) {
-      expect((result.conditions[0] as Filter).conditions[0]).toMatchObject({ id: 'r2' });
+    expect(result.children[1]).toMatchObject({ id: 'r1', not: true });
+    if ('children' in result.children[0]) {
+      expect((result.children[0] as Filter).children[0]).toMatchObject({ id: 'r2' });
     }
   });
 });
@@ -104,16 +104,16 @@ describe('negateGroup', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         {
           id: 'g1',
           combinator: 'or',
-          conditions: [{ id: 'r1', field: 'x', operator: 'eq', value: 1 }],
+          children: [{ id: 'r1', field: 'x', operator: 'eq', value: 1 }],
         },
       ],
     };
     const result = negateGroup(filter, 'g1');
-    const g1 = result.conditions[0];
+    const g1 = result.children[0];
     expect(g1).toMatchObject({ id: 'g1', not: true });
   });
 
@@ -121,17 +121,17 @@ describe('negateGroup', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         {
           id: 'g1',
           combinator: 'or',
           not: true,
-          conditions: [{ id: 'r1', field: 'x', operator: 'eq', value: 1 }],
+          children: [{ id: 'r1', field: 'x', operator: 'eq', value: 1 }],
         },
       ],
     };
     const result = negateGroup(filter, 'g1');
-    const g1 = result.conditions[0];
+    const g1 = result.children[0];
     expect(g1).toMatchObject({ id: 'g1', not: false });
   });
 
@@ -139,7 +139,7 @@ describe('negateGroup', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [{ id: 'r1', field: 'x', operator: 'eq', value: 1 }],
+      children: [{ id: 'r1', field: 'x', operator: 'eq', value: 1 }],
     };
     const result = negateGroup(filter, 'root');
     expect(result).toMatchObject({ id: 'root', not: true });
@@ -149,34 +149,34 @@ describe('negateGroup', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         {
           id: 'g1',
           combinator: 'or',
-          conditions: [],
+          children: [],
         },
       ],
     };
     const result = negateGroup(filter, 'nonexistent');
     expect(result).toBe(filter);
-    expect(result.conditions[0]).not.toHaveProperty('not');
+    expect(result.children[0]).not.toHaveProperty('not');
   });
 
   it('negateGroup preserves immutability', () => {
     const filter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         {
           id: 'g1',
           combinator: 'or',
-          conditions: [],
+          children: [],
         },
       ],
     };
     const result = negateGroup(filter, 'g1');
     expect(result).not.toBe(filter);
-    expect(filter.conditions[0]).not.toHaveProperty('not');
-    expect(result.conditions[0]).toMatchObject({ not: true });
+    expect(filter.children[0]).not.toHaveProperty('not');
+    expect(result.children[0]).toMatchObject({ not: true });
   });
 });

@@ -8,13 +8,13 @@ const schema: FieldSchema[] = [{ name: 'name', label: 'Name', type: 'text' }];
 const makeFilter = (): Filter => ({
   id: 'root',
   combinator: 'and',
-  conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+  children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
 });
 
 const makeEmptyFilter = (): Filter => ({
   id: 'root',
   combinator: 'and',
-  conditions: [],
+  children: [],
 });
 
 describe('useFilterDsl', () => {
@@ -89,7 +89,7 @@ describe('useFilterDsl', () => {
     expect(onCommit).toHaveBeenCalledTimes(1);
     expect(onCommit).toHaveBeenCalledWith(
       expect.objectContaining({
-        conditions: expect.arrayContaining([
+        children: expect.arrayContaining([
           expect.objectContaining({ field: 'name', operator: 'equals' }),
         ]),
       })
@@ -161,7 +161,7 @@ describe('useFilterDsl', () => {
     const filter2: Filter = {
       id: 'root2',
       combinator: 'or',
-      conditions: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
+      children: [{ id: 'r2', field: 'age', operator: 'gt', value: 18 }],
     };
     const onCommit = jest.fn();
 
@@ -184,7 +184,7 @@ describe('useFilterDsl', () => {
     const filter2: Filter = {
       id: 'root2',
       combinator: 'and',
-      conditions: [{ id: 'r2', field: 'status', operator: 'equals', value: 'active' }],
+      children: [{ id: 'r2', field: 'status', operator: 'equals', value: 'active' }],
     };
     const onCommit = jest.fn();
 

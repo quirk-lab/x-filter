@@ -7,7 +7,7 @@ describe('createFilter', () => {
     expect(typeof filter.id).toBe('string');
     expect(filter.id.length).toBeGreaterThan(0);
     expect(filter.combinator).toBe('and');
-    expect(filter.conditions).toEqual([]);
+    expect(filter.children).toEqual([]);
   });
 
   it('createFilter({ combinator: "or" }) has "or" combinator', () => {
@@ -78,7 +78,7 @@ describe('createGroup', () => {
     expect(typeof group.id).toBe('string');
     expect(group.id.length).toBeGreaterThan(0);
     expect(group.combinator).toBe('and');
-    expect(group.conditions).toEqual([]);
+    expect(group.children).toEqual([]);
   });
 
   it('createGroup with combinator "or"', () => {

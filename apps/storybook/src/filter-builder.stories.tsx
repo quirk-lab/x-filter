@@ -144,12 +144,12 @@ function makeBasicFilter(): Filter {
   return {
     id: 'root',
     combinator: 'and',
-    conditions: [
+    children: [
       { id: 'status-open', field: 'status', operator: 'equals', value: 'open' },
       {
         id: 'priority-or-owner',
         combinator: 'or',
-        conditions: [
+        children: [
           { id: 'priority-high', field: 'priority', operator: 'gte', value: 3 },
           { id: 'assignee-ada', field: 'assignee', operator: 'contains', value: 'Ada' },
         ],
@@ -162,7 +162,7 @@ function makeDslFilter(): Filter {
   return {
     id: 'root',
     combinator: 'and',
-    conditions: [
+    children: [
       { id: 'status-progress', field: 'status', operator: 'equals', value: 'in progress' },
       { id: 'tag-customer', field: 'tags', operator: 'includes', value: 'customer' },
       { id: 'created-recently', field: 'createdAt', operator: 'after', value: '2026-01-01' },
@@ -174,7 +174,7 @@ function makeDndFilter(): Filter {
   return {
     id: 'root',
     combinator: 'and',
-    conditions: [
+    children: [
       { id: 'rule-1', field: 'status', operator: 'equals', value: 'open' },
       { id: 'rule-2', field: 'assignee', operator: 'contains', value: 'Grace' },
       { id: 'rule-3', field: 'priority', operator: 'gte', value: 2 },
@@ -186,7 +186,7 @@ function makeInvalidFilter(): Filter {
   return {
     id: 'root',
     combinator: 'and',
-    conditions: [
+    children: [
       { id: 'unknown-field', field: 'archivedAt', operator: 'before', value: '2025-01-01' },
       { id: 'unknown-operator', field: 'status', operator: 'startsWith', value: 'open' },
     ],
@@ -197,7 +197,7 @@ function makeSlotFilter(): Filter {
   return {
     id: 'root',
     combinator: 'and',
-    conditions: [
+    children: [
       { id: 'slot-assignee', field: 'assignee', operator: 'contains', value: 'Lin' },
       { id: 'slot-status', field: 'status', operator: 'equals', value: 'open' },
     ],

@@ -15,14 +15,12 @@ const schema: FieldSchema[] = [
 const filter: Filter = {
   id: 'root',
   combinator: 'and',
-  conditions: [
+  children: [
     { id: 'rule-name', field: 'name', operator: 'contains', value: 'Ada' },
     {
       id: 'group-status',
       combinator: 'or',
-      conditions: [
-        { id: 'rule-status', field: 'status', operator: 'customStatus', value: 'active' },
-      ],
+      children: [{ id: 'rule-status', field: 'status', operator: 'customStatus', value: 'active' }],
     },
   ],
 };
@@ -44,7 +42,7 @@ describe('useFilterViewModel', () => {
     expect(nameRule).toMatchObject({
       kind: 'rule',
       id: 'rule-name',
-      rule: filter.conditions[0],
+      rule: filter.children[0],
       field: schema[0],
       operator: { name: 'contains', label: 'contains', arity: 'binary' },
       errors: [],
@@ -55,7 +53,7 @@ describe('useFilterViewModel', () => {
     expect(nestedGroup).toMatchObject({
       kind: 'group',
       id: 'group-status',
-      group: filter.conditions[1],
+      group: filter.children[1],
       depth: 1,
       aria: { label: 'Filter group group-status' },
     });
@@ -66,7 +64,7 @@ describe('useFilterViewModel', () => {
     expect(nestedGroup.children[0]).toMatchObject({
       kind: 'rule',
       id: 'rule-status',
-      rule: nestedGroup.group.conditions[0],
+      rule: nestedGroup.group.children[0],
       field: schema[1],
       operator: schema[1].operators?.[0],
       errors: [],
@@ -97,7 +95,7 @@ describe('useFilterViewModel', () => {
     const unknownFilter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         { id: 'unknown-field', field: 'missing', operator: 'equals', value: 'Ada' },
         { id: 'unknown-operator', field: 'name', operator: 'missingOperator', value: 'Ada' },
       ],
@@ -148,7 +146,7 @@ describe('useFilterViewModel', () => {
     const nextFilter: Filter = {
       id: 'next-root',
       combinator: 'or',
-      conditions: [{ id: 'next-rule', field: 'name', operator: 'equals', value: 'Grace' }],
+      children: [{ id: 'next-rule', field: 'name', operator: 'equals', value: 'Grace' }],
     };
     const nextErrors: Record<string, ValidationError[]> = {
       'next-rule': [{ type: 'missingValue', message: 'Required' }],

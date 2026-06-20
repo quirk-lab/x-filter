@@ -20,7 +20,7 @@ import type {
 const schema: FieldSchema[] = [{ name: 'name', label: 'Name', type: 'text' }];
 
 const rule: FilterRule = { id: 'r1', field: 'name', operator: 'equals', value: 'Ada' };
-const group: FilterGroup = { id: 'root', combinator: 'and', conditions: [rule] };
+const group: FilterGroup = { id: 'root', combinator: 'and', children: [rule] };
 const filter: Filter = group;
 const operator: OperatorDef = { name: 'equals', label: 'equals', arity: 'binary' };
 const errors: ValidationError[] = [{ type: 'invalidValue', message: 'Value is invalid' }];

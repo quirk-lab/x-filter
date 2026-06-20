@@ -13,7 +13,7 @@ function updateGroupInTree(
   }
 
   let changed = false;
-  const newConditions = root.conditions.map((c) => {
+  const newChildren = root.children.map((c) => {
     if (isFilterGroup(c)) {
       const updated = updateGroupInTree(c, targetId, updater);
       if (updated !== c) {
@@ -24,7 +24,7 @@ function updateGroupInTree(
     return c;
   });
 
-  return changed ? { ...root, conditions: newConditions } : root;
+  return changed ? { ...root, children: newChildren } : root;
 }
 
 function updateRuleInTree(
@@ -33,7 +33,7 @@ function updateRuleInTree(
   updater: (rule: FilterRule) => FilterRule
 ): FilterGroup {
   let changed = false;
-  const newConditions = root.conditions.map((c) => {
+  const newChildren = root.children.map((c) => {
     if (isFilterGroup(c)) {
       const updated = updateRuleInTree(c, ruleId, updater);
       if (updated !== c) {
@@ -49,25 +49,25 @@ function updateRuleInTree(
     return c;
   });
 
-  return changed ? { ...root, conditions: newConditions } : root;
+  return changed ? { ...root, children: newChildren } : root;
 }
 
-function removeConditionFromTree(root: FilterGroup, conditionId: string): FilterGroup {
-  const idx = root.conditions.findIndex(
-    (c) => typeof c === 'object' && 'id' in c && c.id === conditionId
+function removeChildFromTree(root: FilterGroup, childId: string): FilterGroup {
+  const idx = root.children.findIndex(
+    (c) => typeof c === 'object' && 'id' in c && c.id === childId
   );
 
   if (idx !== -1) {
     return {
       ...root,
-      conditions: root.conditions.filter((_, i) => i !== idx),
+      children: root.children.filter((_, i) => i !== idx),
     };
   }
 
   let changed = false;
-  const newConditions = root.conditions.map((c) => {
+  const newChildren = root.children.map((c) => {
     if (isFilterGroup(c)) {
-      const updated = removeConditionFromTree(c, conditionId);
+      const updated = removeChildFromTree(c, childId);
       if (updated !== c) {
         changed = true;
         return updated;
@@ -76,11 +76,11 @@ function removeConditionFromTree(root: FilterGroup, conditionId: string): Filter
     return c;
   });
 
-  return changed ? { ...root, conditions: newConditions } : root;
+  return changed ? { ...root, children: newChildren } : root;
 }
 
 function findRuleInTree(root: FilterGroup, ruleId: string): FilterRule | undefined {
-  for (const c of root.conditions) {
+  for (const c of root.children) {
     if (isFilterGroup(c)) {
       const found = findRuleInTree(c, ruleId);
       if (found) return found;
@@ -113,7 +113,7 @@ export function addRule(
 
   const result = updateGroupInTree(filter, groupId, (g) => ({
     ...g,
-    conditions: [...g.conditions, newRule],
+    children: [...g.children, newRule],
   }));
 
   if (result === filter) {
@@ -131,7 +131,7 @@ export function updateRule(
 }
 
 export function removeRule(filter: Filter, ruleId: string): Filter {
-  return removeConditionFromTree(filter, ruleId);
+  return removeChildFromTree(filter, ruleId);
 }
 
 export function moveRule(
@@ -147,21 +147,21 @@ export function moveRule(
 
   // Same-group move
   const result = updateGroupInTree(filter, targetGroupId, (g) => {
-    const currentIdx = g.conditions.findIndex(
+    const currentIdx = g.children.findIndex(
       (c) => typeof c === 'object' && 'id' in c && c.id === ruleId
     );
 
     if (currentIdx !== -1) {
-      const newConditions = [...g.conditions];
-      newConditions.splice(currentIdx, 1);
-      newConditions.splice(position, 0, rule);
-      return { ...g, conditions: newConditions };
+      const newChildren = [...g.children];
+      newChildren.splice(currentIdx, 1);
+      newChildren.splice(position, 0, rule);
+      return { ...g, children: newChildren };
     }
 
     // Cross-group: the rule is not in this group, just insert at position
-    const newConditions = [...g.conditions];
-    newConditions.splice(position, 0, rule);
-    return { ...g, conditions: newConditions };
+    const newChildren = [...g.children];
+    newChildren.splice(position, 0, rule);
+    return { ...g, children: newChildren };
   });
 
   if (result === filter) {
@@ -171,7 +171,7 @@ export function moveRule(
   // For cross-group moves, also remove from the source group
   const targetGroup = findGroupInTree(result, targetGroupId);
   const ruleCountInTarget = targetGroup
-    ? targetGroup.conditions.filter((c) => typeof c === 'object' && 'id' in c && c.id === ruleId)
+    ? targetGroup.children.filter((c) => typeof c === 'object' && 'id' in c && c.id === ruleId)
         .length
     : 0;
 
@@ -187,7 +187,7 @@ export function moveRule(
 
 function findGroupInTree(root: FilterGroup, groupId: string): FilterGroup | undefined {
   if (root.id === groupId) return root;
-  for (const c of root.conditions) {
+  for (const c of root.children) {
     if (isFilterGroup(c)) {
       const found = findGroupInTree(c, groupId);
       if (found) return found;
@@ -203,33 +203,33 @@ function removeDuplicateRule(
 ): FilterGroup {
   let changed = false;
   let keptInCurrentGroup = false;
-  const newConditions: FilterGroup['conditions'] = [];
+  const newChildren: FilterGroup['children'] = [];
 
-  for (const c of root.conditions) {
+  for (const c of root.children) {
     if (isFilterGroup(c)) {
       const updated = removeDuplicateRule(c, ruleId, keepInGroupId);
       if (updated !== c) {
         changed = true;
       }
-      newConditions.push(updated);
+      newChildren.push(updated);
       continue;
     }
 
     if (c.id !== ruleId) {
-      newConditions.push(c);
+      newChildren.push(c);
       continue;
     }
 
     if (root.id === keepInGroupId && !keptInCurrentGroup) {
       keptInCurrentGroup = true;
-      newConditions.push(c);
+      newChildren.push(c);
       continue;
     }
 
     changed = true;
   }
 
-  return changed ? { ...root, conditions: newConditions } : root;
+  return changed ? { ...root, children: newChildren } : root;
 }
 
 export function addGroup(
@@ -241,7 +241,7 @@ export function addGroup(
   const newGroup: FilterGroup = {
     id: group?.id ?? (options?.idGenerator ?? generateId)(),
     combinator: group?.combinator ?? 'and',
-    conditions: group?.conditions ?? [],
+    children: group?.children ?? [],
   };
   if (group?.not !== undefined) {
     newGroup.not = group.not;
@@ -249,7 +249,7 @@ export function addGroup(
 
   const result = updateGroupInTree(filter, parentGroupId, (g) => ({
     ...g,
-    conditions: [...g.conditions, newGroup],
+    children: [...g.children, newGroup],
   }));
 
   if (result === filter) {
@@ -262,7 +262,7 @@ export function removeGroup(filter: Filter, groupId: string): Filter {
   if (filter.id === groupId) {
     throw new Error('Cannot remove root group');
   }
-  return removeConditionFromTree(filter, groupId);
+  return removeChildFromTree(filter, groupId);
 }
 
 export function updateGroup(

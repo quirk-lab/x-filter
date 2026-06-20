@@ -43,7 +43,7 @@ function convertNode(node: ASTNode, gen: IdGenerator): FilterRule | FilterGroup 
 
     case 'group':
       if (node.expression === null) {
-        return { id: gen(), combinator: 'and', conditions: [] };
+        return { id: gen(), combinator: 'and', children: [] };
       }
       return convertNode(node.expression, gen);
 
@@ -52,7 +52,7 @@ function convertNode(node: ASTNode, gen: IdGenerator): FilterRule | FilterGroup 
       return {
         id: gen(),
         combinator: node.operator,
-        conditions: operands.map((op) => convertNode(op, gen)),
+        children: operands.map((op) => convertNode(op, gen)),
       };
     }
   }
@@ -61,7 +61,7 @@ function convertNode(node: ASTNode, gen: IdGenerator): FilterRule | FilterGroup 
 export function astToFilter(ast: ASTNode, idGenerator: IdGenerator = generateId): Filter {
   const result = convertNode(ast, idGenerator);
   if ('combinator' in result) return result;
-  return { id: idGenerator(), combinator: 'and', conditions: [result] };
+  return { id: idGenerator(), combinator: 'and', children: [result] };
 }
 
 function convertValueToAST(value: unknown): ASTValue | null {
@@ -107,12 +107,12 @@ function convertRuleToAST(rule: FilterRule): ASTNode {
 function convertGroupToAST(group: FilterGroup): ASTNode {
   let ast: ASTNode;
 
-  if (group.conditions.length === 0) {
+  if (group.children.length === 0) {
     ast = { type: 'group', expression: null, start: 0, end: 0 };
-  } else if (group.conditions.length === 1) {
-    ast = convertFilterNodeToAST(group.conditions[0]);
+  } else if (group.children.length === 1) {
+    ast = convertFilterNodeToAST(group.children[0]);
   } else {
-    const nodes = group.conditions.map(convertFilterNodeToAST);
+    const nodes = group.children.map(convertFilterNodeToAST);
     ast = nodes.reduce(
       (left, right): ASTNode => ({
         type: 'binary',

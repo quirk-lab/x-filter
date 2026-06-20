@@ -48,13 +48,13 @@ export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilte
       id: group.id,
       group,
       depth,
-      children: group.conditions.flatMap((condition): FilterNodeViewModel[] => {
-        if (isFilterRule(condition)) {
-          return [buildRuleViewModel(condition)];
+      children: group.children.flatMap((child): FilterNodeViewModel[] => {
+        if (isFilterRule(child)) {
+          return [buildRuleViewModel(child)];
         }
 
-        if (isFilterGroup(condition)) {
-          return [buildGroupViewModel(condition, depth + 1)];
+        if (isFilterGroup(child)) {
+          return [buildGroupViewModel(child, depth + 1)];
         }
 
         return [];

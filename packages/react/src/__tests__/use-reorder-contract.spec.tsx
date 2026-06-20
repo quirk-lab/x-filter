@@ -5,13 +5,13 @@ import { useReorderContract } from '../use-reorder-contract';
 const makeFilter = (): Filter => ({
   id: 'root',
   combinator: 'and',
-  conditions: [
+  children: [
     { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
     { id: 'r2', field: 'age', operator: 'gt', value: 18 },
     {
       id: 'g1',
       combinator: 'or',
-      conditions: [{ id: 'r3', field: 'status', operator: 'equals', value: 'active' }],
+      children: [{ id: 'r3', field: 'status', operator: 'equals', value: 'active' }],
     },
   ],
 });
@@ -19,15 +19,15 @@ const makeFilter = (): Filter => ({
 const makeNestedFilter = (): Filter => ({
   id: 'root',
   combinator: 'and',
-  conditions: [
+  children: [
     {
       id: 'g1',
       combinator: 'or',
-      conditions: [
+      children: [
         {
           id: 'g2',
           combinator: 'and',
-          conditions: [{ id: 'r1', field: 'x', operator: 'eq', value: 1 }],
+          children: [{ id: 'r1', field: 'x', operator: 'eq', value: 1 }],
         },
       ],
     },
@@ -52,7 +52,7 @@ describe('useReorderContract', () => {
 
       expect(onReorder).toHaveBeenCalledTimes(1);
       const newFilter = onReorder.mock.calls[0][0] as Filter;
-      expect(newFilter.conditions[0]).toMatchObject({ id: 'r2' });
+      expect(newFilter.children[0]).toMatchObject({ id: 'r2' });
     });
 
     it('moves a rule into a sub-group', () => {
@@ -71,8 +71,8 @@ describe('useReorderContract', () => {
 
       expect(onReorder).toHaveBeenCalledTimes(1);
       const newFilter = onReorder.mock.calls[0][0] as Filter;
-      const g1 = newFilter.conditions.find((c) => 'id' in c && c.id === 'g1') as Filter;
-      expect(g1.conditions.some((c) => 'id' in c && c.id === 'r1')).toBe(true);
+      const g1 = newFilter.children.find((c) => 'id' in c && c.id === 'g1') as Filter;
+      expect(g1.children.some((c) => 'id' in c && c.id === 'r1')).toBe(true);
     });
 
     it('moves a group when operation type is group', () => {
@@ -91,9 +91,9 @@ describe('useReorderContract', () => {
 
       expect(onReorder).toHaveBeenCalledTimes(1);
       const newFilter = onReorder.mock.calls[0][0] as Filter;
-      expect(newFilter.conditions[0]).toMatchObject({ id: 'g1' });
-      expect(newFilter.conditions[1]).toMatchObject({ id: 'r1' });
-      expect(newFilter.conditions[2]).toMatchObject({ id: 'r2' });
+      expect(newFilter.children[0]).toMatchObject({ id: 'g1' });
+      expect(newFilter.children[1]).toMatchObject({ id: 'r1' });
+      expect(newFilter.children[2]).toMatchObject({ id: 'r2' });
     });
 
     it('moves a group into a non-descendant nested group', () => {
@@ -101,9 +101,9 @@ describe('useReorderContract', () => {
       const filter: Filter = {
         id: 'root',
         combinator: 'and',
-        conditions: [
-          { id: 'g1', combinator: 'and', conditions: [] },
-          { id: 'g2', combinator: 'or', conditions: [] },
+        children: [
+          { id: 'g1', combinator: 'and', children: [] },
+          { id: 'g2', combinator: 'or', children: [] },
         ],
       };
       const { result } = renderHook(() => useReorderContract({ filter, onReorder }));
@@ -118,10 +118,10 @@ describe('useReorderContract', () => {
       });
 
       const newFilter = onReorder.mock.calls[0][0] as Filter;
-      const g2 = newFilter.conditions[0] as Filter;
+      const g2 = newFilter.children[0] as Filter;
       expect(g2).toMatchObject({
         id: 'g2',
-        conditions: [expect.objectContaining({ id: 'g1' })],
+        children: [expect.objectContaining({ id: 'g1' })],
       });
     });
 
@@ -213,9 +213,9 @@ describe('useReorderContract', () => {
       const filter: Filter = {
         id: 'root',
         combinator: 'and',
-        conditions: [
-          { id: 'g1', combinator: 'or', conditions: [] },
-          { id: 'g2', combinator: 'or', conditions: [] },
+        children: [
+          { id: 'g1', combinator: 'or', children: [] },
+          { id: 'g2', combinator: 'or', children: [] },
         ],
       };
       const onReorder = jest.fn();
@@ -257,7 +257,7 @@ describe('useReorderContract', () => {
       const filter2: Filter = {
         id: 'root',
         combinator: 'and',
-        conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+        children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
       };
 
       rerender({ filter: filter2 });

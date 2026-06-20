@@ -11,7 +11,7 @@ describe('demo output formatting', () => {
     expect(outputs.dsl).toContain('accountTier:equals:enterprise');
     expect(outputs.sql).toContain('accounts.tier = ?');
     expect(outputs.sql).toContain('accounts.region IN (?, ?)');
-    expect(getOutputText(outputs, 'json')).toContain('"conditions"');
+    expect(getOutputText(outputs, 'json')).toContain('"children"');
     expect(getOutputText(outputs, 'dsl')).toContain('contractValue:gt:50000');
     expect(getOutputText(outputs, 'sql')).toContain('contracts.arr > ?');
     expect(getOutputText(outputs, 'validation')).toBe('Valid filter. No validation errors.');
@@ -48,7 +48,7 @@ describe('demo output formatting', () => {
     const unsupportedOperatorFilter: Filter = {
       id: 'root',
       combinator: 'and',
-      conditions: [
+      children: [
         {
           id: 'custom',
           field: 'accountTier',

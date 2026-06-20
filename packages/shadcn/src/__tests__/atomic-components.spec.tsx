@@ -272,7 +272,7 @@ describe('shadcn atomic components', () => {
     const group: FilterGroup = {
       id: 'g1',
       combinator: 'and',
-      conditions: [rule],
+      children: [rule],
     };
 
     render(
@@ -378,7 +378,7 @@ describe('shadcn atomic components', () => {
     );
     expect(screen.getByRole('listbox', { name: 'Value' })).not.toBeNull();
 
-    const group: FilterGroup = { id: 'g2', combinator: 'or', conditions: [] };
+    const group: FilterGroup = { id: 'g2', combinator: 'or', children: [] };
     rerender(
       <ShadcnFilterGroup
         group={{

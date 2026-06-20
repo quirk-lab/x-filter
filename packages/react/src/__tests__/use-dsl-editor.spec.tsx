@@ -31,7 +31,7 @@ const schema: FieldSchema[] = [
 const makeFilter = (field = 'status', operator = 'equals', value: unknown = 'open'): Filter => ({
   id: 'root',
   combinator: 'and',
-  conditions: [{ id: 'r1', field, operator, value }],
+  children: [{ id: 'r1', field, operator, value }],
 });
 
 const completionValues = (items: CompletionItem[]) => items.map((item) => item.value);
@@ -90,7 +90,7 @@ describe('useDslEditor', () => {
     expect(onCommit).toHaveBeenCalledTimes(1);
     expect(onCommit).toHaveBeenCalledWith(
       expect.objectContaining({
-        conditions: [
+        children: [
           expect.objectContaining({
             field: 'priority',
             operator: 'gt',
