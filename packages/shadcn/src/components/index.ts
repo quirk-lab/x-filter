@@ -12,6 +12,8 @@ export type { ShadcnFilterBuilderProps } from './filter-builder';
 export { ShadcnFilterBuilder } from './filter-builder';
 export type { ShadcnFilterGroupProps } from './group-block';
 export { ShadcnFilterGroup } from './group-block';
+export type { ImportFormat, ShadcnImportFilterDialogProps } from './import-dialog';
+export { ShadcnImportFilterDialog } from './import-dialog';
 export type { ShadcnInlineCombinatorProps } from './inline-combinator';
 export { ShadcnInlineCombinator } from './inline-combinator';
 export type { ShadcnNotToggleProps } from './not-toggle';

@@ -62,7 +62,7 @@
 - [x] #22 Summary/ReadOnly View → ShadcnFilterBuilder/AntdFilterBuilder 新增 `readOnly` prop：复用 #20 locked 渲染（viewmodel 在 readOnly 时强制所有节点 locked + 缓存失效），builder 层额外隐藏 DSL 编辑器 / 关闭 DnD。新增 react viewmodel 测试 + shadcn/antd readonly 集成测试 + Storybook `Scenarios/Read-only View` demo。验证：924 测试全过、覆盖率达标、storybook build。defer: 在 core mutation 层硬阻断（当前 readOnly 为 UI 视觉层，自定义 slot 仍可改）
 - [x] #23 Undo/Redo → 新增 `useFilterHistory` hook（past/present/future 栈，`current`/`setFilter`/`undo`/`redo`/`canUndo`/`canRedo`/`clear`，`maxHistory` 默认 50，相同引用 no-op）。导出 + 10 个单测 + Storybook `Scenarios/Undo Redo` demo（工具栏按钮 + Ctrl/Cmd+Z / Shift+Z 快捷键）。验证：934 测试全过、覆盖率达标、storybook build。UI 快捷键留给消费者（按 issue「UI 可选」）
 - [x] #21 i18n 多语言 → 内置 locale 包 `enUS`/`zhCN`/`jaJP`（均为 `Required<FilterBuilderLabels>`，编译期保证 key 齐全）+ `locales` 注册表 + `LocaleCode` 类型，从 @x-filter/react 导出。传给现有 `labels` prop 即可。新增 locales 单测（key parity / 非空 / 注册表）+ Storybook `Scenarios/i18n` 语言切换 demo + README 章节。验证：938 测试全过、覆盖率达标（注意：locale 测试需经 @x-filter/react 桶文件导入以覆盖 re-export getter）、storybook build
-- [ ] #24 Import Filter UI
+- [x] #24 Import Filter UI → 共享 `parseFilterInput`（react，DSL/JSON → Filter 判别式结果）+ `ShadcnImportFilterDialog`（自建 overlay dialog）/ `AntdImportFilterDialog`（antd Modal）：格式切换 DSL/JSON、解析、预览、确认导入、错误内联。新增 react 解析单测 + shadcn/antd 对话框集成测试 + Storybook `Scenarios/Import` demo。验证：955 测试全过、覆盖率达标、storybook build
 - [ ] #25 Keyboard Navigation
 - [ ] #28 time/dateTime 字段类型
 - [ ] #26 JsonLogic/MongoDB/ES 导出
