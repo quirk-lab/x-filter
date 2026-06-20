@@ -19,11 +19,13 @@ function convertASTValue(value: ASTValue): unknown {
   }
 }
 
-function collectOperands(node: ASTNode, op: 'and' | 'or'): ASTNode[] {
+function collectOperands(node: ASTNode, op: 'and' | 'or', out: ASTNode[]): void {
   if (node.type === 'binary' && node.operator === op) {
-    return [...collectOperands(node.left, op), ...collectOperands(node.right, op)];
+    collectOperands(node.left, op, out);
+    collectOperands(node.right, op, out);
+  } else {
+    out.push(node);
   }
-  return [node];
 }
 
 function convertNode(node: ASTNode, gen: IdGenerator): FilterRule | FilterGroup {
@@ -48,7 +50,8 @@ function convertNode(node: ASTNode, gen: IdGenerator): FilterRule | FilterGroup 
       return convertNode(node.expression, gen);
 
     case 'binary': {
-      const operands = collectOperands(node, node.operator);
+      const operands: ASTNode[] = [];
+      collectOperands(node, node.operator, operands);
       return {
         id: gen(),
         combinator: node.operator,

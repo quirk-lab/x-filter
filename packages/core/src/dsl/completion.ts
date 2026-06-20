@@ -1,4 +1,4 @@
-import { getOperators } from '../operators';
+import { buildSchemaIndex } from '../schema-index';
 import type { FieldSchema, OperatorDef } from '../types';
 import { tokenize } from './tokenize';
 import type { CompletionContext, CompletionItem } from './types';
@@ -52,18 +52,22 @@ export function getDslCompletions(context: CompletionContext): CompletionItem[] 
     return fieldCompletions(schema, colonParts[0]);
   }
 
+  // Build index once for operator/value lookups
+  const index = buildSchemaIndex(schema);
+
   if (colonParts.length === 2) {
     const fieldName = colonParts[0];
     const prefix = colonParts[1];
-    const field = schema.find((f) => f.name === fieldName);
+    const field = index.fieldByName.get(fieldName);
     if (!field) return [];
-    return operatorCompletions(getOperators(field.type, field.operators), prefix);
+    const operators = index.opByName.get(field.name);
+    return operatorCompletions(operators ? Array.from(operators.values()) : [], prefix);
   }
 
   if (colonParts.length >= 3) {
     const fieldName = colonParts[0];
     const prefix = colonParts.slice(2).join(':');
-    const field = schema.find((f) => f.name === fieldName);
+    const field = index.fieldByName.get(fieldName);
     if (!field) return [];
     return valueCompletions(field, prefix);
   }
