@@ -5,6 +5,7 @@ import {
   resolveLabels,
   resolveRuleRender,
 } from '../render-decisions';
+import type { FilterBuilderSlots } from '../types';
 
 const resolvedLabels = resolveLabels();
 

@@ -49,6 +49,8 @@ export {
   needsStringQuoting,
   replaceCurrentSegment,
 } from './dsl-completion-utils';
+export type { MoveControlsProps } from './move-controls';
+export { MoveControls } from './move-controls';
 export type { RenderMode, ResolvedLabels } from './render-decisions';
 export {
   canUseAtomicGroup,

@@ -13,6 +13,7 @@ import {
   canUseAtomicGroup,
   canUseAtomicRule,
   getDefaultRuleUpdatesForField,
+  MoveControls,
   resolveLabels,
   useFilterBuilder,
   useFilterViewModel,
@@ -215,44 +216,19 @@ export function ShadcnFilterBuilder({
     });
   };
 
-  const renderMoveControls = (
-    group: FilterGroupViewModel,
-    child: FilterNodeViewModel,
-    index: number
-  ) => {
-    if (!dnd) return null;
-
-    const canMoveUp = canMoveChild(group, child, index - 1);
-    const canMoveDown = canMoveChild(group, child, index + 1);
-
-    return (
-      <span>
-        <button
-          aria-label={`Move ${child.id} up`}
-          disabled={!canMoveUp}
-          type="button"
-          onClick={() => moveChild(group, child, index, 'up')}
-        >
-          Move {child.id} up
-        </button>
-        <button
-          aria-label={`Move ${child.id} down`}
-          disabled={!canMoveDown}
-          type="button"
-          onClick={() => moveChild(group, child, index, 'down')}
-        >
-          Move {child.id} down
-        </button>
-      </span>
-    );
-  };
-
   const renderGroup = (group: FilterGroupViewModel) => {
     const children = group.children.map((child, index) =>
       dnd ? (
         <SortableFilterItem key={child.id} id={child.id}>
           <div>
-            {renderMoveControls(group, child, index)}
+            <MoveControls
+              canMoveChild={canMoveChild}
+              child={child}
+              dnd={dnd}
+              group={group}
+              index={index}
+              moveChild={moveChild}
+            />
             {renderNode(child)}
           </div>
         </SortableFilterItem>
