@@ -50,3 +50,10 @@ export { useFilterDsl } from './use-filter-dsl';
 export { useFilterUrlSync } from './use-filter-url-sync';
 export { useFilterViewModel } from './use-filter-view-model';
 export { useReorderContract } from './use-reorder-contract';
+export {
+  asArrayValue,
+  asPairValue,
+  asStringValue,
+  parseNumberInput,
+  updatePairValue,
+} from './value-utils';

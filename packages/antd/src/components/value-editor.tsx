@@ -1,5 +1,12 @@
 import type { FieldSchema, FilterRule, OperatorDef } from '@x-filter/core';
-import { findOperator, findSchemaField } from '@x-filter/react';
+import {
+  asArrayValue,
+  asPairValue,
+  asStringValue,
+  findOperator,
+  findSchemaField,
+  updatePairValue,
+} from '@x-filter/react';
 import { Checkbox, Input, InputNumber, Select, Space } from 'antd';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 
@@ -13,26 +20,8 @@ export interface AntdValueEditorProps {
   onChange: (value: unknown) => void;
 }
 
-function asStringValue(value: unknown): string {
-  return typeof value === 'string' ? value : value == null ? '' : String(value);
-}
-
-function asArrayValue(value: unknown): string[] {
-  return Array.isArray(value) ? value.map(String) : [];
-}
-
-function asPairValue(value: unknown): [unknown, unknown] {
-  return Array.isArray(value) ? [value[0], value[1]] : [undefined, undefined];
-}
-
 function asOptionalNumber(value: unknown): number | undefined {
   return typeof value === 'number' ? value : undefined;
-}
-
-function updatePairValue(value: unknown, index: 0 | 1, nextValue: unknown): [unknown, unknown] {
-  const pair = asPairValue(value);
-  pair[index] = nextValue;
-  return pair;
 }
 
 export function AntdValueEditor({
