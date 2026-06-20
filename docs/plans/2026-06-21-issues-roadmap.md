@@ -58,7 +58,7 @@
 - [x] #18 Presets / Saved Searches → useFilterPresets hook（localStorage + FIFO + serialize/deserialize）+ ShadcnPresetBar（save/load/二次确认删除）
 - [x] #17 URL 同步 Demo → playground UrlSyncDemo（restore/write/parse-error 测试）+ Storybook Hooks/URL Sync story + README URL 同步章节
 - [x] #20 Lock/Disable → PR #36：core `locked` 字段 + isLocked + 标准/IC mutation 守卫（update/remove/move/add/negate/setCombinator 锁定时静默忽略；clone 允许且解锁副本）+ ViewModel 暴露 locked + shadcn/antd 锁定禁用控件并隐藏 add/clone/remove（atomic+fallback）。defer: 锁定继承（子节点跟随父组锁定）、toJSON 序列化 locked
-- [ ] #16 Notion/GitHub Storybook Demo
+- [x] #16 Notion/GitHub Storybook Demo → 4 场景 Story（Scenarios/Notion·GitHub·IC Mode·Validation）+ scenario-data 共享 fixtures/演示用 evaluateFilter/结果联动表。复用 #13 校验、#14 DslTokenInput、#15 IC、#17 URL。验证：storybook build + 全量 typecheck。defer: 点击展开 popover 行内编辑、dark mode/locale 切换
 - [ ] #22 Summary/ReadOnly View
 - [ ] #23 Undo/Redo
 - [ ] #21 i18n 多语言
