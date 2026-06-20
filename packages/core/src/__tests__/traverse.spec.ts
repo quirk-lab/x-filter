@@ -1,5 +1,5 @@
-import { findById, findParent, flattenRules, getPath, traverse } from '../traverse';
-import type { Filter } from '../types';
+import { findById, findParent, flattenRules, getPath, traverse, walk } from '../traverse';
+import type { Filter, FilterIC } from '../types';
 
 const filter: Filter = {
   id: 'root',
@@ -151,6 +151,75 @@ describe('traverse', () => {
     });
     expect(rules).toEqual(['r1', 'r2', 'r3']);
     expect(groups).toEqual(['root', 'g1', 'g2']);
+  });
+});
+
+describe('walk', () => {
+  it('visits all nodes depth-first (standard mode)', () => {
+    const visited: string[] = [];
+    walk(filter, (node) => {
+      visited.push(node.id);
+    });
+    expect(visited).toEqual(['root', 'r1', 'g1', 'r2', 'g2', 'r3']);
+  });
+
+  it('passes depth to visitor', () => {
+    const depths: { id: string; depth: number }[] = [];
+    walk(filter, (node, depth) => {
+      depths.push({ id: node.id, depth });
+    });
+    expect(depths).toEqual([
+      { id: 'root', depth: 0 },
+      { id: 'r1', depth: 1 },
+      { id: 'g1', depth: 1 },
+      { id: 'r2', depth: 2 },
+      { id: 'g2', depth: 2 },
+      { id: 'r3', depth: 3 },
+    ]);
+  });
+
+  it('skips combinator strings in IC mode', () => {
+    const icFilter: FilterIC = {
+      id: 'root',
+      children: [
+        { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+        'and',
+        { id: 'r2', field: 'b', operator: 'eq', value: 2 },
+      ],
+    };
+    const visited: string[] = [];
+    walk(icFilter, (node) => {
+      visited.push(node.id);
+    });
+    expect(visited).toEqual(['root', 'r1', 'r2']);
+  });
+
+  it('walks nested IC groups', () => {
+    const icFilter: FilterIC = {
+      id: 'root',
+      children: [
+        {
+          id: 'g1',
+          children: [
+            { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+            'or',
+            { id: 'r2', field: 'b', operator: 'eq', value: 2 },
+          ],
+        },
+      ],
+    };
+    const visited: string[] = [];
+    walk(icFilter, (node) => {
+      visited.push(node.id);
+    });
+    expect(visited).toEqual(['root', 'g1', 'r1', 'r2']);
+  });
+
+  it('walks empty group', () => {
+    const empty: Filter = { id: 'root', combinator: 'and', children: [] };
+    const visited: string[] = [];
+    walk(empty, (node) => visited.push(node.id));
+    expect(visited).toEqual(['root']);
   });
 });
 

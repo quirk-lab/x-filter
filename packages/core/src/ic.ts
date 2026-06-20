@@ -1,4 +1,5 @@
 import { generateId, type IdGenerator } from './id';
+import { mapTree } from './tree-map';
 import type { Combinator, Filter, FilterGroup, FilterGroupIC, FilterIC, FilterRule } from './types';
 import { isFilterGroup } from './types';
 
@@ -107,63 +108,30 @@ function convertGroupFromIC(group: FilterGroupIC): FilterGroup {
 
 // --- IC-specific mutations ---
 
-function updateGroupICInTree(
-  root: FilterGroupIC,
-  targetId: string,
-  updater: (group: FilterGroupIC) => FilterGroupIC
-): FilterGroupIC {
-  if (root.id === targetId) {
-    return updater(root);
+function removeChildICFromGroup(group: FilterGroupIC, childId: string): FilterGroupIC {
+  const idx = group.children.findIndex(
+    (c) => typeof c !== 'string' && 'id' in c && c.id === childId
+  );
+  if (idx === -1) return group;
+
+  const newChildren = [...group.children];
+  if (newChildren.length === 1) {
+    // Only item, just remove it
+    newChildren.splice(idx, 1);
+  } else if (idx === 0) {
+    // First item: remove item and following combinator
+    newChildren.splice(0, 2);
+  } else {
+    // Middle or last item: remove preceding combinator and the item
+    newChildren.splice(idx - 1, 2);
   }
-
-  let changed = false;
-  const newChildren = root.children.map((c) => {
-    if (typeof c !== 'string' && isFilterGroupIC(c)) {
-      const updated = updateGroupICInTree(c, targetId, updater);
-      if (updated !== c) {
-        changed = true;
-        return updated;
-      }
-    }
-    return c;
-  });
-
-  return changed ? { ...root, children: newChildren } : root;
+  return { ...group, children: newChildren };
 }
 
 function removeChildICFromTree(root: FilterGroupIC, childId: string): FilterGroupIC {
-  const idx = root.children.findIndex(
-    (c) => typeof c !== 'string' && 'id' in c && c.id === childId
-  );
-
-  if (idx !== -1) {
-    const newChildren = [...root.children];
-    if (newChildren.length === 1) {
-      // Only item, just remove it
-      newChildren.splice(idx, 1);
-    } else if (idx === 0) {
-      // First item: remove item and following combinator
-      newChildren.splice(0, 2);
-    } else {
-      // Middle or last item: remove preceding combinator and the item
-      newChildren.splice(idx - 1, 2);
-    }
-    return { ...root, children: newChildren };
-  }
-
-  let changed = false;
-  const newChildren = root.children.map((c) => {
-    if (typeof c !== 'string' && isFilterGroupIC(c)) {
-      const updated = removeChildICFromTree(c, childId);
-      if (updated !== c) {
-        changed = true;
-        return updated;
-      }
-    }
-    return c;
-  });
-
-  return changed ? { ...root, children: newChildren } : root;
+  return mapTree(root, {
+    onGroup: (g) => removeChildICFromGroup(g as FilterGroupIC, childId),
+  }) as FilterGroupIC;
 }
 
 export function addRuleIC(
@@ -183,12 +151,16 @@ export function addRuleIC(
     newRule.not = rule.not;
   }
 
-  const result = updateGroupICInTree(filter, groupId, (g) => {
-    const nonCombinatorCount = g.children.filter((c) => typeof c !== 'string').length;
-    const newChildren: FilterGroupIC['children'] =
-      nonCombinatorCount > 0 ? [...g.children, defaultCombinator, newRule] : [newRule];
-    return { ...g, children: newChildren };
-  });
+  const result = mapTree(filter, {
+    onGroup: (g) => {
+      if (g.id !== groupId) return g;
+      const group = g as FilterGroupIC;
+      const nonCombinatorCount = group.children.filter((c) => typeof c !== 'string').length;
+      const newChildren: FilterGroupIC['children'] =
+        nonCombinatorCount > 0 ? [...group.children, defaultCombinator, newRule] : [newRule];
+      return { ...group, children: newChildren };
+    },
+  }) as FilterIC;
 
   if (result === filter) {
     throw new Error(`Group not found: ${groupId}`);

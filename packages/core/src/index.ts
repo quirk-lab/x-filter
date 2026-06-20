@@ -35,17 +35,20 @@ export {
   addGroup,
   addRule,
   moveRule,
+  negateGroup,
+  negateRule,
   removeGroup,
   removeRule,
   updateGroup,
   updateRule,
 } from './mutations';
 
-export { negateGroup, negateRule } from './negate';
 export { defaultOperators, getOperators } from './operators';
 export { fromJSON, toJSON } from './serialize-json';
-export type { TraverseCallback } from './traverse';
-export { findById, findParent, flattenRules, getPath, traverse } from './traverse';
+export type { TraverseCallback, WalkCallback } from './traverse';
+export { findById, findParent, flattenRules, getPath, traverse, walk } from './traverse';
+export type { MapTreeVisitor } from './tree-map';
+export { mapTree, updateById } from './tree-map';
 export type {
   Combinator,
   FieldSchema,

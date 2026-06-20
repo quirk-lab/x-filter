@@ -1,95 +1,7 @@
-import type { IdGenerator } from './id';
-import { generateId } from './id';
+import { generateId, type IdGenerator } from './id';
+import { findById, findParent } from './traverse';
+import { mapTree, updateById } from './tree-map';
 import type { Filter, FilterGroup, FilterRule } from './types';
-import { isFilterGroup } from './types';
-
-function updateGroupInTree(
-  root: FilterGroup,
-  targetId: string,
-  updater: (group: FilterGroup) => FilterGroup
-): FilterGroup {
-  if (root.id === targetId) {
-    return updater(root);
-  }
-
-  let changed = false;
-  const newChildren = root.children.map((c) => {
-    if (isFilterGroup(c)) {
-      const updated = updateGroupInTree(c, targetId, updater);
-      if (updated !== c) {
-        changed = true;
-        return updated;
-      }
-    }
-    return c;
-  });
-
-  return changed ? { ...root, children: newChildren } : root;
-}
-
-function updateRuleInTree(
-  root: FilterGroup,
-  ruleId: string,
-  updater: (rule: FilterRule) => FilterRule
-): FilterGroup {
-  let changed = false;
-  const newChildren = root.children.map((c) => {
-    if (isFilterGroup(c)) {
-      const updated = updateRuleInTree(c, ruleId, updater);
-      if (updated !== c) {
-        changed = true;
-        return updated;
-      }
-      return c;
-    }
-    if (c.id === ruleId) {
-      changed = true;
-      return updater(c);
-    }
-    return c;
-  });
-
-  return changed ? { ...root, children: newChildren } : root;
-}
-
-function removeChildFromTree(root: FilterGroup, childId: string): FilterGroup {
-  const idx = root.children.findIndex(
-    (c) => typeof c === 'object' && 'id' in c && c.id === childId
-  );
-
-  if (idx !== -1) {
-    return {
-      ...root,
-      children: root.children.filter((_, i) => i !== idx),
-    };
-  }
-
-  let changed = false;
-  const newChildren = root.children.map((c) => {
-    if (isFilterGroup(c)) {
-      const updated = removeChildFromTree(c, childId);
-      if (updated !== c) {
-        changed = true;
-        return updated;
-      }
-    }
-    return c;
-  });
-
-  return changed ? { ...root, children: newChildren } : root;
-}
-
-function findRuleInTree(root: FilterGroup, ruleId: string): FilterRule | undefined {
-  for (const c of root.children) {
-    if (isFilterGroup(c)) {
-      const found = findRuleInTree(c, ruleId);
-      if (found) return found;
-    } else if (c.id === ruleId) {
-      return c;
-    }
-  }
-  return undefined;
-}
 
 export interface MutationOptions {
   idGenerator?: IdGenerator;
@@ -111,15 +23,15 @@ export function addRule(
     newRule.not = rule.not;
   }
 
-  const result = updateGroupInTree(filter, groupId, (g) => ({
-    ...g,
-    children: [...g.children, newRule],
-  }));
+  const result = updateById(filter, groupId, (node) => {
+    const g = node as FilterGroup;
+    return { ...g, children: [...g.children, newRule] };
+  });
 
   if (result === filter) {
     throw new Error(`Group not found: ${groupId}`);
   }
-  return result;
+  return result as Filter;
 }
 
 export function updateRule(
@@ -127,11 +39,30 @@ export function updateRule(
   ruleId: string,
   updates: Partial<Omit<FilterRule, 'id'>>
 ): Filter {
-  return updateRuleInTree(filter, ruleId, (r) => ({ ...r, ...updates }));
+  return updateById(filter, ruleId, (r) => ({
+    ...(r as FilterRule),
+    ...updates,
+  })) as Filter;
 }
 
 export function removeRule(filter: Filter, ruleId: string): Filter {
-  return removeChildFromTree(filter, ruleId);
+  return removeChild(filter, ruleId);
+}
+
+function removeChild(filter: Filter, childId: string): Filter {
+  const result = mapTree(filter, {
+    onGroup: (g) => {
+      const idx = g.children.findIndex(
+        (c) => typeof c !== 'string' && 'id' in c && c.id === childId
+      );
+      if (idx === -1) return g;
+      return {
+        ...g,
+        children: g.children.filter((_, i) => i !== idx),
+      };
+    },
+  });
+  return result as Filter;
 }
 
 export function moveRule(
@@ -140,96 +71,62 @@ export function moveRule(
   targetGroupId: string,
   position: number
 ): Filter {
-  const rule = findRuleInTree(filter, ruleId);
+  const rule = findById(filter, ruleId) as FilterRule | undefined;
   if (!rule) {
     throw new Error(`Rule not found: ${ruleId}`);
   }
 
-  // Same-group move
-  const result = updateGroupInTree(filter, targetGroupId, (g) => {
-    const currentIdx = g.children.findIndex(
-      (c) => typeof c === 'object' && 'id' in c && c.id === ruleId
-    );
+  const sourceParent = findParent(filter, ruleId) as FilterGroup | undefined;
+  const isSameGroup = sourceParent?.id === targetGroupId;
 
-    if (currentIdx !== -1) {
-      const newChildren = [...g.children];
-      newChildren.splice(currentIdx, 1);
-      newChildren.splice(position, 0, rule);
-      return { ...g, children: newChildren };
-    }
+  let targetFound = false;
 
-    // Cross-group: the rule is not in this group, just insert at position
-    const newChildren = [...g.children];
-    newChildren.splice(position, 0, rule);
-    return { ...g, children: newChildren };
+  const result = mapTree(filter, {
+    onGroup: (g) => {
+      const group = g as FilterGroup;
+
+      if (g.id === targetGroupId) {
+        targetFound = true;
+        if (isSameGroup) {
+          // Same-group: remove then insert at post-removal position
+          const newChildren = [...group.children];
+          const currentIdx = newChildren.findIndex(
+            (c) => typeof c !== 'string' && 'id' in c && c.id === ruleId
+          );
+          if (currentIdx !== -1) {
+            newChildren.splice(currentIdx, 1);
+          }
+          newChildren.splice(position, 0, rule);
+          return { ...group, children: newChildren };
+        }
+        // Cross-group: insert at position (rule not yet here)
+        const newChildren = [...group.children];
+        newChildren.splice(position, 0, rule);
+        return { ...group, children: newChildren };
+      }
+
+      // Non-target group: remove the rule if present (source group cleanup)
+      if (!isSameGroup && sourceParent && g.id === sourceParent.id) {
+        const idx = group.children.findIndex(
+          (c) => typeof c !== 'string' && 'id' in c && c.id === ruleId
+        );
+        if (idx !== -1) {
+          return {
+            ...group,
+            children: group.children.filter((_, i) => i !== idx),
+          };
+        }
+      }
+
+      return g;
+    },
   });
 
-  if (result === filter) {
+  if (!targetFound) {
     throw new Error(`Target group not found: ${targetGroupId}`);
   }
 
-  // For cross-group moves, also remove from the source group
-  const targetGroup = findGroupInTree(result, targetGroupId);
-  const ruleCountInTarget = targetGroup
-    ? targetGroup.children.filter((c) => typeof c === 'object' && 'id' in c && c.id === ruleId)
-        .length
-    : 0;
-
-  if (ruleCountInTarget > 1) {
-    // Rule appears twice (inserted + original was already there in same group)
-    // This shouldn't happen since same-group case is handled above
-    return result;
-  }
-
-  // Remove the rule from its original location (if cross-group)
-  return removeDuplicateRule(result, ruleId, targetGroupId);
-}
-
-function findGroupInTree(root: FilterGroup, groupId: string): FilterGroup | undefined {
-  if (root.id === groupId) return root;
-  for (const c of root.children) {
-    if (isFilterGroup(c)) {
-      const found = findGroupInTree(c, groupId);
-      if (found) return found;
-    }
-  }
-  return undefined;
-}
-
-function removeDuplicateRule(
-  root: FilterGroup,
-  ruleId: string,
-  keepInGroupId: string
-): FilterGroup {
-  let changed = false;
-  let keptInCurrentGroup = false;
-  const newChildren: FilterGroup['children'] = [];
-
-  for (const c of root.children) {
-    if (isFilterGroup(c)) {
-      const updated = removeDuplicateRule(c, ruleId, keepInGroupId);
-      if (updated !== c) {
-        changed = true;
-      }
-      newChildren.push(updated);
-      continue;
-    }
-
-    if (c.id !== ruleId) {
-      newChildren.push(c);
-      continue;
-    }
-
-    if (root.id === keepInGroupId && !keptInCurrentGroup) {
-      keptInCurrentGroup = true;
-      newChildren.push(c);
-      continue;
-    }
-
-    changed = true;
-  }
-
-  return changed ? { ...root, children: newChildren } : root;
+  return result as Filter;
 }
 
 export function addGroup(
@@ -247,22 +144,22 @@ export function addGroup(
     newGroup.not = group.not;
   }
 
-  const result = updateGroupInTree(filter, parentGroupId, (g) => ({
-    ...g,
-    children: [...g.children, newGroup],
-  }));
+  const result = updateById(filter, parentGroupId, (node) => {
+    const g = node as FilterGroup;
+    return { ...g, children: [...g.children, newGroup] };
+  });
 
   if (result === filter) {
     throw new Error(`Parent group not found: ${parentGroupId}`);
   }
-  return result;
+  return result as Filter;
 }
 
 export function removeGroup(filter: Filter, groupId: string): Filter {
   if (filter.id === groupId) {
     throw new Error('Cannot remove root group');
   }
-  return removeChildFromTree(filter, groupId);
+  return removeChild(filter, groupId);
 }
 
 export function updateGroup(
@@ -270,5 +167,22 @@ export function updateGroup(
   groupId: string,
   updates: Partial<Pick<FilterGroup, 'combinator' | 'not'>>
 ): Filter {
-  return updateGroupInTree(filter, groupId, (g) => ({ ...g, ...updates }));
+  return updateById(filter, groupId, (node) => {
+    const g = node as FilterGroup;
+    return { ...g, ...updates };
+  }) as Filter;
+}
+
+export function negateRule(filter: Filter, ruleId: string): Filter {
+  return updateById(filter, ruleId, (r) => {
+    const rule = r as FilterRule;
+    return { ...rule, not: !rule.not };
+  }) as Filter;
+}
+
+export function negateGroup(filter: Filter, groupId: string): Filter {
+  return updateById(filter, groupId, (g) => {
+    const group = g as FilterGroup;
+    return { ...group, not: !group.not };
+  }) as Filter;
 }
