@@ -1,4 +1,6 @@
-import type { FieldSchema, FilterAny } from '../types';
+import { updateRule } from '../mutations';
+import type { FieldSchema, Filter, FilterAny } from '../types';
+import type { ValidatePrevState } from '../validate';
 import { validate } from '../validate';
 
 const schema: FieldSchema[] = [
@@ -441,5 +443,184 @@ describe('validate', () => {
     expect(result.valid).toBe(false);
     expect(result.errors.r2[0].type).toBe('invalidField');
     expect(result.errors.r1).toBeUndefined();
+  });
+
+  describe('identity-aware prev state', () => {
+    it('produces identical results with and without prevState (backward compatible)', () => {
+      const filter: FilterAny = {
+        id: 'root',
+        combinator: 'and',
+        conditions: [
+          { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
+          { id: 'r2', field: 'age', operator: 'gt', value: 18 },
+        ],
+      };
+      const withoutPrev = validate(filter, schema);
+      const withPrev = validate(filter, schema, { filter, errors: {} });
+      expect(withPrev.valid).toBe(withoutPrev.valid);
+      expect(withPrev.errors).toEqual(withoutPrev.errors);
+    });
+
+    it('carries forward the errors array reference for an unchanged rule', () => {
+      const filter: FilterAny = {
+        id: 'root',
+        combinator: 'and',
+        conditions: [
+          { id: 'r1', field: 'name', operator: 'equals', value: 'John' },
+          { id: 'r2', field: 'age', operator: 'gt', value: 18 },
+        ],
+      };
+      const first = validate(filter, schema);
+
+      // Mutate only r2; r1 is structurally shared (===) thanks to updateRule.
+      const nextFilter = updateRule(filter as Filter, 'r2', { value: 21 });
+      const r1Before = filter.conditions[0];
+      const r1After = nextFilter.conditions[0];
+      expect(r1After).toBe(r1Before); // structural sharing precondition
+
+      const prevState: ValidatePrevState = { filter, errors: first.errors };
+      const second = validate(nextFilter, schema, prevState);
+
+      // r1 had no errors in `first`, so it stays absent (valid).
+      expect(second.errors.r1).toBeUndefined();
+      // r2 changed, so it is re-validated and remains valid.
+      expect(second.errors.r2).toBeUndefined();
+      expect(second.valid).toBe(true);
+    });
+
+    it('preserves the exact errors array reference for an unchanged invalid rule', () => {
+      const filter: FilterAny = {
+        id: 'root',
+        combinator: 'and',
+        conditions: [
+          { id: 'r1', field: 'unknownField', operator: 'equals', value: 'x' },
+          { id: 'r2', field: 'age', operator: 'gt', value: 18 },
+        ],
+      };
+      const first = validate(filter, schema);
+      expect(first.errors.r1).toHaveLength(1);
+
+      const nextFilter = updateRule(filter as Filter, 'r2', { value: 21 });
+      expect(nextFilter.conditions[0]).toBe(filter.conditions[0]); // r1 unchanged
+
+      const prevState: ValidatePrevState = { filter, errors: first.errors };
+      const second = validate(nextFilter, schema, prevState);
+
+      // r1's error array is carried forward BY REFERENCE (===), not just equal.
+      expect(second.errors.r1).toBe(first.errors.r1);
+      expect(second.valid).toBe(false);
+    });
+
+    it('re-validates a rule whose reference changed even if id is the same', () => {
+      const filter: FilterAny = {
+        id: 'root',
+        combinator: 'and',
+        conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      };
+      const first = validate(filter, schema);
+
+      // Build a fresh filter where r1 is a NEW object (not ===) with an invalid value.
+      const nextFilter: FilterAny = {
+        id: 'root',
+        combinator: 'and',
+        conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 123 }],
+      };
+      expect(nextFilter.conditions[0]).not.toBe(filter.conditions[0]);
+
+      const prevState: ValidatePrevState = { filter, errors: first.errors };
+      const second = validate(nextFilter, schema, prevState);
+
+      // r1 is a new reference → re-validated → now invalid.
+      expect(second.valid).toBe(false);
+      expect(second.errors.r1[0].type).toBe('invalidValue');
+    });
+
+    it('re-validates when schema changes even if filter is === (caller must drop prevState)', () => {
+      const filter: FilterAny = {
+        id: 'root',
+        combinator: 'and',
+        conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+      };
+      const first = validate(filter, schema);
+
+      // Schema drops the `name` field. A correct caller does NOT pass prevState
+      // when schema changed, so r1 is re-validated and flagged invalidField.
+      const nextSchema = schema.filter((f) => f.name !== 'name');
+      const second = validate(filter, nextSchema); // no prevState
+      expect(second.valid).toBe(false);
+      expect(second.errors.r1[0].type).toBe('invalidField');
+      // Sanity: had the caller wrongly passed prevState, r1 would be wrongly valid.
+      const wrong = validate(filter, nextSchema, { filter, errors: first.errors });
+      expect(wrong.valid).toBe(true);
+    });
+
+    it('carries forward group-level errors for an unchanged nested group', () => {
+      const filter = {
+        id: 'root',
+        combinator: 'and',
+        conditions: [
+          {
+            id: 'g1',
+            combinator: 'xor',
+            conditions: [{ id: 'r1', field: 'name', operator: 'equals', value: 'John' }],
+          },
+          { id: 'r2', field: 'age', operator: 'gt', value: 18 },
+        ],
+      } as unknown as FilterAny;
+      const first = validate(filter, schema);
+      expect(first.errors.g1[0].type).toBe('invalidCombinator');
+
+      // Mutate only r2; g1 subtree is ===.
+      const nextFilter = updateRule(filter as Filter, 'r2', { value: 21 });
+      const prevState: ValidatePrevState = { filter, errors: first.errors };
+      const second = validate(nextFilter, schema, prevState);
+
+      expect(second.errors.g1).toBe(first.errors.g1);
+      expect(second.errors.r1).toBeUndefined();
+      expect(second.valid).toBe(false);
+    });
+
+    it('carries forward errors for an unchanged IC group and its unchanged rules', () => {
+      // IC filter with a nested IC group g1 containing an invalid rule r1,
+      // plus a sibling rule r2. We rebuild the root keeping g1 === and
+      // replacing r2 with a new (still-invalid) reference.
+      const nestedGroup = {
+        id: 'g1',
+        conditions: [{ id: 'r1', field: 'unknownField', operator: 'equals', value: 'x' }],
+      };
+      const filter: FilterAny = {
+        id: 'root',
+        conditions: [
+          nestedGroup,
+          'and',
+          { id: 'r2', field: 'age', operator: 'equals', value: 'bad' },
+        ],
+      };
+      const first = validate(filter, schema);
+      expect(first.errors.r1[0].type).toBe('invalidField');
+      expect(first.errors.r2[0].type).toBe('invalidValue');
+
+      // New root: g1 is === (same reference), r2 is a NEW object (still invalid).
+      const nextFilter: FilterAny = {
+        id: 'root',
+        conditions: [
+          nestedGroup,
+          'and',
+          { id: 'r2', field: 'age', operator: 'equals', value: 'also-bad' },
+        ],
+      };
+      expect(nextFilter.conditions[0]).toBe(filter.conditions[0]); // g1 ===
+      expect(nextFilter.conditions[2]).not.toBe(filter.conditions[2]); // r2 !==
+
+      const prevState: ValidatePrevState = { filter, errors: first.errors };
+      const second = validate(nextFilter, schema, prevState);
+
+      // g1 and r1 (inside g1) are === → errors carried forward by reference.
+      expect(second.errors.r1).toBe(first.errors.r1);
+      // r2 is a new reference → re-validated → new errors array.
+      expect(second.errors.r2).not.toBe(first.errors.r2);
+      expect(second.errors.r2[0].type).toBe('invalidValue');
+      expect(second.valid).toBe(false);
+    });
   });
 });

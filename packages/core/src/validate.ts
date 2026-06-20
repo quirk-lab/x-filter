@@ -13,13 +13,44 @@ import type {
 } from './types';
 import { isFilterGroup, isFilterRule } from './types';
 
-export function validate(filter: FilterAny, schema: FieldSchema[]): ValidationResult {
+/**
+ * Previous filter + errors snapshot used to make `validate` identity-aware.
+ *
+ * When a `FilterRule` / `FilterGroup` node is `===` to its counterpart in
+ * `prevState.filter`, `validate` carries forward the previous
+ * `errors[nodeId]` array reference instead of recomputing it. This mirrors
+ * the structural-sharing pattern already used by the core mutators
+ * (`packages/core/src/mutations.ts`) and keeps per-rule error arrays
+ * referentially stable across a single-node mutation, which is what
+ * `useFilterViewModel`'s identity cache and `React.memo` on `<Rule>` rely on.
+ *
+ * Callers MUST only pass `prevState` when the schema is `===` to the schema
+ * used to produce `prevState.errors`; otherwise a previously-valid rule could
+ * be wrongly treated as still valid. The `useFilterValidation` hook handles
+ * this invariant automatically.
+ */
+export interface ValidatePrevState {
+  filter: FilterAny;
+  errors: Record<string, ValidationError[]>;
+}
+
+type NodeErrorsCache = WeakMap<
+  FilterRule | FilterGroup | FilterGroupIC,
+  ValidationError[] | undefined
+>;
+
+export function validate(
+  filter: FilterAny,
+  schema: FieldSchema[],
+  prevState?: ValidatePrevState
+): ValidationResult {
   const errors: Record<string, ValidationError[]> = {};
+  const prevNodeErrors = prevState ? buildPrevNodeErrors(prevState) : undefined;
 
   if (isFilterGroupIC(filter)) {
-    validateGroupIC(filter, schema, errors);
+    validateGroupIC(filter, schema, errors, prevNodeErrors);
   } else {
-    validateGroup(filter as FilterGroup, schema, errors);
+    validateGroup(filter as FilterGroup, schema, errors, prevNodeErrors);
   }
 
   return {
@@ -28,11 +59,51 @@ export function validate(filter: FilterAny, schema: FieldSchema[]): ValidationRe
   };
 }
 
+function buildPrevNodeErrors(prevState: ValidatePrevState): NodeErrorsCache {
+  const map: NodeErrorsCache = new WeakMap();
+  const walk = (node: FilterGroup | FilterGroupIC): void => {
+    map.set(node, prevState.errors[node.id]);
+    for (const c of node.conditions) {
+      if (isFilterRule(c)) {
+        map.set(c as FilterRule, prevState.errors[(c as FilterRule).id]);
+      } else if (typeof c === 'object' && c !== null && 'conditions' in c) {
+        walk(c as FilterGroup | FilterGroupIC);
+      }
+    }
+  };
+  walk(prevState.filter as FilterGroup | FilterGroupIC);
+  return map;
+}
+
+function carryForwardNodeErrors(
+  id: string,
+  prevNodeErrors: NodeErrorsCache | undefined,
+  node: FilterRule | FilterGroup | FilterGroupIC,
+  errors: Record<string, ValidationError[]>
+): boolean {
+  if (!prevNodeErrors || !prevNodeErrors.has(node)) return false;
+  const prev = prevNodeErrors.get(node);
+  if (prev && prev.length > 0) errors[id] = prev;
+  return true;
+}
+
 function validateGroup(
   group: FilterGroup,
   schema: FieldSchema[],
-  errors: Record<string, ValidationError[]>
+  errors: Record<string, ValidationError[]>,
+  prevNodeErrors?: NodeErrorsCache
 ): void {
+  if (carryForwardNodeErrors(group.id, prevNodeErrors, group, errors)) {
+    for (const c of group.conditions) {
+      if (isFilterGroup(c)) {
+        validateGroup(c as FilterGroup, schema, errors, prevNodeErrors);
+      } else if (isFilterRule(c)) {
+        validateRule(c as FilterRule, schema, errors, prevNodeErrors);
+      }
+    }
+    return;
+  }
+
   if (group.combinator !== 'and' && group.combinator !== 'or') {
     addError(errors, group.id, {
       type: 'invalidCombinator',
@@ -50,9 +121,9 @@ function validateGroup(
 
   for (const c of group.conditions) {
     if (isFilterGroup(c)) {
-      validateGroup(c as FilterGroup, schema, errors);
+      validateGroup(c as FilterGroup, schema, errors, prevNodeErrors);
     } else if (isFilterRule(c)) {
-      validateRule(c as FilterRule, schema, errors);
+      validateRule(c as FilterRule, schema, errors, prevNodeErrors);
     } else {
       addError(errors, group.id, {
         type: 'invalidGroup',
@@ -65,8 +136,21 @@ function validateGroup(
 function validateGroupIC(
   group: FilterGroupIC,
   schema: FieldSchema[],
-  errors: Record<string, ValidationError[]>
+  errors: Record<string, ValidationError[]>,
+  prevNodeErrors?: NodeErrorsCache
 ): void {
+  if (carryForwardNodeErrors(group.id, prevNodeErrors, group, errors)) {
+    for (const c of group.conditions) {
+      if (typeof c === 'string') continue;
+      if (isFilterGroupIC(c)) {
+        validateGroupIC(c, schema, errors, prevNodeErrors);
+      } else if (isFilterRule(c)) {
+        validateRule(c as FilterRule, schema, errors, prevNodeErrors);
+      }
+    }
+    return;
+  }
+
   if (!Array.isArray(group.conditions)) {
     addError(errors, group.id, {
       type: 'invalidGroup',
@@ -104,9 +188,9 @@ function validateGroupIC(
     }
 
     if (isFilterGroupIC(c)) {
-      validateGroupIC(c, schema, errors);
+      validateGroupIC(c, schema, errors, prevNodeErrors);
     } else if (isFilterRule(c)) {
-      validateRule(c as FilterRule, schema, errors);
+      validateRule(c as FilterRule, schema, errors, prevNodeErrors);
     } else {
       addError(errors, group.id, {
         type: 'invalidGroup',
@@ -127,8 +211,11 @@ function addError(
 function validateRule(
   rule: FilterRule,
   schema: FieldSchema[],
-  errors: Record<string, ValidationError[]>
+  errors: Record<string, ValidationError[]>,
+  prevNodeErrors?: NodeErrorsCache
 ): void {
+  if (carryForwardNodeErrors(rule.id, prevNodeErrors, rule, errors)) return;
+
   const ruleErrors: ValidationError[] = [];
 
   const field = schema.find((f) => f.name === rule.field);

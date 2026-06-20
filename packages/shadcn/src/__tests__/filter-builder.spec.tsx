@@ -768,6 +768,9 @@ test('ShadcnFilterBuilder export coexists with legacy ValidatedInput export', ()
   fireEvent.change(screen.getByPlaceholderText('Filter'), { target: { value: 'valid' } });
 
   expect(screen.getByPlaceholderText('Filter').className).toContain('valid');
+  // Each export is either a plain function (helpers like `cn`) or a React
+  // component — including memoized components (`React.memo` returns an exotic
+  // object with a `$$typeof` marker, not a function).
   expect(
     [
       Button,
@@ -784,6 +787,10 @@ test('ShadcnFilterBuilder export coexists with legacy ValidatedInput export', ()
       ShadcnOperatorSelector,
       ShadcnValueEditor,
       cn,
-    ].every((exported) => typeof exported === 'function')
+    ].every(
+      (exported) =>
+        typeof exported === 'function' ||
+        (typeof exported === 'object' && exported !== null && '$$typeof' in exported)
+    )
   ).toBe(true);
 });

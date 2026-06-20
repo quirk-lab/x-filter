@@ -1,6 +1,7 @@
 import type { FieldSchema, FilterRule } from '@x-filter/core';
 import type { FilterRuleViewModel } from '@x-filter/react';
 import { Button, Space } from 'antd';
+import { memo } from 'react';
 import { AntdFieldSelector } from './field-selector';
 import { AntdNotToggle } from './not-toggle';
 import { AntdOperatorSelector } from './operator-selector';
@@ -15,7 +16,14 @@ export interface AntdFilterRuleProps {
   onRemove: (ruleId: string) => void;
 }
 
-export function AntdFilterRule({
+/**
+ * Memoized atomic rule row. Skips re-render when `rule` (the ViewModel),
+ * `schema`, `className`, `onChange`, and `onRemove` are all `===` — which is
+ * exactly what `useFilterViewModel`'s identity cache + `useFilterBuilder`'s
+ * `useCallback`-stabilized actions guarantee for an unchanged rule across a
+ * sibling mutation. See ADR 0001.
+ */
+export const AntdFilterRule = memo(function AntdFilterRule({
   schema,
   rule,
   className,
@@ -57,4 +65,4 @@ export function AntdFilterRule({
       </Button>
     </Space>
   );
-}
+});

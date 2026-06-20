@@ -63,4 +63,5 @@ export type {
   ValidationResult,
 } from './types';
 export { isFilterGroup, isFilterRule } from './types';
+export type { ValidatePrevState } from './validate';
 export { validate } from './validate';

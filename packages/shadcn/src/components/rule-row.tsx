@@ -1,5 +1,6 @@
 import type { FieldSchema, FilterRule } from '@x-filter/core';
 import type { FilterRuleViewModel } from '@x-filter/react';
+import { memo } from 'react';
 import { ShadcnFieldSelector } from './field-selector';
 import { ShadcnNotToggle } from './not-toggle';
 import { ShadcnOperatorSelector } from './operator-selector';
@@ -15,7 +16,14 @@ export interface ShadcnFilterRuleProps {
   onRemove: (ruleId: string) => void;
 }
 
-export function ShadcnFilterRule({
+/**
+ * Memoized atomic rule row. Skips re-render when `rule` (the ViewModel),
+ * `schema`, `className`, `onChange`, and `onRemove` are all `===` — which is
+ * exactly what `useFilterViewModel`'s identity cache + `useFilterBuilder`'s
+ * `useCallback`-stabilized actions guarantee for an unchanged rule across a
+ * sibling mutation. See ADR 0001.
+ */
+export const ShadcnFilterRule = memo(function ShadcnFilterRule({
   schema,
   rule,
   className,
@@ -55,4 +63,4 @@ export function ShadcnFilterRule({
       </Button>
     </fieldset>
   );
-}
+});
