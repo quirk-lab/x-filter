@@ -181,6 +181,34 @@ export interface UseReorderContractReturn {
   canDrop: (dragId: string, targetGroupId: string) => boolean;
 }
 
+export interface UseFilterBuilderOrchestratorOptions {
+  value?: Filter;
+  defaultValue?: Filter;
+  onChange?: (filter: Filter) => void;
+  schema: FieldSchema[];
+  errors?: Record<string, ValidationError[]>;
+}
+
+export interface UseFilterBuilderOrchestratorReturn {
+  builder: UseFilterBuilderReturn;
+  viewModel: UseFilterViewModelReturn;
+  reorder: UseReorderContractReturn;
+  actions: FilterBuilderActionHandlers;
+  slotProps: FilterBuilderSlotProps;
+  canMoveChild: (
+    group: FilterGroupViewModel,
+    child: FilterNodeViewModel,
+    targetIndex: number
+  ) => boolean;
+  moveChild: (
+    group: FilterGroupViewModel,
+    child: FilterNodeViewModel,
+    index: number,
+    direction: 'up' | 'down'
+  ) => void;
+  handleSortableMove: (group: FilterGroupViewModel, activeId: string, overId: string) => void;
+}
+
 export interface UseDslEditorInteractionOptions {
   editor: UseDslEditorReturn;
 }

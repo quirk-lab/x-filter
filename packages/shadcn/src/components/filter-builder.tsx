@@ -1,9 +1,7 @@
 import type { FieldSchema, Filter, ValidationError } from '@x-filter/core';
 import type {
-  FilterBuilderActionHandlers,
   FilterBuilderClassNames,
   FilterBuilderLabels,
-  FilterBuilderSlotProps,
   FilterBuilderSlots,
   FilterGroupViewModel,
   FilterNodeViewModel,
@@ -15,11 +13,8 @@ import {
   getDefaultRuleUpdatesForField,
   MoveControls,
   resolveLabels,
-  useFilterBuilder,
-  useFilterViewModel,
-  useReorderContract,
+  useFilterBuilderOrchestrator,
 } from '@x-filter/react';
-import { useMemo } from 'react';
 import { ShadcnCombinatorSelector } from './combinator-selector';
 import { ShadcnDslEditor } from './dsl-editor';
 import { ShadcnFieldSelector } from './field-selector';
@@ -56,39 +51,9 @@ export function ShadcnFilterBuilder({
   dsl,
   dnd,
 }: ShadcnFilterBuilderProps) {
-  const builder = useFilterBuilder({ value, defaultValue, onChange, schema });
-  const viewModel = useFilterViewModel({ filter: builder.filter, schema: builder.schema, errors });
-  const reorder = useReorderContract({ filter: builder.filter, onReorder: builder.setFilter });
+  const { builder, viewModel, actions, slotProps, canMoveChild, moveChild, handleSortableMove } =
+    useFilterBuilderOrchestrator({ value, defaultValue, onChange, schema, errors });
   const resolvedLabels = resolveLabels(labels);
-
-  const actions = useMemo<FilterBuilderActionHandlers>(
-    () => ({
-      addRule: builder.addRule,
-      removeRule: builder.removeRule,
-      updateRule: builder.updateRule,
-      addGroup: builder.addGroup,
-      removeGroup: builder.removeGroup,
-      updateGroup: builder.updateGroup,
-      moveItem: reorder.moveItem,
-      canDrop: reorder.canDrop,
-    }),
-    [
-      builder.addRule,
-      builder.removeRule,
-      builder.updateRule,
-      builder.addGroup,
-      builder.removeGroup,
-      builder.updateGroup,
-      reorder.moveItem,
-      reorder.canDrop,
-    ]
-  );
-
-  const slotProps: FilterBuilderSlotProps = {
-    filter: builder.filter,
-    schema: builder.schema,
-    actions,
-  };
 
   const renderRule = (rule: FilterRuleViewModel) => {
     if (slots?.Rule) {
@@ -171,49 +136,6 @@ export function ShadcnFilterBuilder({
     }
 
     return renderGroup(node);
-  };
-
-  const canMoveChild = (
-    group: FilterGroupViewModel,
-    child: FilterNodeViewModel,
-    targetIndex: number
-  ) => {
-    return (
-      targetIndex >= 0 && targetIndex < group.children.length && actions.canDrop(child.id, group.id)
-    );
-  };
-
-  const moveChild = (
-    group: FilterGroupViewModel,
-    child: FilterNodeViewModel,
-    index: number,
-    direction: 'up' | 'down'
-  ) => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (!canMoveChild(group, child, targetIndex)) return;
-
-    actions.moveItem({
-      type: child.kind,
-      id: child.id,
-      targetGroupId: group.id,
-      targetIndex: child.kind === 'group' && direction === 'down' ? index + 2 : targetIndex,
-    });
-  };
-
-  const handleSortableMove = (group: FilterGroupViewModel, activeId: string, overId: string) => {
-    const activeIndex = group.children.findIndex((child) => child.id === activeId);
-    const overIndex = group.children.findIndex((child) => child.id === overId);
-    if (activeIndex === -1 || overIndex === -1) return;
-
-    const child = group.children[activeIndex];
-    if (!actions.canDrop(child.id, group.id)) return;
-
-    actions.moveItem({
-      type: child.kind,
-      id: child.id,
-      targetGroupId: group.id,
-      targetIndex: child.kind === 'group' && activeIndex < overIndex ? overIndex + 1 : overIndex,
-    });
   };
 
   const renderGroup = (group: FilterGroupViewModel) => {

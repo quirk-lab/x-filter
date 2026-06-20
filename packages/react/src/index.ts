@@ -15,6 +15,8 @@ export type {
   UseDslEditorOptions,
   UseDslEditorReturn,
   UseFilterBuilderOptions,
+  UseFilterBuilderOrchestratorOptions,
+  UseFilterBuilderOrchestratorReturn,
   UseFilterBuilderReturn,
   UseFilterDslOptions,
   UseFilterDslReturn,
@@ -64,6 +66,7 @@ export { findOperator, findSchemaField, getFieldOperators } from './schema-utils
 export { useDslEditor } from './use-dsl-editor';
 export { useDslEditorInteraction } from './use-dsl-editor-interaction';
 export { useFilterBuilder } from './use-filter-builder';
+export { useFilterBuilderOrchestrator } from './use-filter-builder-orchestrator';
 export { useFilterDsl } from './use-filter-dsl';
 export { useFilterUrlSync } from './use-filter-url-sync';
 export { useFilterViewModel } from './use-filter-view-model';
