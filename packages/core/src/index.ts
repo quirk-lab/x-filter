@@ -35,13 +35,14 @@ export {
   addGroup,
   addRule,
   moveRule,
+  negateGroup,
+  negateRule,
   removeGroup,
   removeRule,
   updateGroup,
   updateRule,
 } from './mutations';
 
-export { negateGroup, negateRule } from './negate';
 export { defaultOperators, getOperators } from './operators';
 export { fromJSON, toJSON } from './serialize-json';
 export type { TraverseCallback, WalkCallback } from './traverse';

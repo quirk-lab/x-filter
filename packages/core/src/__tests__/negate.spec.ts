@@ -1,4 +1,4 @@
-import { negateGroup, negateRule } from '../negate';
+import { negateGroup, negateRule } from '../mutations';
 import type { Filter } from '../types';
 
 describe('negateRule', () => {

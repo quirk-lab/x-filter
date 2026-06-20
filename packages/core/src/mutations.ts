@@ -201,3 +201,17 @@ export function updateGroup(
     return { ...g, ...updates };
   }) as Filter;
 }
+
+export function negateRule(filter: Filter, ruleId: string): Filter {
+  return updateById(filter, ruleId, (r) => {
+    const rule = r as FilterRule;
+    return { ...rule, not: !rule.not };
+  }) as Filter;
+}
+
+export function negateGroup(filter: Filter, groupId: string): Filter {
+  return updateById(filter, groupId, (g) => {
+    const group = g as FilterGroup;
+    return { ...group, not: !group.not };
+  }) as Filter;
+}
