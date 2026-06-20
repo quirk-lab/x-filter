@@ -1,7 +1,7 @@
 import { generateId, type IdGenerator } from './id';
 import { findById, findParent } from './traverse';
 import { mapTree, updateById } from './tree-map';
-import type { Filter, FilterGroup, FilterRule } from './types';
+import type { Filter, FilterAny, FilterGroup, FilterGroupIC, FilterIC, FilterRule } from './types';
 
 export interface MutationOptions {
   idGenerator?: IdGenerator;
@@ -173,16 +173,22 @@ export function updateGroup(
   }) as Filter;
 }
 
-export function negateRule(filter: Filter, ruleId: string): Filter {
+// negate works for both standard and IC trees: it only toggles the `not` flag on
+// the node with the matching id, and updateById traverses FilterAny uniformly.
+export function negateRule(filter: Filter, ruleId: string): Filter;
+export function negateRule(filter: FilterIC, ruleId: string): FilterIC;
+export function negateRule(filter: FilterAny, ruleId: string): FilterAny {
   return updateById(filter, ruleId, (r) => {
     const rule = r as FilterRule;
     return { ...rule, not: !rule.not };
-  }) as Filter;
+  }) as FilterAny;
 }
 
-export function negateGroup(filter: Filter, groupId: string): Filter {
+export function negateGroup(filter: Filter, groupId: string): Filter;
+export function negateGroup(filter: FilterIC, groupId: string): FilterIC;
+export function negateGroup(filter: FilterAny, groupId: string): FilterAny {
   return updateById(filter, groupId, (g) => {
-    const group = g as FilterGroup;
+    const group = g as FilterGroup | FilterGroupIC;
     return { ...group, not: !group.not };
-  }) as Filter;
+  }) as FilterAny;
 }

@@ -1,7 +1,8 @@
 import { generateId, type IdGenerator } from './id';
-import { mapTree } from './tree-map';
+import { findById } from './traverse';
+import { mapTree, updateById } from './tree-map';
 import type { Combinator, Filter, FilterGroup, FilterGroupIC, FilterIC, FilterRule } from './types';
-import { isFilterGroup } from './types';
+import { isFilterGroup, isFilterRule } from './types';
 
 export function isFilterGroupIC(node: unknown): node is FilterGroupIC {
   return (
@@ -107,30 +108,132 @@ function convertGroupFromIC(group: FilterGroupIC): FilterGroup {
 }
 
 // --- IC-specific mutations ---
+//
+// IC mutations build on the shared tree-walker primitives (mapTree / updateById /
+// findById, see ADR 0001). The IC-specific concern is combinator cleanup: combinators
+// are inline tokens in the children array, so removing an item must also drop an
+// adjacent combinator, and inserting one must place a combinator alongside it.
 
+/**
+ * Remove a single child (rule or group) from an IC group by id, dropping the
+ * adjacent combinator. Returns the same ref when the id is not in this group.
+ */
 function removeChildICFromGroup(group: FilterGroupIC, childId: string): FilterGroupIC {
   const idx = group.children.findIndex(
     (c) => typeof c !== 'string' && 'id' in c && c.id === childId
   );
   if (idx === -1) return group;
-
-  const newChildren = [...group.children];
-  if (newChildren.length === 1) {
-    // Only item, just remove it
-    newChildren.splice(idx, 1);
-  } else if (idx === 0) {
-    // First item: remove item and following combinator
-    newChildren.splice(0, 2);
-  } else {
-    // Middle or last item: remove preceding combinator and the item
-    newChildren.splice(idx - 1, 2);
-  }
-  return { ...group, children: newChildren };
+  return { ...group, children: removeItemAtArrayIdx(group.children, idx) };
 }
 
 function removeChildICFromTree(root: FilterGroupIC, childId: string): FilterGroupIC {
   return mapTree(root, {
     onGroup: (g) => removeChildICFromGroup(g as FilterGroupIC, childId),
+  }) as FilterGroupIC;
+}
+
+/**
+ * Insert a rule into an IC children array at a given item position.
+ * - position 0: rule goes first, combinator after it
+ * - position > 0: combinator before rule, inserted after the (position-1)th item
+ */
+function insertRuleIC(
+  children: FilterGroupIC['children'],
+  rule: FilterRule,
+  position: number,
+  defaultCombinator: Combinator
+): FilterGroupIC['children'] {
+  const result = [...children];
+  const nonCombinatorCount = result.filter((c) => typeof c !== 'string').length;
+
+  if (nonCombinatorCount === 0) {
+    // Empty group, just add the rule
+    result.push(rule);
+    return result;
+  }
+
+  if (position === 0) {
+    // Insert at beginning: rule + combinator + existing
+    result.unshift(rule, defaultCombinator);
+    return result;
+  }
+
+  // Insert at position > 0: find the array index after the (position-1)th item
+  let itemIdx = 0;
+  let arrayIdx = 0;
+  for (let i = 0; i < result.length; i++) {
+    if (typeof result[i] !== 'string') {
+      itemIdx++;
+      if (itemIdx === position) {
+        arrayIdx = i + 1;
+        break;
+      }
+    }
+    arrayIdx = i + 1;
+  }
+  result.splice(arrayIdx, 0, defaultCombinator, rule);
+  return result;
+}
+
+/**
+ * Remove the item at `idx` from an IC children array, including the adjacent combinator.
+ */
+function removeItemAtArrayIdx(
+  children: FilterGroupIC['children'],
+  idx: number
+): FilterGroupIC['children'] {
+  const result = [...children];
+  if (result.length === 1) {
+    result.splice(idx, 1);
+  } else if (idx === 0) {
+    result.splice(0, 2);
+  } else {
+    result.splice(idx - 1, 2);
+  }
+  return result;
+}
+
+/**
+ * Find all groups that contain a child with the given id, excluding excludeGroupId.
+ */
+function findGroupsContainingChild(
+  root: FilterGroupIC,
+  childId: string,
+  excludeGroupId: string
+): string[] {
+  const found: string[] = [];
+
+  function search(group: FilterGroupIC) {
+    const hasChild = group.children.some(
+      (c) => typeof c !== 'string' && 'id' in c && c.id === childId
+    );
+    if (hasChild && group.id !== excludeGroupId) {
+      found.push(group.id);
+    }
+    for (const c of group.children) {
+      if (typeof c !== 'string' && isFilterGroupIC(c)) {
+        search(c);
+      }
+    }
+  }
+
+  search(root);
+  return found;
+}
+
+/**
+ * Remove a single occurrence of a child from a specific group (IC combinator cleanup).
+ */
+function removeOneChildICFromGroup(
+  filter: FilterGroupIC,
+  childId: string,
+  groupId: string
+): FilterGroupIC {
+  return updateById(filter, groupId, (node) => {
+    const g = node as FilterGroupIC;
+    const idx = g.children.findIndex((c) => typeof c !== 'string' && 'id' in c && c.id === childId);
+    if (idx === -1) return g;
+    return { ...g, children: removeItemAtArrayIdx(g.children, idx) };
   }) as FilterGroupIC;
 }
 
@@ -151,15 +254,12 @@ export function addRuleIC(
     newRule.not = rule.not;
   }
 
-  const result = mapTree(filter, {
-    onGroup: (g) => {
-      if (g.id !== groupId) return g;
-      const group = g as FilterGroupIC;
-      const nonCombinatorCount = group.children.filter((c) => typeof c !== 'string').length;
-      const newChildren: FilterGroupIC['children'] =
-        nonCombinatorCount > 0 ? [...group.children, defaultCombinator, newRule] : [newRule];
-      return { ...group, children: newChildren };
-    },
+  const result = updateById(filter, groupId, (node) => {
+    const group = node as FilterGroupIC;
+    const nonCombinatorCount = group.children.filter((c) => typeof c !== 'string').length;
+    const newChildren: FilterGroupIC['children'] =
+      nonCombinatorCount > 0 ? [...group.children, defaultCombinator, newRule] : [newRule];
+    return { ...group, children: newChildren };
   }) as FilterIC;
 
   if (result === filter) {
@@ -170,4 +270,121 @@ export function addRuleIC(
 
 export function removeRuleIC(filter: FilterIC, ruleId: string): FilterIC {
   return removeChildICFromTree(filter, ruleId);
+}
+
+export function updateRuleIC(
+  filter: FilterIC,
+  ruleId: string,
+  updates: Partial<Omit<FilterRule, 'id'>>
+): FilterIC {
+  return updateById(filter, ruleId, (r) => ({
+    ...(r as FilterRule),
+    ...updates,
+  })) as FilterIC;
+}
+
+export function updateGroupIC(
+  filter: FilterIC,
+  groupId: string,
+  updates: Partial<Pick<FilterGroupIC, 'not'>>
+): FilterIC {
+  return updateById(filter, groupId, (g) => ({
+    ...(g as FilterGroupIC),
+    ...updates,
+  })) as FilterIC;
+}
+
+export function addGroupIC(
+  filter: FilterIC,
+  parentGroupId: string,
+  group?: Partial<FilterGroupIC>,
+  defaultCombinator: Combinator = 'and',
+  options?: { idGenerator?: IdGenerator }
+): FilterIC {
+  const newGroup: FilterGroupIC = {
+    id: group?.id ?? (options?.idGenerator ?? generateId)(),
+    children: group?.children ?? [],
+  };
+  if (group?.not !== undefined) {
+    newGroup.not = group.not;
+  }
+
+  const result = updateById(filter, parentGroupId, (node) => {
+    const g = node as FilterGroupIC;
+    const nonCombinatorCount = g.children.filter((c) => typeof c !== 'string').length;
+    const newChildren: FilterGroupIC['children'] =
+      nonCombinatorCount > 0 ? [...g.children, defaultCombinator, newGroup] : [newGroup];
+    return { ...g, children: newChildren };
+  }) as FilterIC;
+
+  if (result === filter) {
+    throw new Error(`Parent group not found: ${parentGroupId}`);
+  }
+  return result;
+}
+
+export function removeGroupIC(filter: FilterIC, groupId: string): FilterIC {
+  if (filter.id === groupId) {
+    throw new Error('Cannot remove root group');
+  }
+  return removeChildICFromTree(filter, groupId);
+}
+
+/**
+ * Move a rule to a new position within the IC tree.
+ * `position` is an item index (counting only rules/groups, not combinators), so it
+ * shares semantics with the standard `moveRule`. When inserting at position > 0 the
+ * combinator goes before the moved item; at position 0 the combinator goes after it.
+ */
+export function moveRuleIC(
+  filter: FilterIC,
+  ruleId: string,
+  targetGroupId: string,
+  position: number,
+  defaultCombinator: Combinator = 'and'
+): FilterIC {
+  const foundRule = findById(filter, ruleId);
+  const rule = foundRule && isFilterRule(foundRule) ? (foundRule as FilterRule) : undefined;
+  if (!rule) {
+    throw new Error(`Rule not found: ${ruleId}`);
+  }
+
+  const foundGroup = findById(filter, targetGroupId);
+  const targetGroup =
+    foundGroup && isFilterGroupIC(foundGroup) ? (foundGroup as FilterGroupIC) : undefined;
+  if (!targetGroup) {
+    throw new Error(`Target group not found: ${targetGroupId}`);
+  }
+
+  // Check if rule is in the same group as target
+  const isSameGroup = targetGroup.children.some(
+    (c) => typeof c !== 'string' && 'id' in c && c.id === ruleId
+  );
+
+  if (isSameGroup) {
+    // Same-group reorder: remove then insert at position
+    const result = updateById(filter, targetGroupId, (node) => {
+      const g = node as FilterGroupIC;
+      const children = [...g.children];
+      const currentArrayIdx = children.findIndex(
+        (c) => typeof c !== 'string' && 'id' in c && c.id === ruleId
+      );
+      const afterRemoval = removeItemAtArrayIdx(children, currentArrayIdx);
+      return { ...g, children: insertRuleIC(afterRemoval, rule, position, defaultCombinator) };
+    });
+    return result as FilterIC;
+  }
+
+  // Cross-group move: insert into target, then remove from source(s)
+  const inserted = updateById(filter, targetGroupId, (node) => {
+    const g = node as FilterGroupIC;
+    return { ...g, children: insertRuleIC([...g.children], rule, position, defaultCombinator) };
+  }) as FilterIC;
+
+  const sourceGroupIds = findGroupsContainingChild(inserted, ruleId, targetGroupId);
+  let result = inserted;
+  for (const sourceGroupId of sourceGroupIds) {
+    result = removeOneChildICFromGroup(result, ruleId, sourceGroupId);
+  }
+  return result;
 }

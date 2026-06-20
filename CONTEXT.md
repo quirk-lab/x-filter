@@ -61,3 +61,13 @@ Logical inversion applied to a Rule or Group. A negated Group flips the combined
 
 **SQL**:
 A compilation target for Filters. `toSQL(filter, options)` produces a parameterized SQL query (`{ sql, params }`). Supports standard and IC representations.
+
+**Mutation**:
+A pure function that transforms a Filter tree into a new Filter tree. Mutations are immutable — the input is never modified, and unchanged subtrees keep their reference identity (structural sharing).
+
+**Item index**:
+The zero-based position of a node among its sibling rules/groups, counting only rules and groups — never IC combinator tokens. Used as the `position` parameter in `moveRule` / `moveRuleIC` so standard and IC modes share the same move semantics.
+_Avoid_: "array index", "raw index" — these include combinator tokens in IC mode.
+
+**MutationAdapter**:
+An interface (`standardMutationAdapter` / `icMutationAdapter`) that normalizes the parameter differences between standard and IC mutation functions, so mode-agnostic code (and contract tests) can run the same logical scenarios against both representations. `updateGroup` is excluded — its semantics differ fundamentally between modes.

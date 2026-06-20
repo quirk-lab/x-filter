@@ -26,10 +26,23 @@ export {
   tokenize,
   tryParseDSL,
 } from './dsl/index';
-export { addRuleIC, convertFromIC, convertToIC, isFilterGroupIC, removeRuleIC } from './ic';
+export {
+  addGroupIC,
+  addRuleIC,
+  convertFromIC,
+  convertToIC,
+  isFilterGroupIC,
+  moveRuleIC,
+  removeGroupIC,
+  removeRuleIC,
+  updateGroupIC,
+  updateRuleIC,
+} from './ic';
 export type { IdGenerator } from './id';
 export { generateId } from './id';
 
+export type { MutationAdapter } from './mutation-adapter';
+export { icMutationAdapter, standardMutationAdapter } from './mutation-adapter';
 export type { MutationOptions } from './mutations';
 export {
   addGroup,
