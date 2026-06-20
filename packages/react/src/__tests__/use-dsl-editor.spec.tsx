@@ -237,4 +237,45 @@ describe('useDslEditor', () => {
     });
     expect(result.current.completions).toEqual([]);
   });
+
+  it('commit with empty expression sets parseError', () => {
+    const emptyFilter: Filter = { id: 'root', combinator: 'and', conditions: [] };
+    const onCommit = jest.fn();
+    const { result } = renderHook(() => useDslEditor({ filter: emptyFilter, schema, onCommit }));
+
+    act(() => {
+      result.current.setDraftDSL('');
+    });
+
+    let success = true;
+    act(() => {
+      success = result.current.commit();
+    });
+
+    expect(success).toBe(false);
+    expect(result.current.parseError).toBeTruthy();
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+
+  it('successful commit prevents re-sync on same filter reference', () => {
+    const filter = makeFilter();
+    const onCommit = jest.fn();
+    const { result, rerender } = renderHook(
+      ({ currentFilter }) => useDslEditor({ filter: currentFilter, schema, onCommit }),
+      { initialProps: { currentFilter: filter } }
+    );
+
+    act(() => {
+      result.current.setDraftDSL('priority:gt:18');
+    });
+    act(() => {
+      result.current.commit();
+    });
+
+    const dslAfterCommit = result.current.draftDSL;
+
+    rerender({ currentFilter: filter });
+
+    expect(result.current.draftDSL).toBe(dslAfterCommit);
+  });
 });

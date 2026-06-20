@@ -14,8 +14,6 @@ export type {
   UseDslEditorReturn,
   UseFilterBuilderOptions,
   UseFilterBuilderReturn,
-  UseFilterDslOptions,
-  UseFilterDslReturn,
   UseFilterUrlSyncOptions,
   UseFilterUrlSyncReturn,
   UseFilterViewModelOptions,
@@ -44,7 +42,6 @@ export function useFilteredArray<T>(array: readonly (T | null | undefined)[]): T
 
 export { useDslEditor } from './use-dsl-editor';
 export { useFilterBuilder } from './use-filter-builder';
-export { useFilterDsl } from './use-filter-dsl';
 export { useFilterUrlSync } from './use-filter-url-sync';
 export { useFilterViewModel } from './use-filter-view-model';
 export { useReorderContract } from './use-reorder-contract';
