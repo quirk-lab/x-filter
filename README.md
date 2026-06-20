@@ -6,7 +6,6 @@
 
 ```
 packages/
-├── utils/      # @x-filter/utils - 底层工具函数
 ├── core/       # @x-filter/core - 核心逻辑
 ├── react/      # @x-filter/react - React hooks
 ├── shadcn/     # @x-filter/shadcn - Shadcn UI 组件
@@ -71,9 +70,7 @@ pnpm dev
 ## 📝 依赖关系
 
 ```
-utils (无依赖)
-  ↓
-core (依赖 utils)
+core (无内部依赖)
   ↓
 react (依赖 core)
   ↓

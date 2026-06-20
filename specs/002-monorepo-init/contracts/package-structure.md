@@ -2,7 +2,7 @@
 
 **Feature**: 002-monorepo-init  
 **Created**: 2026-01-01  
-**Version**: 1.0.0
+**Version**: 1.1.0
 
 ---
 
@@ -254,8 +254,7 @@ apps/{name}/
 
 | Package | Allowed Dependencies |
 |---------|---------------------|
-| utils | 无框架依赖 |
-| core | utils only |
+| core | 无内部依赖 |
 | react | core + React (peer) |
 | shadcn | react + Tailwind/Shadcn (peer) |
 | antd | react + Antd (peer) |
@@ -295,3 +294,13 @@ npm-debug.log*
 ```
 
 Example: `002-monorepo-init`
+
+---
+
+## 9. 变更记录
+
+### v1.1.0 — 2026-06-20
+
+- **移除 `@x-filter/utils` 包层级。** 该包导出 `isNil`/`isDefined`，但全仓零源码导入，属死代码。同步删除 `packages/utils/` 目录及 `tsconfig.json` 项目引用、`jest.config.js` project、`CODEOWNERS` 规则。
+- **修正 `core` 依赖声明。** 原契约 §7 声明 `core → utils only`，但 `packages/core/package.json` 从未声明该依赖（T014 标记完成但实际未执行）。现改为 `core → 无内部依赖`，契约与代码对齐。
+- **不预留共享工具层。** 未来跨包共享的工具函数先内联，待真实重复痛点积累后再建 `@x-filter/shared`，避免重蹈"预留即死代码"的覆辙。

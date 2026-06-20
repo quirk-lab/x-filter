@@ -11,9 +11,7 @@
       "@x-filter/react": ["packages/react/src"],
       "@x-filter/react/*": ["packages/react/src/*"],
       "@x-filter/shadcn": ["packages/shadcn/src"],
-      "@x-filter/shadcn/*": ["packages/shadcn/src/*"],
-      "@x-filter/utils": ["packages/utils/src"],
-      "@x-filter/utils/*": ["packages/utils/src/*"]
+      "@x-filter/shadcn/*": ["packages/shadcn/src/*"]
     }
   }
 }
