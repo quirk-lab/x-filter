@@ -10,6 +10,8 @@ export type {
   FilterNodeViewModel,
   FilterRuleViewModel,
   MoveOperation,
+  UseDslEditorInteractionOptions,
+  UseDslEditorInteractionReturn,
   UseDslEditorOptions,
   UseDslEditorReturn,
   UseFilterBuilderOptions,
@@ -50,6 +52,7 @@ export {
 export { getDefaultRuleUpdatesForField } from './rule-defaults';
 export { findOperator, findSchemaField, getFieldOperators } from './schema-utils';
 export { useDslEditor } from './use-dsl-editor';
+export { useDslEditorInteraction } from './use-dsl-editor-interaction';
 export { useFilterBuilder } from './use-filter-builder';
 export { useFilterDsl } from './use-filter-dsl';
 export { useFilterUrlSync } from './use-filter-url-sync';

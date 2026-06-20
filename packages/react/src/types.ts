@@ -7,6 +7,7 @@ import type {
   OperatorDef,
   ValidationError,
 } from '@x-filter/core';
+import type React from 'react';
 import type { ReactNode } from 'react';
 
 export interface UseFilterBuilderOptions {
@@ -178,4 +179,22 @@ export interface UseReorderContractOptions {
 export interface UseReorderContractReturn {
   moveItem: (op: MoveOperation) => void;
   canDrop: (dragId: string, targetGroupId: string) => boolean;
+}
+
+export interface UseDslEditorInteractionOptions {
+  editor: UseDslEditorReturn;
+}
+
+export interface UseDslEditorInteractionReturn {
+  cursor: number | undefined;
+  setCursor: (cursor: number | undefined) => void;
+  isCompletionOpen: boolean;
+  setIsCompletionOpen: (open: boolean) => void;
+  activeIndex: number;
+  setActiveIndex: React.Dispatch<React.SetStateAction<number>>;
+  visibleCompletions: CompletionItem[];
+  handleKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  applyCompletion: (item: CompletionItem) => void;
+  handleChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  updateCursor: (target: HTMLTextAreaElement) => void;
 }
