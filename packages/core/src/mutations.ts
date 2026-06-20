@@ -1,8 +1,7 @@
 import { generateId, type IdGenerator } from './id';
-import { findById } from './traverse';
+import { findById, findParent } from './traverse';
 import { mapTree, updateById } from './tree-map';
 import type { Filter, FilterGroup, FilterRule } from './types';
-import { isFilterGroup } from './types';
 
 export interface MutationOptions {
   idGenerator?: IdGenerator;
@@ -72,90 +71,62 @@ export function moveRule(
   targetGroupId: string,
   position: number
 ): Filter {
-  // Placeholder: will be rewritten in Task 5. For now, keep original logic.
-  return moveRuleLegacy(filter, ruleId, targetGroupId, position);
-}
-
-function moveRuleLegacy(
-  filter: Filter,
-  ruleId: string,
-  targetGroupId: string,
-  position: number
-): Filter {
   const rule = findById(filter, ruleId) as FilterRule | undefined;
   if (!rule) {
     throw new Error(`Rule not found: ${ruleId}`);
   }
 
-  const result = updateById(filter, targetGroupId, (node) => {
-    const g = node as FilterGroup;
-    const currentIdx = g.conditions.findIndex(
-      (c) => typeof c !== 'string' && 'id' in c && c.id === ruleId
-    );
+  const sourceParent = findParent(filter, ruleId) as FilterGroup | undefined;
+  const isSameGroup = sourceParent?.id === targetGroupId;
 
-    if (currentIdx !== -1) {
-      const newConditions = [...g.conditions];
-      newConditions.splice(currentIdx, 1);
-      newConditions.splice(position, 0, rule);
-      return { ...g, conditions: newConditions };
-    }
+  let targetFound = false;
 
-    const newConditions = [...g.conditions];
-    newConditions.splice(position, 0, rule);
-    return { ...g, conditions: newConditions };
+  const result = mapTree(filter, {
+    onGroup: (g) => {
+      const group = g as FilterGroup;
+
+      if (g.id === targetGroupId) {
+        targetFound = true;
+        if (isSameGroup) {
+          // Same-group: remove then insert at post-removal position
+          const newConditions = [...group.conditions];
+          const currentIdx = newConditions.findIndex(
+            (c) => typeof c !== 'string' && 'id' in c && c.id === ruleId
+          );
+          if (currentIdx !== -1) {
+            newConditions.splice(currentIdx, 1);
+          }
+          newConditions.splice(position, 0, rule);
+          return { ...group, conditions: newConditions };
+        }
+        // Cross-group: insert at position (rule not yet here)
+        const newConditions = [...group.conditions];
+        newConditions.splice(position, 0, rule);
+        return { ...group, conditions: newConditions };
+      }
+
+      // Non-target group: remove the rule if present (source group cleanup)
+      if (!isSameGroup && sourceParent && g.id === sourceParent.id) {
+        const idx = group.conditions.findIndex(
+          (c) => typeof c !== 'string' && 'id' in c && c.id === ruleId
+        );
+        if (idx !== -1) {
+          return {
+            ...group,
+            conditions: group.conditions.filter((_, i) => i !== idx),
+          };
+        }
+      }
+
+      return g;
+    },
   });
 
-  if (result === filter) {
+  if (!targetFound) {
     throw new Error(`Target group not found: ${targetGroupId}`);
   }
 
-  const targetGroup = findById(result, targetGroupId) as FilterGroup | undefined;
-  const ruleCountInTarget = targetGroup
-    ? targetGroup.conditions.filter((c) => typeof c !== 'string' && 'id' in c && c.id === ruleId)
-        .length
-    : 0;
-
-  if (ruleCountInTarget > 1) {
-    return result as Filter;
-  }
-
-  return removeDuplicateRule(result as Filter, ruleId, targetGroupId);
-}
-
-function removeDuplicateRule(
-  root: FilterGroup,
-  ruleId: string,
-  keepInGroupId: string
-): FilterGroup {
-  let changed = false;
-  let keptInCurrentGroup = false;
-  const newConditions: FilterGroup['conditions'] = [];
-
-  for (const c of root.conditions) {
-    if (isFilterGroup(c)) {
-      const updated = removeDuplicateRule(c, ruleId, keepInGroupId);
-      if (updated !== c) {
-        changed = true;
-      }
-      newConditions.push(updated);
-      continue;
-    }
-
-    if (c.id !== ruleId) {
-      newConditions.push(c);
-      continue;
-    }
-
-    if (root.id === keepInGroupId && !keptInCurrentGroup) {
-      keptInCurrentGroup = true;
-      newConditions.push(c);
-      continue;
-    }
-
-    changed = true;
-  }
-
-  return changed ? { ...root, conditions: newConditions } : root;
+  return result as Filter;
 }
 
 export function addGroup(

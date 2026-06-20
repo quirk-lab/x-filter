@@ -8,7 +8,7 @@ import {
   updateGroup,
   updateRule,
 } from '../mutations';
-import type { Filter } from '../types';
+import type { Filter, FilterGroup, FilterRule } from '../types';
 
 describe('addRule', () => {
   it('adds rule to root group', () => {
@@ -396,6 +396,82 @@ describe('moveRule', () => {
     const result = moveRule(filter, 'r2', 'root', 0);
     expect(result.conditions[0]).toMatchObject({ id: 'r2' });
     expect(result.conditions[1]).toMatchObject({ id: 'r1' });
+  });
+
+  it('moves rule between sibling groups at same depth without duplicates', () => {
+    const filter: Filter = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [
+        {
+          id: 'g1',
+          combinator: 'or',
+          conditions: [
+            { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+            { id: 'r2', field: 'b', operator: 'eq', value: 2 },
+          ],
+        },
+        {
+          id: 'g2',
+          combinator: 'and',
+          conditions: [{ id: 'r3', field: 'c', operator: 'eq', value: 3 }],
+        },
+      ],
+    };
+    const result = moveRule(filter, 'r2', 'g2', 0);
+    const g1 = result.conditions[0] as Filter;
+    const g2 = result.conditions[1] as Filter;
+    expect(g1.conditions).toHaveLength(1);
+    expect((g1.conditions[0] as FilterRule).id).toBe('r1');
+    expect(g2.conditions).toHaveLength(2);
+    expect((g2.conditions[0] as FilterRule).id).toBe('r2');
+    expect((g2.conditions[1] as FilterRule).id).toBe('r3');
+    // No duplicate r2 anywhere in tree
+    const r2Count = JSON.stringify(result).split('"id":"r2"').length - 1;
+    expect(r2Count).toBe(1);
+  });
+
+  it('same-group move: position is post-removal index', () => {
+    const filter: Filter = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [
+        { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+        { id: 'r2', field: 'b', operator: 'eq', value: 2 },
+        { id: 'r3', field: 'c', operator: 'eq', value: 3 },
+      ],
+    };
+    // Move r1 to position 1 (after removal, positions are: r2@0, r3@1)
+    // Inserting at 1 puts r1 between r2 and r3
+    const result = moveRule(filter, 'r1', 'root', 1);
+    expect((result.conditions[0] as FilterRule).id).toBe('r2');
+    expect((result.conditions[1] as FilterRule).id).toBe('r1');
+    expect((result.conditions[2] as FilterRule).id).toBe('r3');
+  });
+
+  it('moves root-level rule to nested group without duplicates', () => {
+    const filter: Filter = {
+      id: 'root',
+      combinator: 'and',
+      conditions: [
+        { id: 'r1', field: 'a', operator: 'eq', value: 1 },
+        {
+          id: 'g1',
+          combinator: 'or',
+          conditions: [],
+        },
+      ],
+    };
+    const result = moveRule(filter, 'r1', 'g1', 0);
+    // r1 removed from root
+    expect(result.conditions).toHaveLength(1);
+    expect((result.conditions[0] as FilterGroup).id).toBe('g1');
+    const g1 = result.conditions[0] as Filter;
+    expect(g1.conditions).toHaveLength(1);
+    expect((g1.conditions[0] as FilterRule).id).toBe('r1');
+    // No duplicate r1 anywhere in tree
+    const r1Count = JSON.stringify(result).split('"id":"r1"').length - 1;
+    expect(r1Count).toBe(1);
   });
 });
 
