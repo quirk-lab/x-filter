@@ -1,6 +1,6 @@
 import type { FieldSchema, FilterRule, OperatorDef } from '@x-filter/core';
+import { findOperator, findSchemaField } from '@x-filter/react';
 import type { ChangeEvent } from 'react';
-import { findSchemaField, getFieldOperators } from './operator-selector';
 import { Checkbox, cn, Input, Select } from './primitives';
 
 export interface ShadcnValueEditorProps {
@@ -11,13 +11,6 @@ export interface ShadcnValueEditorProps {
   disabled?: boolean;
   className?: string;
   onChange: (value: unknown) => void;
-}
-
-function findOperator(
-  field: FieldSchema | undefined,
-  operatorName: string
-): OperatorDef | undefined {
-  return getFieldOperators(field).find((operator) => operator.name === operatorName);
 }
 
 function asStringValue(value: unknown): string {

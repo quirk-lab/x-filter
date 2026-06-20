@@ -1,4 +1,5 @@
-import { type FieldSchema, type FilterRule, getOperators, type OperatorDef } from '@x-filter/core';
+import type { FieldSchema, FilterRule } from '@x-filter/core';
+import { findSchemaField, getFieldOperators } from '@x-filter/react';
 import type { ChangeEvent } from 'react';
 import { Select } from './primitives';
 
@@ -10,17 +11,6 @@ export interface ShadcnOperatorSelectorProps {
   disabled?: boolean;
   className?: string;
   onChange: (operatorName: string) => void;
-}
-
-export function getFieldOperators(field?: FieldSchema): OperatorDef[] {
-  return field ? getOperators(field.type, field.operators) : [];
-}
-
-export function findSchemaField(
-  schema: FieldSchema[],
-  fieldName?: string
-): FieldSchema | undefined {
-  return schema.find((field) => field.name === fieldName);
 }
 
 export function ShadcnOperatorSelector({

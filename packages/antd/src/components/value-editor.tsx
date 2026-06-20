@@ -1,7 +1,7 @@
 import type { FieldSchema, FilterRule, OperatorDef } from '@x-filter/core';
+import { findOperator, findSchemaField } from '@x-filter/react';
 import { Checkbox, Input, InputNumber, Select, Space } from 'antd';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
-import { findSchemaField, getFieldOperators } from './operator-selector';
 
 export interface AntdValueEditorProps {
   schema: FieldSchema[];
@@ -11,13 +11,6 @@ export interface AntdValueEditorProps {
   disabled?: boolean;
   className?: string;
   onChange: (value: unknown) => void;
-}
-
-function findOperator(
-  field: FieldSchema | undefined,
-  operatorName: string
-): OperatorDef | undefined {
-  return getFieldOperators(field).find((operator) => operator.name === operatorName);
 }
 
 function asStringValue(value: unknown): string {
