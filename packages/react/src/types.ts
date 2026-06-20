@@ -2,6 +2,7 @@ import type {
   CompletionItem,
   FieldSchema,
   Filter,
+  FilterAny,
   FilterGroup,
   FilterRule,
   OperatorDef,
@@ -80,6 +81,11 @@ export interface UseFilterViewModelOptions {
 
 export interface UseFilterViewModelReturn {
   root: FilterGroupViewModel;
+  schema: FieldSchema[];
+}
+
+export interface UseFilterValidationOptions {
+  filter: FilterAny;
   schema: FieldSchema[];
 }
 

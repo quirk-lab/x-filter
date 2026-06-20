@@ -253,9 +253,9 @@ test('ShadcnFilterBuilder applies classNames and custom action labels', () => {
         ],
       }}
       labels={{
-        addRule: 'New rule',
+        addRule: 'New condition',
         addGroup: 'New group',
-        removeRule: 'Delete rule',
+        removeRule: 'Delete condition',
       }}
       classNames={{
         root: 'builder-root',
@@ -276,15 +276,15 @@ test('ShadcnFilterBuilder applies classNames and custom action labels', () => {
   expect(container.querySelector('.builder-operator')).not.toBeNull();
   expect(container.querySelector('.builder-value')).not.toBeNull();
   expect(container.querySelector('.builder-actions')).not.toBeNull();
-  expect(screen.getAllByRole('button', { name: 'New rule' })).toHaveLength(2);
+  expect(screen.getAllByRole('button', { name: 'New condition' })).toHaveLength(2);
   expect(screen.getAllByRole('button', { name: 'New group' })).toHaveLength(2);
-  expect(screen.getByRole('button', { name: 'Delete rule' })).not.toBeNull();
+  expect(screen.getByRole('button', { name: 'Delete condition' })).not.toBeNull();
 
   fireEvent.click(screen.getAllByRole('checkbox', { name: 'Not' })[0]);
   fireEvent.change(screen.getAllByRole('combobox', { name: 'Combinator' })[0], {
     target: { value: 'or' },
   });
-  fireEvent.click(screen.getAllByRole('button', { name: 'New rule' })[0]);
+  fireEvent.click(screen.getAllByRole('button', { name: 'New condition' })[0]);
   fireEvent.click(screen.getAllByRole('button', { name: 'New group' })[0]);
   fireEvent.click(screen.getAllByRole('button', { name: 'Remove group' })[0]);
 
@@ -299,7 +299,7 @@ test('ShadcnFilterBuilder applies classNames and custom action labels', () => {
   fireEvent.change(within(ruleControls).getByRole('textbox', { name: 'Value' }), {
     target: { value: '42' },
   });
-  fireEvent.click(within(ruleControls).getByRole('button', { name: 'Delete rule' }));
+  fireEvent.click(within(ruleControls).getByRole('button', { name: 'Delete condition' }));
 
   expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ not: true }));
   expect(onChange).toHaveBeenCalledWith(
@@ -766,6 +766,9 @@ test('ShadcnFilterBuilder export coexists with legacy ValidatedInput export', ()
   fireEvent.change(screen.getByPlaceholderText('Filter'), { target: { value: 'valid' } });
 
   expect(screen.getByPlaceholderText('Filter').className).toContain('valid');
+  // Each export is either a plain function (helpers like `cn`) or a React
+  // component — including memoized components (`React.memo` returns an exotic
+  // object with a `$$typeof` marker, not a function).
   expect(
     [
       Button,
@@ -782,6 +785,10 @@ test('ShadcnFilterBuilder export coexists with legacy ValidatedInput export', ()
       ShadcnOperatorSelector,
       ShadcnValueEditor,
       cn,
-    ].every((exported) => typeof exported === 'function')
+    ].every(
+      (exported) =>
+        typeof exported === 'function' ||
+        (typeof exported === 'object' && exported !== null && '$$typeof' in exported)
+    )
   ).toBe(true);
 });

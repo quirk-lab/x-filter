@@ -56,6 +56,13 @@ _Avoid_: "autocomplete", "suggestion", "intellisense"
 **ViewModel**:
 A UI-enriched projection of Filter data. Resolves `FieldSchema` references, attaches validation errors and accessibility labels, and tracks nesting depth. Produced by Headless hooks, consumed by Atomic Components.
 
+**增量构造 (incremental construction)**:
+Reusing ViewModel nodes whose source `Filter` node is `===` to the previous render, so only the mutated spine of the tree allocates new ViewModels. Relies on the structural sharing already produced by core mutations.
+_Avoid_: Conflating with 增量渲染 — a structurally-shared ViewModel tree does not by itself prevent re-rendering.
+
+**增量渲染 (incremental rendering)**:
+Ensuring only the `<Rule>` / `<Group>` components whose ViewModel is non-`===` actually re-render. Requires the component layer to opt out of redundant renders via `React.memo` + referentially-stable props; 增量构造 is the precondition that makes those props stable.
+
 **Negate**:
 Logical inversion applied to a Rule or Group. A negated Group flips the combined truth value of all its children. Represented by the `not` field on `FilterRule`, `FilterGroup`, and `FilterGroupIC`.
 
