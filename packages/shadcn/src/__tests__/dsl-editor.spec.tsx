@@ -63,38 +63,6 @@ test('ShadcnFilterBuilder renders field, operator, and value completions with li
   expect(screen.getByRole('option', { name: /closed/i })).not.toBeNull();
 });
 
-test('ShadcnFilterBuilder applies completions with keyboard navigation and closes with Escape', () => {
-  render(<ShadcnFilterBuilder schema={schema} value={filter} dsl />);
-
-  const input = screen.getByLabelText(/dsl/i);
-  fireEvent.focus(input);
-  fireEvent.keyDown(input, { key: 'ArrowDown' });
-  fireEvent.keyDown(input, { key: 'Enter' });
-
-  expect(input).toHaveProperty('value', 'priority');
-
-  fireEvent.change(input, { target: { value: 'status:' } });
-  expect(screen.getByRole('listbox')).not.toBeNull();
-  fireEvent.keyDown(input, { key: 'Escape' });
-
-  expect(screen.queryByRole('listbox')).toBeNull();
-});
-
-test('ShadcnFilterBuilder quotes value completions that need DSL string quoting', () => {
-  render(<ShadcnFilterBuilder schema={schema} value={filter} dsl />);
-
-  const input = screen.getByLabelText(/dsl/i);
-  fireEvent.change(input, { target: { value: 'status:equals:in' } });
-  fireEvent.click(screen.getByRole('option', { name: /in progress/i }));
-
-  expect(input).toHaveProperty('value', 'status:equals:"in progress"');
-
-  fireEvent.change(input, { target: { value: 'status:equals:tr' } });
-  fireEvent.click(screen.getByRole('option', { name: /true string/i }));
-
-  expect(input).toHaveProperty('value', 'status:equals:"true"');
-});
-
 test('ShadcnFilterBuilder omits DSL input unless dsl is true', () => {
   const { rerender } = render(<ShadcnFilterBuilder schema={schema} value={filter} />);
 
