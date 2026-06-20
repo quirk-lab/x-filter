@@ -50,11 +50,15 @@ describe('useDslEditor', () => {
   it('returns completions for field, operator, and value contexts', () => {
     const filter = makeFilter();
     const onCommit = jest.fn();
-    const { result } = renderHook(() => useDslEditor({ filter, schema, onCommit }));
+    const { result, rerender } = renderHook(
+      ({ cursor }) => useDslEditor({ filter, schema, onCommit, cursor }),
+      { initialProps: { cursor: 0 } }
+    );
 
     act(() => {
       result.current.setDraftDSL('sta');
     });
+    rerender({ cursor: 3 });
     expect(result.current.completions).toEqual([
       expect.objectContaining({ kind: 'field', value: 'status' }),
     ]);
@@ -62,12 +66,14 @@ describe('useDslEditor', () => {
     act(() => {
       result.current.setDraftDSL('status:');
     });
+    rerender({ cursor: 7 });
     expect(completionValues(result.current.completions)).toEqual(['equals', 'notEquals']);
     expect(completionKinds(result.current.completions)).toEqual(['operator', 'operator']);
 
     act(() => {
       result.current.setDraftDSL('status:equals:');
     });
+    rerender({ cursor: 14 });
     expect(completionValues(result.current.completions)).toEqual(['open', 'closed']);
     expect(completionKinds(result.current.completions)).toEqual(['value', 'value']);
   });
@@ -148,7 +154,7 @@ describe('useDslEditor', () => {
     const onCommit = jest.fn();
     const { result, rerender } = renderHook(
       ({ cursor }) => useDslEditor({ filter, schema, onCommit, cursor }),
-      { initialProps: { cursor: undefined as number | undefined } }
+      { initialProps: { cursor: 24 } }
     );
 
     act(() => {
@@ -219,5 +225,16 @@ describe('useDslEditor', () => {
 
     rerender({ currentFilter: nextFilter });
     expect(result.current.draftDSL).toBe(formatDSL(nextFilter));
+  });
+
+  it('returns empty completions when cursor is undefined', () => {
+    const filter = makeFilter();
+    const onCommit = jest.fn();
+    const { result } = renderHook(() => useDslEditor({ filter, schema, onCommit }));
+
+    act(() => {
+      result.current.setDraftDSL('sta');
+    });
+    expect(result.current.completions).toEqual([]);
   });
 });
