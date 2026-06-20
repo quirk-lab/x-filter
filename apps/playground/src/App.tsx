@@ -5,6 +5,7 @@ import { useFilterViewModel } from '@x-filter/react';
 import { ShadcnFilterBuilder } from '@x-filter/shadcn';
 import type { CSSProperties } from 'react';
 import { useState } from 'react';
+import { UrlSyncDemo } from './UrlSyncDemo';
 
 const schema: FieldSchema[] = [
   {
@@ -212,6 +213,18 @@ function App() {
           <StatePanel filter={shadcnFilter} title="Shadcn" />
         </section>
       </div>
+
+      <UrlSyncDemo
+        initialFilter={createInitialFilter()}
+        schema={schema}
+        styles={{
+          card: { ...styles.card, ...styles.diagnostics },
+          cardHeader: styles.cardHeader,
+          muted: styles.muted,
+          builderShell: styles.builderShell,
+          code: styles.code,
+        }}
+      />
 
       <section style={{ ...styles.card, ...styles.diagnostics }}>
         <h2 style={styles.cardHeader}>Core → React → Adapter Chain</h2>
