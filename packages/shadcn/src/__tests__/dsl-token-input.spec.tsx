@@ -117,6 +117,60 @@ describe('ShadcnDslTokenInput', () => {
     );
   });
 
+  it('opens the completion menu on focus', () => {
+    render(<ShadcnDslTokenInput filter={emptyFilter} schema={schema} onCommit={jest.fn()} />);
+
+    const input = screen.getByRole('textbox', { name: 'DSL' });
+    fireEvent.focus(input);
+
+    expect(screen.getByRole('option', { name: /Status/ })).toBeTruthy();
+  });
+
+  it('selects a field completion via arrow keys + Enter and primes the next segment', () => {
+    render(<ShadcnDslTokenInput filter={emptyFilter} schema={schema} onCommit={jest.fn()} />);
+
+    const input = screen.getByRole('textbox', { name: 'DSL' }) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'st' } });
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(input.value).toBe('status:');
+  });
+
+  it('closes the completion menu on Escape', () => {
+    render(<ShadcnDslTokenInput filter={emptyFilter} schema={schema} onCommit={jest.fn()} />);
+
+    const input = screen.getByRole('textbox', { name: 'DSL' });
+    fireEvent.change(input, { target: { value: 'st' } });
+    expect(screen.getByRole('option', { name: /Status/ })).toBeTruthy();
+
+    fireEvent.keyDown(input, { key: 'Escape' });
+    expect(screen.queryByRole('option')).toBeNull();
+  });
+
+  it('folds the pending text into a chip on space', () => {
+    render(<ShadcnDslTokenInput filter={emptyFilter} schema={schema} onCommit={jest.fn()} />);
+
+    const input = screen.getByRole('textbox', { name: 'DSL' }) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'status:equals:open' } });
+    fireEvent.keyDown(input, { key: ' ' });
+
+    expect(screen.getByText('open')).toBeTruthy();
+    expect(input.value).toBe('');
+  });
+
+  it('does not fold on space while a quoted value is still open', () => {
+    render(<ShadcnDslTokenInput filter={emptyFilter} schema={schema} onCommit={jest.fn()} />);
+
+    const input = screen.getByRole('textbox', { name: 'DSL' });
+    fireEvent.change(input, { target: { value: 'status:equals:"new' } });
+    fireEvent.keyDown(input, { key: ' ' });
+
+    // nothing tokenized: the draft is untouched
+    expect(screen.queryByText('status')).toBeNull();
+  });
+
   it('surfaces a parse error for an invalid draft', () => {
     const onCommit = jest.fn();
     render(<ShadcnDslTokenInput filter={emptyFilter} schema={schema} onCommit={onCommit} />);
