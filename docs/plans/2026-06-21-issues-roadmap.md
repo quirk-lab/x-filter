@@ -54,7 +54,7 @@
 - [x] #13 行内校验闭环 → PR #30
 - [x] #15 IC 行级 Combinator → PR #31
 - [x] #14 DSL 单行 Token 输入 → ShadcnDslTokenInput + dsl-token-utils（defer: 点击编辑 popover / Tab 导航）
-- [ ] #19 Clone Rule/Group
+- [x] #19 Clone Rule/Group → core cloneRule/cloneGroup(+IC) + hook + shadcn/antd clone 按钮
 - [ ] #18 Presets / Saved Searches
 - [ ] #17 URL 同步 Demo
 - [ ] #20 Lock/Disable

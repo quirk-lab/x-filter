@@ -35,6 +35,8 @@ export interface UseFilterBuilderReturn {
   updateGroup: (groupId: string, updates: Partial<Pick<FilterGroup, 'combinator' | 'not'>>) => void;
   moveRule: (ruleId: string, targetGroupId: string, position: number) => void;
   setCombinator: (groupId: string, comboIndex: number, combinator: Combinator) => void;
+  cloneRule: (ruleId: string) => void;
+  cloneGroup: (groupId: string) => void;
   schema: FieldSchema[];
 }
 
@@ -99,6 +101,8 @@ export type FilterBuilderActionHandlers = {
   removeGroup: (groupId: string) => void;
   updateGroup: (groupId: string, updates: Partial<Pick<FilterGroup, 'combinator' | 'not'>>) => void;
   setCombinator: (groupId: string, comboIndex: number, combinator: Combinator) => void;
+  cloneRule: (ruleId: string) => void;
+  cloneGroup: (groupId: string) => void;
   moveItem: (operation: MoveOperation) => void;
   canDrop: (dragId: string, targetGroupId: string) => boolean;
 };
@@ -141,6 +145,8 @@ export type FilterBuilderLabels = Partial<{
   addGroup: string;
   removeRule: string;
   removeGroup: string;
+  cloneRule: string;
+  cloneGroup: string;
   field: string;
   operator: string;
   value: string;

@@ -14,6 +14,7 @@ export interface ShadcnFilterRuleProps {
   className?: string;
   onChange: (ruleId: string, updates: Partial<Omit<FilterRule, 'id'>>) => void;
   onRemove: (ruleId: string) => void;
+  onClone?: (ruleId: string) => void;
 }
 
 /**
@@ -29,6 +30,7 @@ export const ShadcnFilterRule = memo(function ShadcnFilterRule({
   className,
   onChange,
   onRemove,
+  onClone,
 }: ShadcnFilterRuleProps) {
   return (
     <fieldset
@@ -60,6 +62,11 @@ export const ShadcnFilterRule = memo(function ShadcnFilterRule({
         rule={rule.rule}
         onChange={(value) => onChange(rule.id, { value })}
       />
+      {onClone ? (
+        <Button variant="outline" onClick={() => onClone(rule.id)}>
+          Clone rule
+        </Button>
+      ) : null}
       <Button variant="destructive" onClick={() => onRemove(rule.id)}>
         Remove rule
       </Button>
