@@ -84,6 +84,6 @@ export type {
   ValidationError,
   ValidationResult,
 } from './types';
-export { isFilterGroup, isFilterRule } from './types';
+export { isFilterGroup, isFilterRule, isLocked } from './types';
 export type { ValidatePrevState } from './validate';
 export { validate } from './validate';

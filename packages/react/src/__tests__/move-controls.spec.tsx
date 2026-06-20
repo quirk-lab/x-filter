@@ -7,6 +7,7 @@ const makeGroup = (children: FilterNodeViewModel[]): FilterGroupViewModel => ({
   id: 'root',
   group: { id: 'root', combinator: 'and', children: [] },
   depth: 0,
+  locked: false,
   children,
   aria: { label: 'Filter group root' },
 });
@@ -15,6 +16,7 @@ const makeRule = (id: string): FilterNodeViewModel => ({
   kind: 'rule',
   id,
   rule: { id, field: 'name', operator: 'equals', value: 'test' },
+  locked: false,
   errors: [],
   aria: { label: 'Rule name equals' },
 });

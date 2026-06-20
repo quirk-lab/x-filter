@@ -3,7 +3,7 @@ import { generateId, type IdGenerator } from './id';
 import { findById, findParent } from './traverse';
 import { mapTree, updateById } from './tree-map';
 import type { Combinator, Filter, FilterGroup, FilterGroupIC, FilterIC, FilterRule } from './types';
-import { isFilterGroup, isFilterRule } from './types';
+import { isFilterGroup, isFilterRule, isLocked } from './types';
 
 export function isFilterGroupIC(node: unknown): node is FilterGroupIC {
   return (
@@ -255,6 +255,11 @@ export function addRuleIC(
     newRule.not = rule.not;
   }
 
+  // A locked group rejects new children.
+  if (isLocked(findById(filter, groupId))) {
+    return filter;
+  }
+
   const result = updateById(filter, groupId, (node) => {
     const group = node as FilterGroupIC;
     const nonCombinatorCount = group.children.filter((c) => typeof c !== 'string').length;
@@ -270,6 +275,9 @@ export function addRuleIC(
 }
 
 export function removeRuleIC(filter: FilterIC, ruleId: string): FilterIC {
+  if (isLocked(findById(filter, ruleId)) || isLocked(findParent(filter, ruleId))) {
+    return filter;
+  }
   return removeChildICFromTree(filter, ruleId);
 }
 
@@ -278,6 +286,9 @@ export function updateRuleIC(
   ruleId: string,
   updates: Partial<Omit<FilterRule, 'id'>>
 ): FilterIC {
+  if (isLocked(findById(filter, ruleId))) {
+    return filter;
+  }
   return updateById(filter, ruleId, (r) => ({
     ...(r as FilterRule),
     ...updates,
@@ -289,6 +300,9 @@ export function updateGroupIC(
   groupId: string,
   updates: Partial<Pick<FilterGroupIC, 'not'>>
 ): FilterIC {
+  if (isLocked(findById(filter, groupId))) {
+    return filter;
+  }
   return updateById(filter, groupId, (g) => ({
     ...(g as FilterGroupIC),
     ...updates,
@@ -310,6 +324,11 @@ export function addGroupIC(
     newGroup.not = group.not;
   }
 
+  // A locked parent group rejects new children.
+  if (isLocked(findById(filter, parentGroupId))) {
+    return filter;
+  }
+
   const result = updateById(filter, parentGroupId, (node) => {
     const g = node as FilterGroupIC;
     const nonCombinatorCount = g.children.filter((c) => typeof c !== 'string').length;
@@ -327,6 +346,9 @@ export function addGroupIC(
 export function removeGroupIC(filter: FilterIC, groupId: string): FilterIC {
   if (filter.id === groupId) {
     throw new Error('Cannot remove root group');
+  }
+  if (isLocked(findById(filter, groupId)) || isLocked(findParent(filter, groupId))) {
+    return filter;
   }
   return removeChildICFromTree(filter, groupId);
 }
@@ -355,6 +377,11 @@ export function moveRuleIC(
     foundGroup && isFilterGroupIC(foundGroup) ? (foundGroup as FilterGroupIC) : undefined;
   if (!targetGroup) {
     throw new Error(`Target group not found: ${targetGroupId}`);
+  }
+
+  // Block moving a locked rule, out of a locked source, or into a locked target.
+  if (isLocked(rule) || isLocked(targetGroup) || isLocked(findParent(filter, ruleId))) {
+    return filter;
   }
 
   // Check if rule is in the same group as target
@@ -438,6 +465,7 @@ export function cloneRuleIC(
     throw new Error(`Rule not found: ${ruleId}`);
   }
   const clone = deepCloneWithNewIds(source, options?.idGenerator) as FilterRule;
+  if (clone.locked) clone.locked = false;
   return insertAfterIC(filter, parent.id, ruleId, clone, defaultCombinator);
 }
 
@@ -464,6 +492,7 @@ export function cloneGroupIC(
     throw new Error(`Group not found: ${groupId}`);
   }
   const clone = deepCloneWithNewIds(source, options?.idGenerator) as FilterGroupIC;
+  if (clone.locked) clone.locked = false;
   return insertAfterIC(filter, parent.id, groupId, clone, defaultCombinator);
 }
 
@@ -481,6 +510,9 @@ export function setCombinatorIC(
   comboIndex: number,
   combinator: Combinator
 ): FilterIC {
+  if (isLocked(findById(filter, groupId))) {
+    return filter;
+  }
   return updateById(filter, groupId, (node) => {
     const group = node as FilterGroupIC;
     // Combinator tokens live at odd array indices: 1, 3, 5, ...

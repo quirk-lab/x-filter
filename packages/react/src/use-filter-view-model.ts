@@ -96,6 +96,7 @@ export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilte
         rule,
         field,
         operator,
+        locked: rule.locked === true,
         errors: ruleErrors,
         aria: {
           label: `Rule ${fieldLabel} ${operatorLabel}`,
@@ -163,6 +164,7 @@ export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilte
         id: group.id,
         group,
         depth,
+        locked: group.locked === true,
         children,
         ...(combinators ? { combinators } : {}),
         aria: {

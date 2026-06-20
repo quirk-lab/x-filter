@@ -28,32 +28,41 @@ export function AntdFilterGroup({
   onRemove,
   onClone,
 }: AntdFilterGroupProps) {
+  // A locked group freezes its own controls and hides structural actions.
+  const locked = group.locked;
   return (
     <Card
       aria-describedby={group.aria.describedBy}
       aria-label={group.aria.label}
       className={className}
+      data-locked={locked || undefined}
       role="group"
       size="small"
     >
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <Space wrap>
+        <Space style={locked ? { opacity: 0.6 } : undefined} wrap>
           <AntdCombinatorSelector
             value={'combinator' in group.group ? group.group.combinator : 'and'}
+            disabled={locked}
             onChange={(combinator) => onCombinatorChange(group.id, combinator)}
           />
           <AntdNotToggle
             checked={Boolean(group.group.not)}
+            disabled={locked}
             onChange={(not) => onNotChange(group.id, not)}
           />
-          <Button onClick={() => onAddRule(group.id)}>Add rule</Button>
-          <Button onClick={() => onAddGroup(group.id)}>Add group</Button>
-          {onClone ? <Button onClick={() => onClone(group.id)}>Clone group</Button> : null}
-          {onRemove ? (
-            <Button danger onClick={() => onRemove(group.id)}>
-              Remove group
-            </Button>
-          ) : null}
+          {locked ? null : (
+            <>
+              <Button onClick={() => onAddRule(group.id)}>Add rule</Button>
+              <Button onClick={() => onAddGroup(group.id)}>Add group</Button>
+              {onClone ? <Button onClick={() => onClone(group.id)}>Clone group</Button> : null}
+              {onRemove ? (
+                <Button danger onClick={() => onRemove(group.id)}>
+                  Remove group
+                </Button>
+              ) : null}
+            </>
+          )}
         </Space>
         {children ? <Space direction="vertical">{children}</Space> : null}
       </Space>

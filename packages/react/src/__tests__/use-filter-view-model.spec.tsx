@@ -473,4 +473,39 @@ describe('useFilterViewModel', () => {
       expect(result.current.root.children[1]).toBe(firstNestedGroupVm);
     });
   });
+
+  describe('locked', () => {
+    it('mirrors the locked flag on rule and group view models', () => {
+      const lockedFilter: Filter = {
+        id: 'root',
+        combinator: 'and',
+        children: [
+          { id: 'r1', field: 'name', operator: 'contains', value: 'x', locked: true },
+          { id: 'r2', field: 'name', operator: 'contains', value: 'y' },
+          {
+            id: 'g1',
+            combinator: 'or',
+            locked: true,
+            children: [{ id: 'r3', field: 'name', operator: 'contains', value: 'z' }],
+          },
+        ],
+      };
+      const { result } = renderHook(() => useFilterViewModel({ filter: lockedFilter, schema }));
+
+      expect(result.current.root.locked).toBe(false);
+      expect(result.current.root.children[0].locked).toBe(true);
+      expect(result.current.root.children[1].locked).toBe(false);
+      expect(result.current.root.children[2].locked).toBe(true);
+    });
+
+    it('mirrors the locked flag on IC group view models', () => {
+      const lockedIC: FilterIC = {
+        id: 'root',
+        children: [{ id: 'r1', field: 'name', operator: 'contains', value: 'x', locked: true }],
+      };
+      const { result } = renderHook(() => useFilterViewModel({ filter: lockedIC, schema }));
+
+      expect(result.current.root.children[0].locked).toBe(true);
+    });
+  });
 });

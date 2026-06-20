@@ -32,25 +32,32 @@ export const ShadcnFilterRule = memo(function ShadcnFilterRule({
   onRemove,
   onClone,
 }: ShadcnFilterRuleProps) {
+  // Locked rules are read-only: disable every control and hide the mutating
+  // actions. Core mutations reject locked edits regardless, this is the UX layer.
+  const locked = rule.locked;
   return (
     <fieldset
       aria-describedby={rule.aria.describedBy}
       aria-label={rule.aria.label}
-      className={cn('flex flex-wrap items-center gap-2', className)}
+      className={cn('flex flex-wrap items-center gap-2', locked && 'opacity-60', className)}
+      data-locked={locked || undefined}
     >
       <ShadcnNotToggle
         checked={Boolean(rule.rule.not)}
+        disabled={locked}
         onChange={(not) => onChange(rule.id, { not })}
       />
       <ShadcnFieldSelector
         schema={schema}
         rule={rule.rule}
+        disabled={locked}
         onChange={(field) => onChange(rule.id, getDefaultRuleUpdatesForField(schema, field))}
       />
       <ShadcnOperatorSelector
         field={rule.field}
         schema={schema}
         rule={rule.rule}
+        disabled={locked}
         onChange={(operator) => onChange(rule.id, { operator })}
       />
       <ShadcnValueEditor
@@ -60,16 +67,21 @@ export const ShadcnFilterRule = memo(function ShadcnFilterRule({
         operator={rule.operator}
         schema={schema}
         rule={rule.rule}
+        disabled={locked}
         onChange={(value) => onChange(rule.id, { value })}
       />
-      {onClone ? (
-        <Button variant="outline" onClick={() => onClone(rule.id)}>
-          Clone rule
-        </Button>
-      ) : null}
-      <Button variant="destructive" onClick={() => onRemove(rule.id)}>
-        Remove rule
-      </Button>
+      {locked ? null : (
+        <>
+          {onClone ? (
+            <Button variant="outline" onClick={() => onClone(rule.id)}>
+              Clone rule
+            </Button>
+          ) : null}
+          <Button variant="destructive" onClick={() => onRemove(rule.id)}>
+            Remove rule
+          </Button>
+        </>
+      )}
     </fieldset>
   );
 });

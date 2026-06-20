@@ -145,6 +145,8 @@ export type FilterRuleViewModel = {
   rule: FilterRule;
   field?: FieldSchema;
   operator?: OperatorDef;
+  /** Mirrors `rule.locked`: when true the UI should render the rule read-only. */
+  locked: boolean;
   errors: ValidationError[];
   aria: {
     label: string;
@@ -157,6 +159,8 @@ export type FilterGroupViewModel = {
   id: string;
   group: FilterGroup | FilterGroupIC;
   depth: number;
+  /** Mirrors `group.locked`: when true the UI should render the group read-only. */
+  locked: boolean;
   children: FilterNodeViewModel[];
   /**
    * Inline (IC) combinators between children: `combinators[i]` sits between
