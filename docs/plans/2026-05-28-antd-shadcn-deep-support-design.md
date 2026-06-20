@@ -43,7 +43,7 @@ The React package becomes the shared behavior layer:
 
 - Existing hooks remain:
   - `useFilterBuilder`
-  - `useFilterDsl`
+  - `useDslEditor`
   - `useFilterUrlSync`
   - `useReorderContract`
 - Add `useFilterViewModel`.
