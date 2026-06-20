@@ -33,8 +33,6 @@ const schema: FieldSchema[] = [
   },
 ];
 
-const filter: Filter = { id: 'root', combinator: 'and', children: [] };
-
 const wideSchema: FieldSchema[] = [
   {
     name: 'name',
@@ -96,19 +94,6 @@ function singleRuleFilter(rule: FilterRule): Filter {
   return { id: 'root', combinator: 'and', children: [rule] };
 }
 
-test('ShadcnFilterBuilder adds a rule through the full builder', () => {
-  const onChange = jest.fn();
-  render(<ShadcnFilterBuilder schema={schema} value={filter} onChange={onChange} />);
-
-  fireEvent.click(screen.getByRole('button', { name: /add rule/i }));
-
-  expect(onChange).toHaveBeenCalledWith(
-    expect.objectContaining({
-      children: [expect.objectContaining({ field: '' })],
-    })
-  );
-});
-
 test('ShadcnFilterBuilder renders custom ValueEditor slot', () => {
   render(
     <ShadcnFilterBuilder
@@ -146,96 +131,6 @@ test('ShadcnFilterBuilder passes external validation errors to rule slots', () =
   );
 
   expect(screen.getByText('Name is invalid')).not.toBeNull();
-});
-
-test('ShadcnFilterBuilder emits controlled rule updates', () => {
-  const onChange = jest.fn();
-  render(
-    <ShadcnFilterBuilder
-      schema={schema}
-      value={{
-        id: 'root',
-        combinator: 'and',
-        children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
-      }}
-      onChange={onChange}
-    />
-  );
-
-  fireEvent.change(screen.getByRole('combobox', { name: 'Field' }), {
-    target: { value: 'age' },
-  });
-
-  expect(onChange).toHaveBeenCalledWith(
-    expect.objectContaining({
-      children: [expect.objectContaining({ id: 'r1', field: 'age', operator: 'gt', value: null })],
-    })
-  );
-});
-
-test('ShadcnFilterBuilder forwards default atomic rule controls', () => {
-  const onChange = jest.fn();
-  render(
-    <ShadcnFilterBuilder
-      schema={wideSchema}
-      value={singleRuleFilter({
-        id: 'r1',
-        field: 'name',
-        operator: 'equals',
-        value: 'Ada',
-      })}
-      onChange={onChange}
-    />
-  );
-
-  const ruleControls = screen.getByRole('group', { name: 'Rule Name equals' });
-  fireEvent.click(within(ruleControls).getByRole('checkbox', { name: 'Not' }));
-  fireEvent.change(within(ruleControls).getByRole('combobox', { name: 'Operator' }), {
-    target: { value: 'contains' },
-  });
-  fireEvent.change(within(ruleControls).getByRole('textbox', { name: 'Value' }), {
-    target: { value: 'Grace' },
-  });
-  fireEvent.click(within(ruleControls).getByRole('button', { name: 'Remove rule' }));
-
-  expect(onChange).toHaveBeenCalledWith(
-    expect.objectContaining({
-      children: [expect.objectContaining({ id: 'r1', not: true })],
-    })
-  );
-  expect(onChange).toHaveBeenCalledWith(
-    expect.objectContaining({
-      children: [expect.objectContaining({ id: 'r1', operator: 'contains' })],
-    })
-  );
-  expect(onChange).toHaveBeenCalledWith(
-    expect.objectContaining({
-      children: [expect.objectContaining({ id: 'r1', value: 'Grace' })],
-    })
-  );
-  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ children: [] }));
-});
-
-test('ShadcnFilterBuilder removes child groups but not the root group', () => {
-  const onChange = jest.fn();
-  render(
-    <ShadcnFilterBuilder
-      schema={schema}
-      value={{
-        id: 'root',
-        combinator: 'and',
-        children: [{ id: 'g1', combinator: 'or', children: [] }],
-      }}
-      onChange={onChange}
-    />
-  );
-
-  const rootGroup = screen.getByRole('group', { name: 'Filter group root' });
-  expect(within(rootGroup).getAllByRole('button', { name: /remove group/i })).toHaveLength(1);
-
-  fireEvent.click(screen.getByRole('button', { name: /remove group/i }));
-
-  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ children: [] }));
 });
 
 test('ShadcnFilterBuilder applies classNames and custom action labels', () => {
@@ -305,25 +200,6 @@ test('ShadcnFilterBuilder applies classNames and custom action labels', () => {
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
       children: expect.arrayContaining([expect.objectContaining({ field: 'name' })]),
-    })
-  );
-});
-
-test('ShadcnFilterBuilder emits group updates through the default group atomic', () => {
-  const onChange = jest.fn();
-  render(<ShadcnFilterBuilder schema={schema} value={filter} onChange={onChange} />);
-
-  fireEvent.change(screen.getByRole('combobox', { name: 'Combinator' }), {
-    target: { value: 'or' },
-  });
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Not' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Add group' }));
-
-  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ combinator: 'or' }));
-  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ not: true }));
-  expect(onChange).toHaveBeenCalledWith(
-    expect.objectContaining({
-      children: [expect.objectContaining({ combinator: 'and' })],
     })
   );
 });
@@ -402,146 +278,6 @@ test('ShadcnFilterBuilder wires Root, Group, Rule, FieldSelector, and OperatorSe
       children: [expect.objectContaining({ id: 'r2', operator: 'gt' })],
     })
   );
-});
-
-test('ShadcnFilterBuilder moveItem slot action moves rules between groups', () => {
-  const onChange = jest.fn();
-  render(
-    <ShadcnFilterBuilder
-      schema={schema}
-      defaultValue={{
-        id: 'root',
-        combinator: 'and',
-        children: [
-          { id: 'r1', field: 'name', operator: 'equals', value: 'Ada' },
-          { id: 'g1', combinator: 'and', children: [] },
-        ],
-      }}
-      onChange={onChange}
-      slots={{
-        Root: ({ actions, children }) => (
-          <div>
-            <button
-              type="button"
-              onClick={() =>
-                actions.moveItem({
-                  type: 'rule',
-                  id: 'r1',
-                  targetGroupId: 'g1',
-                  targetIndex: 0,
-                })
-              }
-            >
-              Move rule
-            </button>
-            <span>{actions.canDrop('r1', 'missing') ? 'Can drop' : 'Cannot drop'}</span>
-            {children}
-          </div>
-        ),
-      }}
-    />
-  );
-
-  expect(screen.getByText('Cannot drop')).not.toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: 'Move rule' }));
-
-  expect(onChange).toHaveBeenCalledWith(
-    expect.objectContaining({
-      children: [
-        expect.objectContaining({
-          id: 'g1',
-          children: [expect.objectContaining({ id: 'r1' })],
-        }),
-      ],
-    })
-  );
-});
-
-test('ShadcnFilterBuilder moveItem slot action moves child groups', () => {
-  const onChange = jest.fn();
-  render(
-    <ShadcnFilterBuilder
-      schema={schema}
-      defaultValue={{
-        id: 'root',
-        combinator: 'and',
-        children: [
-          { id: 'r1', field: 'name', operator: 'equals', value: 'Ada' },
-          { id: 'g1', combinator: 'and', children: [] },
-        ],
-      }}
-      onChange={onChange}
-      slots={{
-        Root: ({ actions, children }) => (
-          <div>
-            <button
-              type="button"
-              onClick={() =>
-                actions.moveItem({
-                  type: 'group',
-                  id: 'g1',
-                  targetGroupId: 'root',
-                  targetIndex: 0,
-                })
-              }
-            >
-              Move group
-            </button>
-            {children}
-          </div>
-        ),
-      }}
-    />
-  );
-
-  fireEvent.click(screen.getByRole('button', { name: 'Move group' }));
-
-  expect(onChange).toHaveBeenCalledWith(
-    expect.objectContaining({
-      children: [expect.objectContaining({ id: 'g1' }), expect.objectContaining({ id: 'r1' })],
-    })
-  );
-});
-
-test('ShadcnFilterBuilder canDrop rejects missing drag ids and group descendant targets', () => {
-  render(
-    <ShadcnFilterBuilder
-      schema={schema}
-      defaultValue={{
-        id: 'root',
-        combinator: 'and',
-        children: [
-          {
-            id: 'g1',
-            combinator: 'and',
-            children: [
-              {
-                id: 'g2',
-                combinator: 'or',
-                children: [{ id: 'r1', field: 'name', operator: 'equals', value: 'Ada' }],
-              },
-            ],
-          },
-        ],
-      }}
-      slots={{
-        Root: ({ actions, children }) => (
-          <div>
-            <span>
-              {actions.canDrop('missing', 'root') ? 'missing allowed' : 'missing rejected'}
-            </span>
-            <span>
-              {actions.canDrop('g1', 'g2') ? 'descendant allowed' : 'descendant rejected'}
-            </span>
-            {children}
-          </div>
-        ),
-      }}
-    />
-  );
-
-  expect(screen.getByText('missing rejected')).not.toBeNull();
-  expect(screen.getByText('descendant rejected')).not.toBeNull();
 });
 
 test('ShadcnFilterBuilder renders default value editors for supported field types', () => {

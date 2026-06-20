@@ -29,13 +29,11 @@ export function useDslEditor(options: UseDslEditorOptions): UseDslEditorReturn {
 
   const completions = useMemo(
     () =>
-      cursor === undefined
-        ? []
-        : getDslCompletions({
-            input: draftDSL,
-            cursor,
-            schema,
-          }),
+      getDslCompletions({
+        input: draftDSL,
+        cursor: cursor ?? draftDSL.length,
+        schema,
+      }),
     [cursor, draftDSL, schema]
   );
 

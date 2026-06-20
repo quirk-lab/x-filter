@@ -49,6 +49,10 @@ _Avoid_: "logic layer", "core hooks"
 **Atomic Components**:
 The `@x-filter/shadcn` / `@x-filter/antd` layer. Composable minimum UI units (FieldSelector, OperatorSelector, ValueEditor, RuleRow, GroupBlock, etc.) built on top of Headless hooks.
 
+**Headless Orchestrator (编排器)**:
+The framework-agnostic FilterBuilder orchestration logic that lives in `@x-filter/react`. It consumes `useFilterBuilder` / `useFilterViewModel` / `useReorderContract` and owns action dispatch, DnD wiring, the atomic-rule/atomic-group heuristics, and `renderRule`/`renderGroup`/`renderNode` dispatch — exposed as pure functions plus render-prop hooks (`useFilterBuilderOrchestrator`, `useDslEditorInteraction`). It may render native HTML elements as unstyled semantic structure but MUST NOT import `antd`, `shadcn`, `@dnd-kit`, or emit className-styled components. UI packages reduce their `FilterBuilder` composite to wiring UI primitives onto the orchestrator's render-props.
+_Avoid_: Conflating the **Composite** (`ShadcnFilterBuilder` / `AntdFilterBuilder` — an optional convenience layer) with the **Atomic Components** (the primary public API).
+
 **Completion**:
 Context-aware autocomplete for DSL input. Based on cursor position and `FieldSchema`, suggests field names, operators, or candidate values.
 _Avoid_: "autocomplete", "suggestion", "intellisense"

@@ -1,11 +1,11 @@
 import type { FieldSchema, FilterRule } from '@x-filter/core';
 import type { FilterRuleViewModel } from '@x-filter/react';
+import { getDefaultRuleUpdatesForField } from '@x-filter/react';
 import { Button, Space } from 'antd';
 import { memo } from 'react';
 import { AntdFieldSelector } from './field-selector';
 import { AntdNotToggle } from './not-toggle';
 import { AntdOperatorSelector } from './operator-selector';
-import { getDefaultRuleUpdatesForField } from './rule-defaults';
 import { AntdValueEditor } from './value-editor';
 
 export interface AntdFilterRuleProps {

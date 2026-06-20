@@ -1,5 +1,10 @@
 import { type FieldSchema, type FilterRule, getOperators } from '@x-filter/core';
 
+/**
+ * @internal
+ * Computes the default rule updates when a field changes.
+ * Used by FilterBuilder orchestrator in UI packages.
+ */
 export function getDefaultRuleUpdatesForField(
   schema: FieldSchema[],
   fieldName: string

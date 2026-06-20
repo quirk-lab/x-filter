@@ -227,7 +227,7 @@ describe('useDslEditor', () => {
     expect(result.current.draftDSL).toBe(formatDSL(nextFilter));
   });
 
-  it('returns empty completions when cursor is undefined', () => {
+  it('computes completions at end of draft when cursor is undefined', () => {
     const filter = makeFilter();
     const onCommit = jest.fn();
     const { result } = renderHook(() => useDslEditor({ filter, schema, onCommit }));
@@ -235,7 +235,9 @@ describe('useDslEditor', () => {
     act(() => {
       result.current.setDraftDSL('sta');
     });
-    expect(result.current.completions).toEqual([]);
+    expect(result.current.completions).toEqual([
+      expect.objectContaining({ kind: 'field', value: 'status' }),
+    ]);
   });
 
   it('commit with empty expression sets parseError', () => {
