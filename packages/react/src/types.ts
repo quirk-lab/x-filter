@@ -37,6 +37,8 @@ export interface UseFilterBuilderReturn {
   setCombinator: (groupId: string, comboIndex: number, combinator: Combinator) => void;
   cloneRule: (ruleId: string) => void;
   cloneGroup: (groupId: string) => void;
+  /** Removes every rule/group from the root, resetting to an empty filter. */
+  clear: () => void;
   schema: FieldSchema[];
 }
 
@@ -213,6 +215,8 @@ export type FilterBuilderActionHandlers = {
   setCombinator: (groupId: string, comboIndex: number, combinator: Combinator) => void;
   cloneRule: (ruleId: string) => void;
   cloneGroup: (groupId: string) => void;
+  /** Removes every rule/group from the root, resetting to an empty filter. */
+  clear: () => void;
   moveItem: (operation: MoveOperation) => void;
   canDrop: (dragId: string, targetGroupId: string) => boolean;
 };
@@ -271,6 +275,12 @@ export type FilterBuilderLabels = Partial<{
   startValue: string;
   endValue: string;
   noValue: string;
+  clearAll: string;
+  clearAllConfirm: string;
+  clearAllCancel: string;
+  emptyStateTitle: string;
+  emptyStateDescription: string;
+  emptyStateAction: string;
 }>;
 
 export type FilterBuilderClassNames = Partial<{

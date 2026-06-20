@@ -18,4 +18,10 @@ export const zhCN: Required<FilterBuilderLabels> = {
   startValue: '起始值',
   endValue: '结束值',
   noValue: '无值',
+  clearAll: '清空',
+  clearAllConfirm: '确认清空',
+  clearAllCancel: '取消',
+  emptyStateTitle: '还没有筛选条件',
+  emptyStateDescription: '添加第一条规则开始筛选。',
+  emptyStateAction: '添加第一条规则',
 };

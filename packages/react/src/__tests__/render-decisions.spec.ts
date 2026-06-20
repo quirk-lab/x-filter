@@ -114,6 +114,12 @@ describe('resolveLabels', () => {
       removeGroup: 'Remove group',
       cloneRule: 'Clone rule',
       cloneGroup: 'Clone group',
+      clearAll: 'Clear all',
+      clearAllConfirm: 'Confirm clear',
+      clearAllCancel: 'Cancel',
+      emptyStateTitle: 'No filters yet',
+      emptyStateDescription: 'Add your first rule to start filtering.',
+      emptyStateAction: 'Add your first rule',
     });
   });
 

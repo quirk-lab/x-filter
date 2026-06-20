@@ -18,4 +18,10 @@ export const jaJP: Required<FilterBuilderLabels> = {
   startValue: '開始値',
   endValue: '終了値',
   noValue: '値なし',
+  clearAll: 'すべてクリア',
+  clearAllConfirm: 'クリアを確認',
+  clearAllCancel: 'キャンセル',
+  emptyStateTitle: 'フィルターがありません',
+  emptyStateDescription: '最初のルールを追加してフィルターを開始します。',
+  emptyStateAction: '最初のルールを追加',
 };

@@ -18,4 +18,10 @@ export const enUS: Required<FilterBuilderLabels> = {
   startValue: 'Start value',
   endValue: 'End value',
   noValue: 'No value',
+  clearAll: 'Clear all',
+  clearAllConfirm: 'Confirm clear',
+  clearAllCancel: 'Cancel',
+  emptyStateTitle: 'No filters yet',
+  emptyStateDescription: 'Add your first rule to start filtering.',
+  emptyStateAction: 'Add your first rule',
 };

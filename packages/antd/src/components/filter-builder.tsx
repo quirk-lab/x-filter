@@ -18,7 +18,7 @@ import {
   useIsMobile,
 } from '@x-filter/react';
 import { Button, Card, Space } from 'antd';
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { AntdCombinatorSelector } from './combinator-selector';
 import { AntdDslEditor } from './dsl-editor';
 import { AntdFieldSelector } from './field-selector';
@@ -68,6 +68,8 @@ export function AntdFilterBuilder({
   const dndEnabled = dnd && !readOnly;
   // On narrow viewports stack rule controls vertically (one per row).
   const isMobile = useIsMobile();
+  // Two-step confirm for the destructive "Clear all" action.
+  const [confirmingClear, setConfirmingClear] = useState(false);
 
   const rootId = viewModel.root.id;
   const keyboard = useFilterKeyboardNav({
@@ -318,6 +320,46 @@ export function AntdFilterBuilder({
     );
   };
 
+  const hasChildren = viewModel.root.children.length > 0;
+  // "Clear all" toolbar: a two-step confirm guards the destructive reset. Hidden
+  // in read-only; the trigger is disabled when there is nothing to clear.
+  const toolbar = readOnly ? null : (
+    <Space style={{ width: '100%', justifyContent: 'flex-end' }} wrap>
+      {confirmingClear ? (
+        <>
+          <Button
+            danger
+            type="primary"
+            onClick={() => {
+              actions.clear();
+              setConfirmingClear(false);
+            }}
+          >
+            {resolvedLabels.clearAllConfirm}
+          </Button>
+          <Button onClick={() => setConfirmingClear(false)}>{resolvedLabels.clearAllCancel}</Button>
+        </>
+      ) : (
+        <Button disabled={!hasChildren} onClick={() => setConfirmingClear(true)}>
+          {resolvedLabels.clearAll}
+        </Button>
+      )}
+    </Space>
+  );
+  // Empty-state guide: nudges first-time users toward adding a rule.
+  const emptyState =
+    !readOnly && !hasChildren ? (
+      <Card role="note" size="small">
+        <Space direction="vertical" size="small" style={{ textAlign: 'center', width: '100%' }}>
+          <strong>{resolvedLabels.emptyStateTitle}</strong>
+          <span style={{ color: 'rgba(0,0,0,0.45)' }}>{resolvedLabels.emptyStateDescription}</span>
+          <Button type="primary" onClick={() => actions.addRule(viewModel.root.id)}>
+            {resolvedLabels.emptyStateAction}
+          </Button>
+        </Space>
+      </Card>
+    ) : null;
+
   // The root group is itself a treeitem so its header controls (and the DnD live
   // region) are shielded from the `tree`'s required-children check.
   const tree = renderTreeItem(viewModel.root, () => renderGroup(viewModel.root));
@@ -335,13 +377,13 @@ export function AntdFilterBuilder({
         onCommit={builder.setFilter}
       />
     ) : null;
-  const children = dslEditor ? (
+  const children = (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+      {toolbar}
       {dslEditor}
       {treeRegion}
+      {emptyState}
     </Space>
-  ) : (
-    treeRegion
   );
 
   if (slots?.Root) {

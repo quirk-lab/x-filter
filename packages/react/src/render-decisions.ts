@@ -7,10 +7,27 @@ const DEFAULT_LABELS = {
   removeGroup: 'Remove group',
   cloneRule: 'Clone rule',
   cloneGroup: 'Clone group',
+  clearAll: 'Clear all',
+  clearAllConfirm: 'Confirm clear',
+  clearAllCancel: 'Cancel',
+  emptyStateTitle: 'No filters yet',
+  emptyStateDescription: 'Add your first rule to start filtering.',
+  emptyStateAction: 'Add your first rule',
 } satisfies Required<
   Pick<
     FilterBuilderLabels,
-    'addRule' | 'addGroup' | 'removeRule' | 'removeGroup' | 'cloneRule' | 'cloneGroup'
+    | 'addRule'
+    | 'addGroup'
+    | 'removeRule'
+    | 'removeGroup'
+    | 'cloneRule'
+    | 'cloneGroup'
+    | 'clearAll'
+    | 'clearAllConfirm'
+    | 'clearAllCancel'
+    | 'emptyStateTitle'
+    | 'emptyStateDescription'
+    | 'emptyStateAction'
   >
 >;
 
@@ -21,6 +38,12 @@ export type ResolvedLabels = {
   removeGroup: string;
   cloneRule: string;
   cloneGroup: string;
+  clearAll: string;
+  clearAllConfirm: string;
+  clearAllCancel: string;
+  emptyStateTitle: string;
+  emptyStateDescription: string;
+  emptyStateAction: string;
 };
 
 /**
@@ -35,6 +58,12 @@ export function resolveLabels(labels?: FilterBuilderLabels): ResolvedLabels {
     removeGroup: labels?.removeGroup ?? DEFAULT_LABELS.removeGroup,
     cloneRule: labels?.cloneRule ?? DEFAULT_LABELS.cloneRule,
     cloneGroup: labels?.cloneGroup ?? DEFAULT_LABELS.cloneGroup,
+    clearAll: labels?.clearAll ?? DEFAULT_LABELS.clearAll,
+    clearAllConfirm: labels?.clearAllConfirm ?? DEFAULT_LABELS.clearAllConfirm,
+    clearAllCancel: labels?.clearAllCancel ?? DEFAULT_LABELS.clearAllCancel,
+    emptyStateTitle: labels?.emptyStateTitle ?? DEFAULT_LABELS.emptyStateTitle,
+    emptyStateDescription: labels?.emptyStateDescription ?? DEFAULT_LABELS.emptyStateDescription,
+    emptyStateAction: labels?.emptyStateAction ?? DEFAULT_LABELS.emptyStateAction,
   };
 }
 
