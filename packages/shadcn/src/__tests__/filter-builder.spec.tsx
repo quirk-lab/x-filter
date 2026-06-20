@@ -33,8 +33,6 @@ const schema: FieldSchema[] = [
   },
 ];
 
-const filter: Filter = { id: 'root', combinator: 'and', conditions: [] };
-
 const wideSchema: FieldSchema[] = [
   {
     name: 'name',

@@ -17,8 +17,6 @@ const schema: FieldSchema[] = [
   },
 ];
 
-const filter: Filter = { id: 'root', combinator: 'and', conditions: [] };
-
 const wideSchema: FieldSchema[] = [
   {
     name: 'name',
@@ -78,10 +76,6 @@ const wideSchema: FieldSchema[] = [
 
 function singleRuleFilter(rule: FilterRule): Filter {
   return { id: 'root', combinator: 'and', conditions: [rule] };
-}
-
-function openSelect(name: string) {
-  fireEvent.mouseDown(screen.getByRole('combobox', { name }));
 }
 
 function clickLastText(text: string) {
