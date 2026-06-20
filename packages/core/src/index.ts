@@ -27,6 +27,8 @@ export {
   tokenize,
   tryParseDSL,
 } from './dsl/index';
+export type { ElasticBuildOptions, ElasticQuery } from './elasticsearch/index';
+export { toElasticQuery } from './elasticsearch/index';
 export {
   addGroupIC,
   addRuleIC,
@@ -44,6 +46,10 @@ export {
 } from './ic';
 export type { IdGenerator } from './id';
 export { generateId } from './id';
+export type { JsonLogic, JsonLogicBuildOptions } from './jsonlogic/index';
+export { toJsonLogic } from './jsonlogic/index';
+export type { MongoBuildOptions, MongoQuery } from './mongodb/index';
+export { toMongoQuery } from './mongodb/index';
 
 export type { MutationAdapter } from './mutation-adapter';
 export { icMutationAdapter, standardMutationAdapter } from './mutation-adapter';

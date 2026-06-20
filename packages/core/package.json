@@ -35,6 +35,36 @@
         "types": "./dist/dsl/index.d.cts",
         "default": "./dist/dsl/index.cjs"
       }
+    },
+    "./jsonlogic": {
+      "import": {
+        "types": "./dist/jsonlogic/index.d.ts",
+        "default": "./dist/jsonlogic/index.js"
+      },
+      "require": {
+        "types": "./dist/jsonlogic/index.d.cts",
+        "default": "./dist/jsonlogic/index.cjs"
+      }
+    },
+    "./mongodb": {
+      "import": {
+        "types": "./dist/mongodb/index.d.ts",
+        "default": "./dist/mongodb/index.js"
+      },
+      "require": {
+        "types": "./dist/mongodb/index.d.cts",
+        "default": "./dist/mongodb/index.cjs"
+      }
+    },
+    "./elasticsearch": {
+      "import": {
+        "types": "./dist/elasticsearch/index.d.ts",
+        "default": "./dist/elasticsearch/index.js"
+      },
+      "require": {
+        "types": "./dist/elasticsearch/index.d.cts",
+        "default": "./dist/elasticsearch/index.cjs"
+      }
     }
   },
   "files": [
