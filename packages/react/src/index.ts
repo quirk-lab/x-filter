@@ -65,6 +65,8 @@ export {
   removeConditionFromDsl,
   removeLastChipFromDsl,
 } from './dsl-token-utils';
+export type { ImportFormat, ParseFilterInputResult } from './import-utils';
+export { parseFilterInput } from './import-utils';
 export type { LocaleCode } from './locales';
 export { enUS, jaJP, locales, zhCN } from './locales';
 export type { MoveControlsProps } from './move-controls';

@@ -10,6 +10,8 @@ export type { AntdFilterBuilderProps } from './filter-builder';
 export { AntdFilterBuilder } from './filter-builder';
 export type { AntdFilterGroupProps } from './group-block';
 export { AntdFilterGroup } from './group-block';
+export type { AntdImportFilterDialogProps, ImportFormat } from './import-dialog';
+export { AntdImportFilterDialog } from './import-dialog';
 export type { AntdNotToggleProps } from './not-toggle';
 export { AntdNotToggle } from './not-toggle';
 export type { AntdOperatorSelectorProps } from './operator-selector';
