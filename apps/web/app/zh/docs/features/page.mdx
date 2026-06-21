@@ -75,7 +75,7 @@ import { ShadcnFilterBuilder } from '@x-filter/shadcn';
 | `Home` / `End` | 跳到第一条 / 最后一条 |
 | `Enter` | 聚焦当前行的第一个编辑控件 |
 | `Esc` | 从控件退回到所在行 |
-| `Delete` | 删除当前聚焦的规则 |
+| `Delete` / `Backspace` | 删除当前聚焦的规则 |
 | `Ctrl` / `Cmd`+`D` | 克隆当前聚焦的规则 |
 
 根分组不可被删除或克隆。`readOnly` 模式下所有变更快捷键被禁用，但导航仍可用。无头的 `useFilterKeyboardNav` hook 驱动此功能，可在自定义适配器中复用。

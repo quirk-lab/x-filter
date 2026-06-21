@@ -71,11 +71,11 @@ Every builder is an ARIA `tree` with roving tabindex. No extra configuration nee
 | Key | Action |
 | --- | --- |
 | `Tab` | Move focus to the filter tree |
-| `Up` / `Down` | Move between rules |
+| `Arrow Up` / `Arrow Down` | Move between rules |
 | `Home` / `End` | Jump to first / last rule |
 | `Enter` | Focus the first edit control on the current row |
 | `Esc` | Return from control to the row |
-| `Delete` | Delete the focused rule |
+| `Delete` / `Backspace` | Delete the focused rule |
 | `Ctrl`/`Cmd`+`D` | Clone the focused rule |
 
 The root group cannot be deleted or cloned. In `readOnly` mode, all mutation shortcuts are disabled but navigation still works. The headless `useFilterKeyboardNav` hook powers this and can be reused in custom adapters.
