@@ -36,5 +36,12 @@ export function parseFilterInput(format: ImportFormat, text: string): ParseFilte
   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
     return { ok: false, error: 'JSON must be a filter object.' };
   }
-  return { ok: true, filter: fromJSON(parsed as Record<string, unknown>) as Filter };
+  // `fromJSON` is lenient but can still throw on structurally broken input
+  // (e.g. a `children` array holding primitives), so guard it too — an import
+  // dialog must never let pasted text crash the host.
+  try {
+    return { ok: true, filter: fromJSON(parsed as Record<string, unknown>) as Filter };
+  } catch (cause) {
+    return { ok: false, error: `Invalid filter structure: ${(cause as Error).message}` };
+  }
 }

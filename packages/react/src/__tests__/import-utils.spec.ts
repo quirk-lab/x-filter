@@ -53,4 +53,12 @@ describe('parseFilterInput', () => {
       if (!result.ok) expect(result.error).toMatch(/filter object/);
     }
   });
+
+  it('returns an error (does not throw) for a structurally broken filter object', () => {
+    // Valid JSON object, but `children` holds a primitive: `fromJSON` would
+    // hit `'children' in 1` and throw if it were not guarded.
+    const result = parseFilterInput('json', JSON.stringify({ combinator: 'and', children: [1] }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(/Invalid filter structure/);
+  });
 });
