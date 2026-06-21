@@ -35,6 +35,7 @@ const actions: FilterBuilderActionHandlers = {
   setCombinator: (_groupId, _comboIndex, _combinator) => undefined,
   cloneRule: (_ruleId) => undefined,
   cloneGroup: (_groupId) => undefined,
+  clear: () => undefined,
   moveItem: (_operation) => undefined,
   canDrop: (dragId, targetGroupId) => dragId !== targetGroupId,
 };

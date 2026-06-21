@@ -186,6 +186,12 @@ export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBui
     [applyMutation, isIC]
   );
 
+  const clear = useCallback(() => {
+    // Empties the root's children while preserving its identity and combinator
+    // (and IC vs standard shape); a locked root is left untouched.
+    applyMutation((prev) => (prev.locked ? prev : { ...prev, children: [] }));
+  }, [applyMutation]);
+
   return {
     filter: filter as Filter,
     setFilter,
@@ -199,6 +205,7 @@ export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBui
     setCombinator: setCombinatorFn,
     cloneRule,
     cloneGroup,
+    clear,
     schema,
   };
 }

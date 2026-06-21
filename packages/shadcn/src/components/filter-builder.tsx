@@ -17,7 +17,7 @@ import {
   useFilterBuilderOrchestrator,
   useFilterKeyboardNav,
 } from '@x-filter/react';
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { ShadcnCombinatorSelector } from './combinator-selector';
 import { ShadcnDslEditor } from './dsl-editor';
 import { ShadcnFieldSelector } from './field-selector';
@@ -70,6 +70,8 @@ export function ShadcnFilterBuilder({
   const resolvedLabels = resolveLabels(labels);
   // Drag-and-drop is an editing affordance; suppress it entirely in read-only.
   const dndEnabled = dnd && !readOnly;
+  // Two-step confirm for the destructive "Clear all" action.
+  const [confirmingClear, setConfirmingClear] = useState(false);
 
   const rootId = viewModel.root.id;
   const keyboard = useFilterKeyboardNav({
@@ -366,6 +368,45 @@ export function ShadcnFilterBuilder({
     );
   };
 
+  const hasChildren = viewModel.root.children.length > 0;
+  // "Clear all" toolbar: a two-step confirm guards the destructive reset. Hidden
+  // in read-only; the trigger is disabled when there is nothing to clear.
+  const toolbar = readOnly ? null : (
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      {confirmingClear ? (
+        <>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              actions.clear();
+              setConfirmingClear(false);
+            }}
+          >
+            {resolvedLabels.clearAllConfirm}
+          </Button>
+          <Button variant="outline" onClick={() => setConfirmingClear(false)}>
+            {resolvedLabels.clearAllCancel}
+          </Button>
+        </>
+      ) : (
+        <Button disabled={!hasChildren} variant="outline" onClick={() => setConfirmingClear(true)}>
+          {resolvedLabels.clearAll}
+        </Button>
+      )}
+    </div>
+  );
+  // Empty-state guide: nudges first-time users toward adding a rule.
+  const emptyState =
+    !readOnly && !hasChildren ? (
+      <Card className="flex flex-col items-center gap-2 text-center" role="note">
+        <p className="font-medium">{resolvedLabels.emptyStateTitle}</p>
+        <p className="text-sm text-muted-foreground">{resolvedLabels.emptyStateDescription}</p>
+        <Button onClick={() => actions.addRule(viewModel.root.id)}>
+          {resolvedLabels.emptyStateAction}
+        </Button>
+      </Card>
+    ) : null;
+
   // The root group is itself a treeitem so its header controls (and the DnD live
   // region) are shielded from the `tree`'s required-children check.
   const tree = renderTreeItem(viewModel.root, () => renderGroup(viewModel.root));
@@ -383,13 +424,13 @@ export function ShadcnFilterBuilder({
         onCommit={builder.setFilter}
       />
     ) : null;
-  const children = dslEditor ? (
+  const children = (
     <div className="flex flex-col gap-4">
+      {toolbar}
       {dslEditor}
       {treeRegion}
+      {emptyState}
     </div>
-  ) : (
-    treeRegion
   );
 
   if (slots?.Root) {

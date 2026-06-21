@@ -272,6 +272,55 @@ describe('useFilterBuilder', () => {
     });
   });
 
+  describe('clear', () => {
+    it('empties children while preserving id and combinator', () => {
+      const defaultValue = makeFilter({
+        id: 'root',
+        combinator: 'or',
+        children: [makeRule('r1'), { id: 'g1', combinator: 'and', children: [makeRule('r2')] }],
+      });
+      const onChange = jest.fn();
+      const { result } = renderHook(() => useFilterBuilder({ defaultValue, onChange, schema }));
+
+      act(() => {
+        result.current.clear();
+      });
+
+      expect(result.current.filter).toEqual({ id: 'root', combinator: 'or', children: [] });
+      expect(onChange).toHaveBeenCalledWith({ id: 'root', combinator: 'or', children: [] });
+    });
+
+    it('leaves a locked root untouched', () => {
+      const defaultValue = makeFilter({ children: [makeRule('r1')], locked: true });
+      const { result } = renderHook(() => useFilterBuilder({ defaultValue, schema }));
+
+      act(() => {
+        result.current.clear();
+      });
+
+      expect(result.current.filter.children).toHaveLength(1);
+    });
+
+    it('clears an IC-mode root, keeping its shape', () => {
+      const { result } = renderHook(() =>
+        useFilterBuilder({
+          defaultValue: {
+            id: 'root',
+            children: [makeRule('r1'), 'and', makeRule('r2')],
+          } as unknown as Filter,
+          schema,
+          mode: 'ic',
+        })
+      );
+
+      act(() => {
+        result.current.clear();
+      });
+
+      expect(result.current.filter).toEqual({ id: 'root', children: [] });
+    });
+  });
+
   describe('controlled mode', () => {
     it('uses value prop as filter', () => {
       const value = makeFilter({ id: 'controlled', children: [makeRule('r1')] });

@@ -36,6 +36,7 @@ export function useFilterBuilderOrchestrator(
       setCombinator: builder.setCombinator,
       cloneRule: builder.cloneRule,
       cloneGroup: builder.cloneGroup,
+      clear: builder.clear,
       moveItem: reorder.moveItem,
       canDrop: reorder.canDrop,
     }),
@@ -49,6 +50,7 @@ export function useFilterBuilderOrchestrator(
       builder.setCombinator,
       builder.cloneRule,
       builder.cloneGroup,
+      builder.clear,
       reorder.moveItem,
       reorder.canDrop,
     ]

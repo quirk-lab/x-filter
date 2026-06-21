@@ -157,6 +157,15 @@ Builder 在窄屏下自动适配，无需额外配置：
 - **触摸拖拽**：DnD 同时注册 `Mouse` / `Touch` / `Keyboard` 三种 sensor，移动端通过「长按 + 拖拽」触发（`TouchSensor` 带延迟激活，避免误触打断滚动）；拖拽手柄为 44px 触摸目标并禁用 `touch-action`。
 - **断点 hook**：`@x-filter/react` 导出 headless 的 `useIsMobile(breakpoint = 640)`（SSR / 测试环境无 `matchMedia` 时默认桌面布局），antd 适配层据此切换 `Space` 方向，shadcn 适配层使用 Tailwind 响应式类。
 
+## 🧹 清空与空状态
+
+Builder 自带「一键清空」与空状态引导（`@x-filter/shadcn` 与 `@x-filter/antd` 一致）：
+
+- **清空（两步确认）**：工具栏的 **Clear all** 按钮采用「点击 → 确认」二次确认，避免误删整棵过滤树；没有任何条件时按钮自动禁用。
+- **空状态引导**：当过滤器为空时，展示一张引导卡片，提供「添加第一条规则」的 CTA，一键开始筛选。
+- **headless 能力**：底层由 `useFilterBuilder` 返回的 `clear()` 提供（清空根节点 children，保留 `id` / 组合子 / IC 结构；`locked` 根节点不受影响），可在自定义适配层直接复用。
+- **i18n / readOnly**：所有文案（`clearAll` / `clearAllConfirm` / `clearAllCancel` / `emptyStateTitle` / `emptyStateDescription` / `emptyStateAction`）均可通过 `labels` 或 locale 覆盖；`readOnly` 模式下工具栏与空状态引导都会隐藏。
+
 ## 🔄 导出格式
 
 `@x-filter/core` 可将同一份 `Filter` 编译成多种后端查询格式。所有编译器都支持嵌套分组、`AND`/`OR` 组合子与 `not` 取反，并接受可选的 `fieldMap`（将面向用户的字段名映射为后端字段路径）。
