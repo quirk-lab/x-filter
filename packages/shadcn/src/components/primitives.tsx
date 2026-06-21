@@ -20,9 +20,10 @@ export function Button({ className, variant = 'default', type = 'button', ...pro
     <button
       className={cn(
         'inline-flex h-9 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
-        variant === 'default' && 'bg-primary text-primary-foreground hover:bg-primary/90',
+        variant === 'default' &&
+          'border-transparent bg-primary text-primary-foreground hover:bg-primary/90',
         variant === 'destructive' &&
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+          'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/90',
         variant === 'outline' &&
           'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
         variant === 'ghost' && 'hover:bg-accent hover:text-accent-foreground',
