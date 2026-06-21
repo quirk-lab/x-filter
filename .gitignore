@@ -27,6 +27,7 @@ pnpm-debug.log*
 .env
 .env.local
 .env.*
+!.env.example
 
 # Editors & OS
 .vscode/
@@ -47,5 +48,9 @@ apps/playground/test-results/
 package-lock.json
 yarn.lock
 
+# Vercel CLI
+.vercel/
+
 # Misc
 *.orig
+.vercel

@@ -8,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://x-filter.dev/sitemap.xml',
+    sitemap: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://x-filter.vercel.app'}/sitemap.xml`,
   };
 }

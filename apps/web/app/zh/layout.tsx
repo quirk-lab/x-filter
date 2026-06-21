@@ -7,7 +7,7 @@ import 'antd/dist/reset.css';
 const description = '面向 React 产品的可组合过滤器构建工具。';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://x-filter.dev'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://x-filter.vercel.app'),
   title: {
     default: 'X-Filter',
     template: '%s | X-Filter',

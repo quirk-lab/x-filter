@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 export const dynamic = 'force-static';
 
-const baseUrl = 'https://x-filter.dev';
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://x-filter.vercel.app';
 
 const routes = [
   '',
