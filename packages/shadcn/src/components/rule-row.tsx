@@ -1,6 +1,7 @@
 import type { FieldSchema, FilterRule } from '@x-filter/core';
 import type { FilterRuleViewModel } from '@x-filter/react';
 import { getDefaultRuleUpdatesForField } from '@x-filter/react';
+import { Copy, Trash2 } from 'lucide-react';
 import { memo } from 'react';
 import { ShadcnFieldSelector } from './field-selector';
 import { ShadcnNotToggle } from './not-toggle';
@@ -77,12 +78,22 @@ export const ShadcnFilterRule = memo(function ShadcnFilterRule({
       {locked ? null : (
         <>
           {onClone ? (
-            <Button variant="outline" onClick={() => onClone(rule.id)}>
-              Clone rule
+            <Button
+              aria-label="Clone rule"
+              className="h-9 w-9 shrink-0 p-0"
+              variant="outline"
+              onClick={() => onClone(rule.id)}
+            >
+              <Copy aria-hidden="true" size={15} />
             </Button>
           ) : null}
-          <Button variant="destructive" onClick={() => onRemove(rule.id)}>
-            Remove rule
+          <Button
+            aria-label="Remove rule"
+            className="h-9 w-9 shrink-0 p-0"
+            variant="destructive"
+            onClick={() => onRemove(rule.id)}
+          >
+            <Trash2 aria-hidden="true" size={15} />
           </Button>
         </>
       )}

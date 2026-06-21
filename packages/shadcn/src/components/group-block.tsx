@@ -1,5 +1,6 @@
 import type { Combinator } from '@x-filter/core';
 import type { FilterGroupViewModel } from '@x-filter/react';
+import { Copy, Plus, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { ShadcnCombinatorSelector } from './combinator-selector';
 import { ShadcnNotToggle } from './not-toggle';
@@ -58,20 +59,40 @@ export function ShadcnFilterGroup({
           />
           {locked ? null : (
             <>
-              <Button variant="outline" onClick={() => onAddRule(group.id)}>
-                Add rule
+              <Button
+                aria-label="Add rule"
+                className="h-9 w-9 shrink-0 p-0"
+                variant="outline"
+                onClick={() => onAddRule(group.id)}
+              >
+                <Plus aria-hidden="true" size={15} />
               </Button>
-              <Button variant="outline" onClick={() => onAddGroup(group.id)}>
-                Add group
+              <Button
+                aria-label="Add group"
+                className="h-9 w-9 shrink-0 p-0"
+                variant="outline"
+                onClick={() => onAddGroup(group.id)}
+              >
+                <Plus aria-hidden="true" size={15} />
               </Button>
               {onClone ? (
-                <Button variant="outline" onClick={() => onClone(group.id)}>
-                  Clone group
+                <Button
+                  aria-label="Clone group"
+                  className="h-9 w-9 shrink-0 p-0"
+                  variant="outline"
+                  onClick={() => onClone(group.id)}
+                >
+                  <Copy aria-hidden="true" size={15} />
                 </Button>
               ) : null}
               {onRemove ? (
-                <Button variant="destructive" onClick={() => onRemove(group.id)}>
-                  Remove group
+                <Button
+                  aria-label="Remove group"
+                  className="h-9 w-9 shrink-0 p-0"
+                  variant="destructive"
+                  onClick={() => onRemove(group.id)}
+                >
+                  <Trash2 aria-hidden="true" size={15} />
                 </Button>
               ) : null}
             </>

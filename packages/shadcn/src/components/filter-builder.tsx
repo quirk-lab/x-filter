@@ -17,6 +17,7 @@ import {
   useFilterBuilderOrchestrator,
   useFilterKeyboardNav,
 } from '@x-filter/react';
+import { Copy, Plus, Trash2 } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { ShadcnCombinatorSelector } from './combinator-selector';
 import { ShadcnDslEditor } from './dsl-editor';
@@ -202,12 +203,22 @@ export function ShadcnFilterBuilder({
           />
         )}
         {locked ? null : (
-          <span className={classNames?.actions}>
-            <Button variant="outline" onClick={() => actions.cloneRule(rule.id)}>
-              {resolvedLabels.cloneRule}
+          <span className={cn('flex shrink-0 items-center gap-2', classNames?.actions)}>
+            <Button
+              aria-label={resolvedLabels.cloneRule}
+              className="h-9 w-9 shrink-0 p-0"
+              variant="outline"
+              onClick={() => actions.cloneRule(rule.id)}
+            >
+              <Copy aria-hidden="true" size={15} />
             </Button>
-            <Button variant="destructive" onClick={() => actions.removeRule(rule.id)}>
-              {resolvedLabels.removeRule}
+            <Button
+              aria-label={resolvedLabels.removeRule}
+              className="h-9 w-9 shrink-0 p-0"
+              variant="destructive"
+              onClick={() => actions.removeRule(rule.id)}
+            >
+              <Trash2 aria-hidden="true" size={15} />
             </Button>
           </span>
         )}
@@ -322,7 +333,7 @@ export function ShadcnFilterBuilder({
         <div className="flex flex-col gap-4">
           <div
             className={cn(
-              'flex flex-wrap items-center gap-2',
+              'flex flex-nowrap items-center gap-2 overflow-x-auto',
               locked && 'opacity-60',
               classNames?.actions
             )}
@@ -343,20 +354,40 @@ export function ShadcnFilterBuilder({
             />
             {locked ? null : (
               <>
-                <Button variant="outline" onClick={() => actions.addRule(group.id)}>
-                  {resolvedLabels.addRule}
+                <Button
+                  aria-label={resolvedLabels.addRule}
+                  className="h-9 w-9 shrink-0 p-0"
+                  variant="outline"
+                  onClick={() => actions.addRule(group.id)}
+                >
+                  <Plus aria-hidden="true" size={15} />
                 </Button>
-                <Button variant="outline" onClick={() => actions.addGroup(group.id)}>
-                  {resolvedLabels.addGroup}
+                <Button
+                  aria-label={resolvedLabels.addGroup}
+                  className="h-9 w-9 shrink-0 p-0"
+                  variant="outline"
+                  onClick={() => actions.addGroup(group.id)}
+                >
+                  <Plus aria-hidden="true" size={15} />
                 </Button>
                 {isRoot ? null : (
-                  <Button variant="outline" onClick={() => actions.cloneGroup(group.id)}>
-                    {resolvedLabels.cloneGroup}
+                  <Button
+                    aria-label={resolvedLabels.cloneGroup}
+                    className="h-9 w-9 shrink-0 p-0"
+                    variant="outline"
+                    onClick={() => actions.cloneGroup(group.id)}
+                  >
+                    <Copy aria-hidden="true" size={15} />
                   </Button>
                 )}
                 {isRoot ? null : (
-                  <Button variant="destructive" onClick={() => actions.removeGroup(group.id)}>
-                    {resolvedLabels.removeGroup}
+                  <Button
+                    aria-label={resolvedLabels.removeGroup}
+                    className="h-9 w-9 shrink-0 p-0"
+                    variant="destructive"
+                    onClick={() => actions.removeGroup(group.id)}
+                  >
+                    <Trash2 aria-hidden="true" size={15} />
                   </Button>
                 )}
               </>

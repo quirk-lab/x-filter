@@ -2,19 +2,19 @@ import { ArrowRight, BookOpen, Boxes, PlaySquare, Share2, Terminal, Workflow } f
 import Link from 'next/link';
 import type { Locale } from '../../site/locales';
 import { docsNav, localizeHref } from '../../site/routes';
-import { AdapterParityDemo } from '../demos/adapter-parity-demo';
+import { NotionFilterDemo } from '../demos/notion-filter-demo';
 
 const copy = {
   en: {
     eyebrow: 'Composable query UI',
-    headline: 'X-Filter',
-    lede: 'Build typed filter builders once, render them through product-native adapters, and keep JSON, DSL, validation, and SQL output in sync.',
+    headline: 'Build filters like Notion & GitHub',
+    lede: 'A schema-driven filter builder with adapter parity — render the same filter tree through Ant Design or shadcn, and keep JSON, DSL, SQL, and validation in sync.',
     docs: 'Read the docs',
     demo: 'Open playground',
     metrics: [
-      ['Core first', 'Portable filter state'],
-      ['2 adapters', 'Ant Design and shadcn'],
-      ['Static docs', 'Vercel-ready export'],
+      ['2 adapters', 'Ant Design + shadcn'],
+      ['6 outputs', 'JSON, DSL, SQL, MongoDB…'],
+      ['0 backend', 'Static-site ready'],
     ],
     features: [
       {
@@ -38,14 +38,14 @@ const copy = {
   },
   zh: {
     eyebrow: '可组合查询 UI',
-    headline: 'X-Filter',
-    lede: '一次构建类型化过滤器，再通过产品原生适配器渲染，并让 JSON、DSL、校验和 SQL 输出保持同步。',
+    headline: '像 Notion 和 GitHub 一样构建筛选器',
+    lede: 'Schema 驱动的过滤器构建器，适配器一致 —— 用同一份过滤树渲染 Ant Design 或 shadcn，并保持 JSON、DSL、SQL 和校验同步。',
     docs: '阅读文档',
     demo: '打开演练场',
     metrics: [
-      ['核心优先', '可移植过滤器状态'],
-      ['2 个适配器', 'Ant Design 与 shadcn'],
-      ['静态文档', '面向 Vercel 导出'],
+      ['2 个适配器', 'Ant Design + shadcn'],
+      ['6 种输出', 'JSON、DSL、SQL、MongoDB…'],
+      ['0 后端', '静态站点就绪'],
     ],
     features: [
       {
@@ -74,9 +74,10 @@ export function HomePage({ locale = 'en' }: { locale?: Locale }) {
 
   return (
     <>
-      <section className="hero">
-        <div className="content-shell hero-grid">
-          <div className="hero-copy">
+      {/* Hero — full width, no embedded demo */}
+      <section className="hero hero--centered">
+        <div className="content-shell">
+          <div className="hero-copy hero-copy--centered">
             <p className="eyebrow">{text.eyebrow}</p>
             <h1>{text.headline}</h1>
             <p className="hero-lede">{text.lede}</p>
@@ -100,12 +101,32 @@ export function HomePage({ locale = 'en' }: { locale?: Locale }) {
               ))}
             </div>
           </div>
-          <div className="hero-visual">
-            <AdapterParityDemo locale={locale} />
-          </div>
         </div>
       </section>
+
+      {/* Live demo section — Notion filter */}
       <section className="page-section page-section--surface">
+        <div className="content-shell">
+          <div className="prose" style={{ marginBottom: '1.5rem' }}>
+            <p className="eyebrow">
+              <PlaySquare aria-hidden="true" size={15} />
+              {locale === 'zh' ? '实时演示' : 'Live demo'}
+            </p>
+            <h2 style={{ fontSize: '1.5rem', margin: '0 0 0.5rem' }}>
+              {locale === 'zh' ? 'Notion 风格数据库筛选' : 'Notion-style database filter'}
+            </h2>
+            <p className="hero-lede" style={{ margin: 0 }}>
+              {locale === 'zh'
+                ? '编辑条件，匹配的 issue 实时更新。完整还原 Notion 筛选的端到端体验。'
+                : 'Edit any condition and matching issues update instantly — the end-to-end loop a Notion filter popover provides.'}
+            </p>
+          </div>
+          <NotionFilterDemo locale={locale} />
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="page-section">
         <div className="content-shell feature-grid">
           {text.features.map((feature) => {
             const Icon = feature.icon;
@@ -119,7 +140,9 @@ export function HomePage({ locale = 'en' }: { locale?: Locale }) {
           })}
         </div>
       </section>
-      <section className="page-section">
+
+      {/* Docs map */}
+      <section className="page-section page-section--surface">
         <div className="content-shell">
           <p className="eyebrow">
             <Share2 aria-hidden="true" size={15} />
