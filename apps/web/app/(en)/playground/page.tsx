@@ -2,7 +2,8 @@ import { PlaygroundWorkbench } from '../../../src/components/demos/playground-wo
 
 export const metadata = {
   title: 'Playground',
-  description: 'Compare X-Filter adapters and inspect JSON, DSL, SQL, and validation output.',
+  description:
+    'Real-world filter demos — Notion-style database filters, GitHub-style search bar, and adapter workbench.',
 };
 
 export default function Page() {
@@ -10,11 +11,11 @@ export default function Page() {
     <section className="page-section">
       <div className="content-shell">
         <div className="prose" style={{ marginBottom: '1.5rem' }}>
-          <p className="eyebrow">Interactive demo</p>
+          <p className="eyebrow">Interactive demos</p>
           <h1>Playground</h1>
           <p className="lede">
-            Switch adapters, mutate a filter, load nested and invalid examples, and inspect every
-            generated output without a backend.
+            Explore real-world filter UIs built with X-Filter — a Notion-style database filter, a
+            GitHub-style tokenized search bar, and an adapter comparison workbench.
           </p>
         </div>
         <PlaygroundWorkbench locale="en" />

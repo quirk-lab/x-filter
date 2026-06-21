@@ -2,7 +2,8 @@ import { PlaygroundWorkbench } from '../../../src/components/demos/playground-wo
 
 export const metadata = {
   title: '演练场',
-  description: '对比 X-Filter 适配器，并检查 JSON、DSL、SQL 和校验输出。',
+  description:
+    '真实场景筛选演示 — Notion 风格数据库筛选、GitHub 风格搜索栏，以及适配器对比工作台。',
 };
 
 export default function Page() {
@@ -13,7 +14,8 @@ export default function Page() {
           <p className="eyebrow">交互演示</p>
           <h1>演练场</h1>
           <p className="lede">
-            切换适配器、修改过滤器、加载嵌套或无效示例，并在没有后端的情况下检查所有生成输出。
+            探索基于 X-Filter 构建的真实筛选 UI — Notion 风格数据库筛选、GitHub
+            风格令牌搜索栏，以及适配器对比工作台。
           </p>
         </div>
         <PlaygroundWorkbench locale="zh" />
