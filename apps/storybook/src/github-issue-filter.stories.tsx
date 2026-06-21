@@ -18,7 +18,7 @@ const initialFilter: Filter = {
   combinator: 'and',
   children: [
     { id: 'r-status', field: 'status', operator: 'equals', value: 'open' },
-    { id: 'r-label', field: 'label', operator: 'includes', value: 'bug' },
+    { id: 'r-label', field: 'labels', operator: 'includes', value: 'bug' },
   ],
 };
 

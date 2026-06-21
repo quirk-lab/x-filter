@@ -58,7 +58,7 @@ export const issueSchema: FieldSchema[] = [
     ],
   },
   {
-    name: 'label',
+    name: 'labels',
     label: 'Label',
     type: 'multiSelect',
     defaultOperator: 'includes',

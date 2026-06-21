@@ -23,7 +23,7 @@ const initialFilter: Filter = {
       combinator: 'or',
       children: [
         { id: 'r-assignee', field: 'assignee', operator: 'contains', value: 'ada' },
-        { id: 'r-label', field: 'label', operator: 'includes', value: 'bug' },
+        { id: 'r-label', field: 'labels', operator: 'includes', value: 'bug' },
       ],
     },
   ],
