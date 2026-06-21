@@ -82,15 +82,22 @@ export function ShadcnFilterBuilder({
     const FieldSelector = slots?.FieldSelector;
     const OperatorSelector = slots?.OperatorSelector;
     const ValueEditor = slots?.ValueEditor;
+    const locked = rule.locked;
 
     return (
       <fieldset
         aria-describedby={rule.aria.describedBy}
         aria-label={rule.aria.label}
-        className={cn('flex flex-wrap items-center gap-2', classNames?.rule)}
+        className={cn(
+          'flex flex-wrap items-center gap-2',
+          locked && 'opacity-60',
+          classNames?.rule
+        )}
+        data-locked={locked || undefined}
       >
         <ShadcnNotToggle
           checked={Boolean(rule.rule.not)}
+          disabled={locked}
           label={labels?.not}
           onChange={(not) => actions.updateRule(rule.id, { not })}
         />
@@ -99,6 +106,7 @@ export function ShadcnFilterBuilder({
         ) : (
           <ShadcnFieldSelector
             className={classNames?.fieldSelector}
+            disabled={locked}
             label={labels?.field}
             rule={rule.rule}
             schema={builder.schema}
@@ -112,6 +120,7 @@ export function ShadcnFilterBuilder({
         ) : (
           <ShadcnOperatorSelector
             className={classNames?.operatorSelector}
+            disabled={locked}
             field={rule.field}
             label={labels?.operator}
             rule={rule.rule}
@@ -124,6 +133,7 @@ export function ShadcnFilterBuilder({
         ) : (
           <ShadcnValueEditor
             className={classNames?.valueEditor}
+            disabled={locked}
             endLabel={labels?.endValue}
             errorId={rule.aria.describedBy}
             errors={rule.errors}
@@ -137,14 +147,16 @@ export function ShadcnFilterBuilder({
             onChange={(nextValue) => actions.updateRule(rule.id, { value: nextValue })}
           />
         )}
-        <span className={classNames?.actions}>
-          <Button variant="outline" onClick={() => actions.cloneRule(rule.id)}>
-            {resolvedLabels.cloneRule}
-          </Button>
-          <Button variant="destructive" onClick={() => actions.removeRule(rule.id)}>
-            {resolvedLabels.removeRule}
-          </Button>
-        </span>
+        {locked ? null : (
+          <span className={classNames?.actions}>
+            <Button variant="outline" onClick={() => actions.cloneRule(rule.id)}>
+              {resolvedLabels.cloneRule}
+            </Button>
+            <Button variant="destructive" onClick={() => actions.removeRule(rule.id)}>
+              {resolvedLabels.removeRule}
+            </Button>
+          </span>
+        )}
       </fieldset>
     );
   };
@@ -226,6 +238,7 @@ export function ShadcnFilterBuilder({
     }
 
     const isRoot = group.id === viewModel.root.id;
+    const locked = group.locked;
 
     if (!isIC && canUseAtomicGroup(resolvedLabels, classNames)) {
       return (
@@ -249,12 +262,20 @@ export function ShadcnFilterBuilder({
         aria-describedby={group.aria.describedBy}
         aria-label={group.aria.label}
         className={classNames?.group}
+        data-locked={locked || undefined}
         role="group"
       >
         <div className="flex flex-col gap-4">
-          <div className={cn('flex flex-wrap items-center gap-2', classNames?.actions)}>
+          <div
+            className={cn(
+              'flex flex-wrap items-center gap-2',
+              locked && 'opacity-60',
+              classNames?.actions
+            )}
+          >
             {isIC ? null : (
               <ShadcnCombinatorSelector
+                disabled={locked}
                 label={labels?.combinator}
                 value={'combinator' in group.group ? group.group.combinator : 'and'}
                 onChange={(combinator) => actions.updateGroup(group.id, { combinator })}
@@ -262,24 +283,29 @@ export function ShadcnFilterBuilder({
             )}
             <ShadcnNotToggle
               checked={Boolean(group.group.not)}
+              disabled={locked}
               label={labels?.not}
               onChange={(not) => actions.updateGroup(group.id, { not })}
             />
-            <Button variant="outline" onClick={() => actions.addRule(group.id)}>
-              {resolvedLabels.addRule}
-            </Button>
-            <Button variant="outline" onClick={() => actions.addGroup(group.id)}>
-              {resolvedLabels.addGroup}
-            </Button>
-            {isRoot ? null : (
-              <Button variant="outline" onClick={() => actions.cloneGroup(group.id)}>
-                {resolvedLabels.cloneGroup}
-              </Button>
-            )}
-            {isRoot ? null : (
-              <Button variant="destructive" onClick={() => actions.removeGroup(group.id)}>
-                {resolvedLabels.removeGroup}
-              </Button>
+            {locked ? null : (
+              <>
+                <Button variant="outline" onClick={() => actions.addRule(group.id)}>
+                  {resolvedLabels.addRule}
+                </Button>
+                <Button variant="outline" onClick={() => actions.addGroup(group.id)}>
+                  {resolvedLabels.addGroup}
+                </Button>
+                {isRoot ? null : (
+                  <Button variant="outline" onClick={() => actions.cloneGroup(group.id)}>
+                    {resolvedLabels.cloneGroup}
+                  </Button>
+                )}
+                {isRoot ? null : (
+                  <Button variant="destructive" onClick={() => actions.removeGroup(group.id)}>
+                    {resolvedLabels.removeGroup}
+                  </Button>
+                )}
+              </>
             )}
           </div>
           {hasChildren ? <div className="flex flex-col gap-3">{orderedChildren}</div> : null}

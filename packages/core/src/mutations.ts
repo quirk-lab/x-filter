@@ -3,7 +3,7 @@ import { generateId, type IdGenerator } from './id';
 import { findById, findParent } from './traverse';
 import { mapTree, updateById } from './tree-map';
 import type { Filter, FilterAny, FilterGroup, FilterGroupIC, FilterIC, FilterRule } from './types';
-import { isFilterGroup, isFilterRule } from './types';
+import { isFilterGroup, isFilterRule, isLocked } from './types';
 
 export interface MutationOptions {
   idGenerator?: IdGenerator;
@@ -25,6 +25,11 @@ export function addRule(
     newRule.not = rule.not;
   }
 
+  // A locked group rejects new children.
+  if (isLocked(findById(filter, groupId))) {
+    return filter;
+  }
+
   const result = updateById(filter, groupId, (node) => {
     const g = node as FilterGroup;
     return { ...g, children: [...g.children, newRule] };
@@ -41,6 +46,9 @@ export function updateRule(
   ruleId: string,
   updates: Partial<Omit<FilterRule, 'id'>>
 ): Filter {
+  if (isLocked(findById(filter, ruleId))) {
+    return filter;
+  }
   return updateById(filter, ruleId, (r) => ({
     ...(r as FilterRule),
     ...updates,
@@ -48,6 +56,10 @@ export function updateRule(
 }
 
 export function removeRule(filter: Filter, ruleId: string): Filter {
+  // Block when the rule itself or its containing group is locked.
+  if (isLocked(findById(filter, ruleId)) || isLocked(findParent(filter, ruleId))) {
+    return filter;
+  }
   return removeChild(filter, ruleId);
 }
 
@@ -79,6 +91,12 @@ export function moveRule(
   }
 
   const sourceParent = findParent(filter, ruleId) as FilterGroup | undefined;
+
+  // Block moving a locked rule, out of a locked source, or into a locked target.
+  if (isLocked(rule) || isLocked(sourceParent) || isLocked(findById(filter, targetGroupId))) {
+    return filter;
+  }
+
   const isSameGroup = sourceParent?.id === targetGroupId;
 
   let targetFound = false;
@@ -146,6 +164,11 @@ export function addGroup(
     newGroup.not = group.not;
   }
 
+  // A locked parent group rejects new children.
+  if (isLocked(findById(filter, parentGroupId))) {
+    return filter;
+  }
+
   const result = updateById(filter, parentGroupId, (node) => {
     const g = node as FilterGroup;
     return { ...g, children: [...g.children, newGroup] };
@@ -161,6 +184,10 @@ export function removeGroup(filter: Filter, groupId: string): Filter {
   if (filter.id === groupId) {
     throw new Error('Cannot remove root group');
   }
+  // Block when the group itself or its containing group is locked.
+  if (isLocked(findById(filter, groupId)) || isLocked(findParent(filter, groupId))) {
+    return filter;
+  }
   return removeChild(filter, groupId);
 }
 
@@ -169,6 +196,9 @@ export function updateGroup(
   groupId: string,
   updates: Partial<Pick<FilterGroup, 'combinator' | 'not'>>
 ): Filter {
+  if (isLocked(findById(filter, groupId))) {
+    return filter;
+  }
   return updateById(filter, groupId, (node) => {
     const g = node as FilterGroup;
     return { ...g, ...updates };
@@ -206,6 +236,8 @@ export function cloneRule(filter: Filter, ruleId: string, options?: MutationOpti
     throw new Error(`Rule not found: ${ruleId}`);
   }
   const clone = deepCloneWithNewIds(source, options?.idGenerator) as FilterRule;
+  // A clone of a locked rule is editable — locking is per-instance, not copied.
+  if (clone.locked) clone.locked = false;
   return insertAfter(filter, parent.id, ruleId, clone);
 }
 
@@ -227,6 +259,8 @@ export function cloneGroup(filter: Filter, groupId: string, options?: MutationOp
     throw new Error(`Group not found: ${groupId}`);
   }
   const clone = deepCloneWithNewIds(source, options?.idGenerator) as FilterGroup;
+  // A clone of a locked group is editable at its root — locking is per-instance.
+  if (clone.locked) clone.locked = false;
   return insertAfter(filter, parent.id, groupId, clone);
 }
 
@@ -235,6 +269,9 @@ export function cloneGroup(filter: Filter, groupId: string, options?: MutationOp
 export function negateRule(filter: Filter, ruleId: string): Filter;
 export function negateRule(filter: FilterIC, ruleId: string): FilterIC;
 export function negateRule(filter: FilterAny, ruleId: string): FilterAny {
+  if (isLocked(findById(filter, ruleId))) {
+    return filter;
+  }
   return updateById(filter, ruleId, (r) => {
     const rule = r as FilterRule;
     return { ...rule, not: !rule.not };
@@ -244,6 +281,9 @@ export function negateRule(filter: FilterAny, ruleId: string): FilterAny {
 export function negateGroup(filter: Filter, groupId: string): Filter;
 export function negateGroup(filter: FilterIC, groupId: string): FilterIC;
 export function negateGroup(filter: FilterAny, groupId: string): FilterAny {
+  if (isLocked(findById(filter, groupId))) {
+    return filter;
+  }
   return updateById(filter, groupId, (g) => {
     const group = g as FilterGroup | FilterGroupIC;
     return { ...group, not: !group.not };

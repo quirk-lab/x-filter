@@ -57,6 +57,7 @@ const ruleVm: FilterRuleViewModel = {
   rule,
   field: schema[0],
   operator,
+  locked: false,
   errors,
   aria: { label: 'Rule name equals Ada', describedBy: 'r1-errors' },
 };
@@ -66,6 +67,7 @@ const groupVm: FilterGroupViewModel = {
   id: group.id,
   group,
   depth: 0,
+  locked: false,
   children: [ruleVm],
   aria: { label: 'Filter group' },
 };

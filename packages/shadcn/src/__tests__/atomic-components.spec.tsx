@@ -277,7 +277,15 @@ describe('shadcn atomic components', () => {
 
     render(
       <ShadcnFilterGroup
-        group={{ kind: 'group', id: 'g1', group, depth: 0, children: [], aria: { label: 'Group' } }}
+        group={{
+          kind: 'group',
+          id: 'g1',
+          group,
+          depth: 0,
+          locked: false,
+          children: [],
+          aria: { label: 'Group' },
+        }}
         onAddRule={onAddRule}
         onAddGroup={onAddGroup}
         onCombinatorChange={onCombinatorChange}
@@ -291,6 +299,7 @@ describe('shadcn atomic components', () => {
             id: 'r1',
             rule,
             field: schema[0],
+            locked: false,
             errors: [],
             aria: { label: 'Rule' },
           }}
@@ -386,6 +395,7 @@ describe('shadcn atomic components', () => {
           id: 'g2',
           group,
           depth: 1,
+          locked: false,
           children: [],
           aria: { label: 'Empty group' },
         }}

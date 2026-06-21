@@ -32,27 +32,34 @@ export const AntdFilterRule = memo(function AntdFilterRule({
   onRemove,
   onClone,
 }: AntdFilterRuleProps) {
+  // Locked rules are read-only: disable controls and hide mutating actions.
+  const locked = rule.locked;
   return (
     <Space
       aria-describedby={rule.aria.describedBy}
       aria-label={rule.aria.label}
       className={className}
+      data-locked={locked || undefined}
       role="group"
+      style={locked ? { opacity: 0.6 } : undefined}
       wrap
     >
       <AntdNotToggle
         checked={Boolean(rule.rule.not)}
+        disabled={locked}
         onChange={(not) => onChange(rule.id, { not })}
       />
       <AntdFieldSelector
         schema={schema}
         rule={rule.rule}
+        disabled={locked}
         onChange={(field) => onChange(rule.id, getDefaultRuleUpdatesForField(schema, field))}
       />
       <AntdOperatorSelector
         field={rule.field}
         schema={schema}
         rule={rule.rule}
+        disabled={locked}
         onChange={(operator) => onChange(rule.id, { operator })}
       />
       <AntdValueEditor
@@ -60,12 +67,17 @@ export const AntdFilterRule = memo(function AntdFilterRule({
         operator={rule.operator}
         schema={schema}
         rule={rule.rule}
+        disabled={locked}
         onChange={(value) => onChange(rule.id, { value })}
       />
-      {onClone ? <Button onClick={() => onClone(rule.id)}>Clone rule</Button> : null}
-      <Button danger onClick={() => onRemove(rule.id)}>
-        Remove rule
-      </Button>
+      {locked ? null : (
+        <>
+          {onClone ? <Button onClick={() => onClone(rule.id)}>Clone rule</Button> : null}
+          <Button danger onClick={() => onRemove(rule.id)}>
+            Remove rule
+          </Button>
+        </>
+      )}
     </Space>
   );
 });

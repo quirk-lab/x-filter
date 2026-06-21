@@ -76,17 +76,21 @@ export function AntdFilterBuilder({
     const FieldSelector = slots?.FieldSelector;
     const OperatorSelector = slots?.OperatorSelector;
     const ValueEditor = slots?.ValueEditor;
+    const locked = rule.locked;
 
     return (
       <Space
         aria-describedby={rule.aria.describedBy}
         aria-label={rule.aria.label}
         className={classNames?.rule}
+        data-locked={locked || undefined}
         role="group"
+        style={locked ? { opacity: 0.6 } : undefined}
         wrap
       >
         <AntdNotToggle
           checked={Boolean(rule.rule.not)}
+          disabled={locked}
           label={labels?.not}
           onChange={(not) => actions.updateRule(rule.id, { not })}
         />
@@ -95,6 +99,7 @@ export function AntdFilterBuilder({
         ) : (
           <AntdFieldSelector
             className={classNames?.fieldSelector}
+            disabled={locked}
             label={labels?.field}
             rule={rule.rule}
             schema={builder.schema}
@@ -108,6 +113,7 @@ export function AntdFilterBuilder({
         ) : (
           <AntdOperatorSelector
             className={classNames?.operatorSelector}
+            disabled={locked}
             field={rule.field}
             label={labels?.operator}
             rule={rule.rule}
@@ -120,6 +126,7 @@ export function AntdFilterBuilder({
         ) : (
           <AntdValueEditor
             className={classNames?.valueEditor}
+            disabled={locked}
             endLabel={labels?.endValue}
             field={rule.field}
             label={labels?.value}
@@ -131,12 +138,14 @@ export function AntdFilterBuilder({
             onChange={(nextValue) => actions.updateRule(rule.id, { value: nextValue })}
           />
         )}
-        <span className={classNames?.actions}>
-          <Button onClick={() => actions.cloneRule(rule.id)}>{resolvedLabels.cloneRule}</Button>
-          <Button danger onClick={() => actions.removeRule(rule.id)}>
-            {resolvedLabels.removeRule}
-          </Button>
-        </span>
+        {locked ? null : (
+          <span className={classNames?.actions}>
+            <Button onClick={() => actions.cloneRule(rule.id)}>{resolvedLabels.cloneRule}</Button>
+            <Button danger onClick={() => actions.removeRule(rule.id)}>
+              {resolvedLabels.removeRule}
+            </Button>
+          </span>
+        )}
       </Space>
     );
   };
@@ -185,6 +194,7 @@ export function AntdFilterBuilder({
     }
 
     const isRoot = group.id === viewModel.root.id;
+    const locked = group.locked;
 
     if (canUseAtomicGroup(resolvedLabels, classNames)) {
       return (
@@ -208,32 +218,41 @@ export function AntdFilterBuilder({
         aria-describedby={group.aria.describedBy}
         aria-label={group.aria.label}
         className={classNames?.group}
+        data-locked={locked || undefined}
         role="group"
         size="small"
       >
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          <Space className={classNames?.actions} wrap>
+          <Space className={classNames?.actions} style={locked ? { opacity: 0.6 } : undefined} wrap>
             <AntdCombinatorSelector
+              disabled={locked}
               label={labels?.combinator}
               value={'combinator' in group.group ? group.group.combinator : 'and'}
               onChange={(combinator) => actions.updateGroup(group.id, { combinator })}
             />
             <AntdNotToggle
               checked={Boolean(group.group.not)}
+              disabled={locked}
               label={labels?.not}
               onChange={(not) => actions.updateGroup(group.id, { not })}
             />
-            <Button onClick={() => actions.addRule(group.id)}>{resolvedLabels.addRule}</Button>
-            <Button onClick={() => actions.addGroup(group.id)}>{resolvedLabels.addGroup}</Button>
-            {isRoot ? null : (
-              <Button onClick={() => actions.cloneGroup(group.id)}>
-                {resolvedLabels.cloneGroup}
-              </Button>
-            )}
-            {isRoot ? null : (
-              <Button danger onClick={() => actions.removeGroup(group.id)}>
-                {resolvedLabels.removeGroup}
-              </Button>
+            {locked ? null : (
+              <>
+                <Button onClick={() => actions.addRule(group.id)}>{resolvedLabels.addRule}</Button>
+                <Button onClick={() => actions.addGroup(group.id)}>
+                  {resolvedLabels.addGroup}
+                </Button>
+                {isRoot ? null : (
+                  <Button onClick={() => actions.cloneGroup(group.id)}>
+                    {resolvedLabels.cloneGroup}
+                  </Button>
+                )}
+                {isRoot ? null : (
+                  <Button danger onClick={() => actions.removeGroup(group.id)}>
+                    {resolvedLabels.removeGroup}
+                  </Button>
+                )}
+              </>
             )}
           </Space>
           {children.length > 0 ? <Space direction="vertical">{orderedChildren}</Space> : null}

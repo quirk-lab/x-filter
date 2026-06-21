@@ -27,18 +27,24 @@ export interface FilterRule {
   operator: string;
   value: unknown;
   not?: boolean;
+  /** When true, the rule is read-only: edit/remove/move mutations are ignored. */
+  locked?: boolean;
 }
 
 export interface FilterGroup {
   id: string;
   combinator: Combinator;
   not?: boolean;
+  /** When true, the group is read-only: edits to it and adds into it are ignored. */
+  locked?: boolean;
   children: (FilterRule | FilterGroup)[];
 }
 
 export interface FilterGroupIC {
   id: string;
   not?: boolean;
+  /** When true, the group is read-only: edits to it and adds into it are ignored. */
+  locked?: boolean;
   children: (FilterRule | FilterGroupIC | Combinator)[];
 }
 
@@ -87,4 +93,9 @@ export function isFilterGroup(node: unknown): node is FilterGroup {
     'combinator' in node &&
     'children' in node
   );
+}
+
+/** True when a rule/group carries `locked: true`. Safe for `undefined`/`null`. */
+export function isLocked(node: { locked?: boolean } | null | undefined): boolean {
+  return node?.locked === true;
 }

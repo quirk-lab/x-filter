@@ -28,39 +28,49 @@ export function ShadcnFilterGroup({
   onRemove,
   onClone,
 }: ShadcnFilterGroupProps) {
+  // A locked group freezes its own controls and hides structural actions
+  // (add / clone / remove). Children render their own locked state independently.
+  const locked = group.locked;
   return (
     <Card
       aria-describedby={group.aria.describedBy}
       aria-label={group.aria.label}
       className={className}
+      data-locked={locked || undefined}
       role="group"
     >
       <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className={cn('flex flex-wrap items-center gap-2', locked && 'opacity-60')}>
           <ShadcnCombinatorSelector
             value={'combinator' in group.group ? group.group.combinator : 'and'}
+            disabled={locked}
             onChange={(combinator) => onCombinatorChange(group.id, combinator)}
           />
           <ShadcnNotToggle
             checked={Boolean(group.group.not)}
+            disabled={locked}
             onChange={(not) => onNotChange(group.id, not)}
           />
-          <Button variant="outline" onClick={() => onAddRule(group.id)}>
-            Add rule
-          </Button>
-          <Button variant="outline" onClick={() => onAddGroup(group.id)}>
-            Add group
-          </Button>
-          {onClone ? (
-            <Button variant="outline" onClick={() => onClone(group.id)}>
-              Clone group
-            </Button>
-          ) : null}
-          {onRemove ? (
-            <Button variant="destructive" onClick={() => onRemove(group.id)}>
-              Remove group
-            </Button>
-          ) : null}
+          {locked ? null : (
+            <>
+              <Button variant="outline" onClick={() => onAddRule(group.id)}>
+                Add rule
+              </Button>
+              <Button variant="outline" onClick={() => onAddGroup(group.id)}>
+                Add group
+              </Button>
+              {onClone ? (
+                <Button variant="outline" onClick={() => onClone(group.id)}>
+                  Clone group
+                </Button>
+              ) : null}
+              {onRemove ? (
+                <Button variant="destructive" onClick={() => onRemove(group.id)}>
+                  Remove group
+                </Button>
+              ) : null}
+            </>
+          )}
         </div>
         {children ? <div className={cn('flex flex-col gap-3')}>{children}</div> : null}
       </div>
