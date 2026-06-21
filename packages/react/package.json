@@ -1,6 +1,6 @@
 {
   "name": "@x-filter/react",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Headless React hooks for the X-Filter query builder — state management, view models, DSL editor, URL sync, presets, undo/redo, and keyboard navigation.",
   "license": "MIT",
   "author": "thomaszdxsn <bnm965321@gmail.com> (https://github.com/quirk-lab)",
@@ -29,6 +29,9 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -58,7 +61,7 @@
     "@x-filter/core": "workspace:*"
   },
   "peerDependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^18.3.1 || ^19",
+    "react-dom": "^18.3.1 || ^19"
   }
 }
