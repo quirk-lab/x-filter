@@ -228,16 +228,11 @@ pre {
 }
 
 .brand-mark {
-  display: grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  border: 1px solid var(--xf-border);
+  display: block;
+  width: 28px;
+  height: 28px;
   border-radius: var(--xf-radius);
-  background: var(--xf-text);
-  color: #ffffff;
-  font-size: var(--xf-text-sm);
-  font-weight: 700;
+  object-fit: cover;
 }
 
 .brand-text {
@@ -928,10 +923,10 @@ pre {
   flex-direction: column;
   gap: 1rem;
   border: 1px solid var(--xf-border);
-  border-radius: 12px;
+  border-radius: var(--xf-radius);
   background: var(--xf-surface);
   padding: 1.25rem;
-  box-shadow: 0 8px 24px rgba(21, 23, 26, 0.06);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 
 .demo-panel-header {
@@ -970,9 +965,9 @@ pre {
 
 .demo-dsl code {
   display: block;
-  border-radius: 8px;
+  border-radius: var(--xf-radius);
   background: var(--xf-code);
-  color: #e0f2fe;
+  color: #cbd5e1;
   padding: 0.6rem 0.8rem;
   font-size: var(--xf-text-sm);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -1014,8 +1009,10 @@ pre {
 }
 
 .demo-table tbody td {
-  padding: 0.5rem 0.5rem;
+  padding: 0.4rem 0.5rem;
   border-bottom: 1px solid var(--xf-border);
+  vertical-align: middle;
+  white-space: nowrap;
 }
 
 .demo-table tbody tr:last-child td {
@@ -1029,6 +1026,7 @@ pre {
 
 .demo-table-title {
   font-weight: 600;
+  white-space: normal;
 }
 
 .demo-table-comments {
@@ -1041,11 +1039,12 @@ pre {
 .demo-chip {
   display: inline-block;
   border-radius: 999px;
-  padding: 0.1rem 0.55rem;
+  padding: 0.1rem 0.5rem;
   font-size: var(--xf-text-xs);
   font-weight: 500;
-  margin-right: 0.3rem;
-  line-height: 1.6;
+  margin-right: 0.25rem;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 .demo-chip-muted {

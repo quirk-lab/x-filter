@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { SiteChrome } from '../../src/components/site/site-chrome';
 import '../../src/styles/globals.css';
-import 'antd/dist/reset.css';
 
 const description = 'Composable filter builders for React products.';
 

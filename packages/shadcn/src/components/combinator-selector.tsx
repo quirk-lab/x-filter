@@ -1,5 +1,5 @@
 import type { Combinator } from '@x-filter/core';
-import { Select } from './primitives';
+import { cn, Select } from './primitives';
 
 export interface ShadcnCombinatorSelectorProps {
   value: Combinator;
@@ -19,7 +19,7 @@ export function ShadcnCombinatorSelector({
   return (
     <Select
       aria-label={label}
-      className={className}
+      className={cn('w-auto min-w-[5rem]', className)}
       disabled={disabled}
       onChange={(val) => onChange(val as Combinator)}
       options={[

@@ -62,7 +62,8 @@ export function SiteChrome({ children }: { children: ReactNode }) {
       <header className="site-header">
         <div className="site-header__inner">
           <Link aria-label="X-Filter home" className="brand" href={localizeHref('/', locale)}>
-            <span className="brand-mark">XF</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img alt="" className="brand-mark" height={28} src="/logo.png" width={28} />
             <span className="brand-text">X-Filter</span>
           </Link>
           <nav aria-label="Primary navigation" className="site-nav">

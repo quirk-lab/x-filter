@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { SiteChrome } from '../../src/components/site/site-chrome';
 import '../../src/styles/globals.css';
-import 'antd/dist/reset.css';
 
 const description = '面向 React 产品的可组合过滤器构建工具。';
 
