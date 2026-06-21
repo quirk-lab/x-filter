@@ -89,7 +89,7 @@ export function ShadcnFilterGroup({
                 <Button
                   aria-label="Remove group"
                   className="h-9 w-9 shrink-0 p-0"
-                  variant="destructive"
+                  variant="ghost-destructive"
                   onClick={() => onRemove(group.id)}
                 >
                   <Trash2 aria-hidden="true" size={15} />

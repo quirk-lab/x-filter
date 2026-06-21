@@ -215,7 +215,7 @@ export function ShadcnFilterBuilder({
             <Button
               aria-label={resolvedLabels.removeRule}
               className="h-9 w-9 shrink-0 p-0"
-              variant="destructive"
+              variant="ghost-destructive"
               onClick={() => actions.removeRule(rule.id)}
             >
               <Trash2 aria-hidden="true" size={15} />
@@ -384,7 +384,7 @@ export function ShadcnFilterBuilder({
                   <Button
                     aria-label={resolvedLabels.removeGroup}
                     className="h-9 w-9 shrink-0 p-0"
-                    variant="destructive"
+                    variant="ghost-destructive"
                     onClick={() => actions.removeGroup(group.id)}
                   >
                     <Trash2 aria-hidden="true" size={15} />

@@ -633,7 +633,6 @@ pre {
 }
 
 .demo-shell {
-  overflow: hidden;
   border: 1px solid var(--xf-border);
   border-radius: var(--xf-radius-lg);
   background: var(--xf-surface);
@@ -935,12 +934,39 @@ pre {
   gap: 0.5rem;
   font-size: var(--xf-text-base);
   font-weight: 600;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--xf-border);
 }
 
 .demo-panel-header h3 {
   margin: 0;
   font-size: var(--xf-text-base);
   font-weight: 600;
+}
+
+.demo-panel-header strong {
+  font-weight: 600;
+}
+
+.demo-clear-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: none;
+  background: none;
+  color: var(--xf-muted);
+  font-size: var(--xf-text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--xf-radius);
+  transition: color 0.15s, background 0.15s;
+}
+
+.demo-clear-btn:hover {
+  color: var(--xf-coral);
+  background: var(--xf-surface-muted);
 }
 
 .demo-count {
@@ -993,10 +1019,15 @@ pre {
 
 /* ─── Demo table ──────────────────────────────────────────────────────────── */
 
+.demo-table-wrap {
+  overflow-x: auto;
+}
+
 .demo-table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--xf-text-sm);
+  table-layout: auto;
 }
 
 .demo-table thead th {
@@ -1009,10 +1040,18 @@ pre {
 }
 
 .demo-table tbody td {
-  padding: 0.4rem 0.5rem;
+  padding: 0.5rem 0.6rem;
   border-bottom: 1px solid var(--xf-border);
   vertical-align: middle;
   white-space: nowrap;
+}
+
+.demo-table tbody tr {
+  transition: background 0.1s;
+}
+
+.demo-table tbody tr:hover {
+  background: var(--xf-surface-muted);
 }
 
 .demo-table tbody tr:last-child td {

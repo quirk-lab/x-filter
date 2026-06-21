@@ -2,6 +2,7 @@
 
 import { formatDSL } from '@x-filter/core';
 import { ShadcnFilterBuilder } from '@x-filter/shadcn';
+import { Filter, Table2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import {
   filterIssues,
@@ -60,13 +61,11 @@ export function NotionFilterDemo({ locale = 'en' }: { locale?: Locale }) {
 
   return (
     <div className="demo-shell">
-      <div className="demo-grid" style={{ gridTemplateColumns: 'minmax(480px, 560px) 1fr' }}>
+      <div className="demo-stack">
         {/* Filter panel */}
         <div className="demo-panel">
           <div className="demo-panel-header">
-            <span aria-hidden="true" style={{ fontSize: '1.1rem' }}>
-              🗂️
-            </span>
+            <Filter aria-hidden="true" size={16} style={{ color: 'var(--xf-muted)' }} />
             <strong>{t.database}</strong>
           </div>
           <ShadcnFilterBuilder
@@ -89,6 +88,7 @@ export function NotionFilterDemo({ locale = 'en' }: { locale?: Locale }) {
         {/* Results table */}
         <div className="demo-panel">
           <div className="demo-panel-header">
+            <Table2 aria-hidden="true" size={16} style={{ color: 'var(--xf-muted)' }} />
             <h3>{t.matching}</h3>
             <span className="demo-count">
               {results.length} / {issues.length}
@@ -97,7 +97,9 @@ export function NotionFilterDemo({ locale = 'en' }: { locale?: Locale }) {
           {results.length === 0 ? (
             <p className="demo-empty">{t.noMatch}</p>
           ) : (
-            <IssueTable rows={results} />
+            <div className="demo-table-wrap">
+              <IssueTable rows={results} />
+            </div>
           )}
         </div>
       </div>

@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
 // ─── Button ────────────────────────────────────────────────────────────────
 
 export type ButtonProps = React.ComponentPropsWithoutRef<'button'> & {
-  variant?: 'default' | 'destructive' | 'outline' | 'ghost';
+  variant?: 'default' | 'destructive' | 'outline' | 'ghost' | 'ghost-destructive';
 };
 
 export function Button({ className, variant = 'default', type = 'button', ...props }: ButtonProps) {
@@ -27,6 +27,8 @@ export function Button({ className, variant = 'default', type = 'button', ...pro
         variant === 'outline' &&
           'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
         variant === 'ghost' && 'hover:bg-accent hover:text-accent-foreground',
+        variant === 'ghost-destructive' &&
+          'border-transparent bg-transparent text-muted-foreground hover:bg-destructive hover:text-destructive-foreground',
         className
       )}
       type={type}
@@ -242,7 +244,7 @@ export function Checkbox({
       aria-label={ariaLabel}
       checked={checked}
       className={cn(
-        'h-4 w-4 rounded border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
+        'h-4 w-4 rounded border border-input shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary',
         className
       )}
       disabled={disabled}

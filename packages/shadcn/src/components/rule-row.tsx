@@ -90,7 +90,7 @@ export const ShadcnFilterRule = memo(function ShadcnFilterRule({
           <Button
             aria-label="Remove rule"
             className="h-9 w-9 shrink-0 p-0"
-            variant="destructive"
+            variant="ghost-destructive"
             onClick={() => onRemove(rule.id)}
           >
             <Trash2 aria-hidden="true" size={15} />
