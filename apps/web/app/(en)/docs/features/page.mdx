@@ -1,0 +1,165 @@
+export const metadata = {
+  title: 'Features',
+  description: 'IC mode, i18n, keyboard navigation, responsive, presets, undo/redo, import, and query exports.',
+};
+
+# Features
+
+## IC mode (inline combinators)
+
+IC mode uses `FilterGroupIC` where combinators sit between children instead of on the group. This produces a Notion-style builder where AND/OR appears between rules.
+
+```tsx
+import { AntdFilterBuilder } from '@x-filter/antd';
+
+<AntdFilterBuilder
+  schema={schema}
+  mode="ic"
+  value={filter}
+  onChange={setFilter}
+/>;
+```
+
+Use `convertToIC` and `convertFromIC` to switch between standard and IC tree types. IC mutations (`addRuleIC`, `updateRuleIC`, etc.) and `icMutationAdapter` are available from `@x-filter/core`.
+
+## Locked nodes
+
+Set `locked: true` on any group to prevent edits to that subtree. Locked groups cannot have children added, removed, or reordered. The root group can be locked to create a fixed-structure builder.
+
+```ts
+import { createFilter } from '@x-filter/core';
+
+const filter = {
+  ...createFilter(),
+  locked: true, // root is locked — children can still be edited
+};
+```
+
+Use `isLocked()` from `@x-filter/core` to check lock state in custom adapters.
+
+## Read-only mode
+
+Pass `readOnly` to either adapter to render a static, non-interactive view. All mutation controls (add, remove, drag, DSL editor) are hidden. Keyboard navigation still works for browsing.
+
+```tsx
+<AntdFilterBuilder schema={schema} value={filter} readOnly />
+```
+
+## i18n
+
+Built-in locale packs cover all UI strings. Pass any locale to the `labels` prop:
+
+```tsx
+import { zhCN, enUS, jaJP, locales } from '@x-filter/react';
+import { ShadcnFilterBuilder } from '@x-filter/shadcn';
+
+<ShadcnFilterBuilder schema={schema} labels={zhCN} />
+```
+
+Override individual keys by spreading:
+
+```tsx
+<ShadcnFilterBuilder schema={schema} labels={{ ...enUS, addRule: 'Add condition' }} />
+```
+
+All locale packs are fully typed (`Required<FilterBuilderLabels>`) — missing keys cause a compile error.
+
+## Keyboard navigation
+
+Every builder is an ARIA `tree` with roving tabindex. No extra configuration needed.
+
+| Key | Action |
+| --- | --- |
+| `Tab` | Move focus to the filter tree |
+| `Up` / `Down` | Move between rules |
+| `Home` / `End` | Jump to first / last rule |
+| `Enter` | Focus the first edit control on the current row |
+| `Esc` | Return from control to the row |
+| `Delete` | Delete the focused rule |
+| `Ctrl`/`Cmd`+`D` | Clone the focused rule |
+
+The root group cannot be deleted or cloned. In `readOnly` mode, all mutation shortcuts are disabled but navigation still works. The headless `useFilterKeyboardNav` hook powers this and can be reused in custom adapters.
+
+## Responsive and mobile
+
+The builder adapts to narrow screens automatically:
+
+- **Vertical stacking:** Below the `sm` breakpoint (640px), each rule's field/operator/value occupies its own row. Wide screens restore horizontal layout.
+- **Touch DnD:** `Mouse`, `Touch`, and `Keyboard` sensors are registered. Touch uses `TouchSensor` with delay activation to avoid interfering with scroll. Drag handles are 44px touch targets with `touch-action: none`.
+- **Breakpoint hook:** `useIsMobile(breakpoint = 640)` from `@x-filter/react` is SSR-safe (defaults to desktop when `matchMedia` is unavailable). The antd adapter uses it to switch `Space` direction; the shadcn adapter uses Tailwind responsive classes.
+
+## Presets
+
+Save, load, and delete filter presets with `useFilterPresets`:
+
+```tsx
+import { useFilterPresets } from '@x-filter/react';
+
+const { presets, savePreset, loadPreset, deletePreset } = useFilterPresets({
+  storage: localStorage, // or custom PresetStorage
+});
+```
+
+The shadcn adapter ships a `ShadcnPresetBar` component for a ready-made UI.
+
+## Undo / redo
+
+`useFilterHistory` wraps filter state with undo/redo support:
+
+```tsx
+import { useFilterHistory } from '@x-filter/react';
+
+const { state, setState, undo, redo, canUndo, canRedo } = useFilterHistory(initialFilter);
+```
+
+`useFilterBuilderOrchestrator` integrates history automatically — pass `history: true` to enable.
+
+## Import
+
+Parse JSON filters or DSL strings into the tree:
+
+```ts
+import { parseFilterInput } from '@x-filter/react';
+
+const result = parseFilterInput('{"combinator":"and","children":[]}', 'json');
+```
+
+Both adapters ship an import dialog component (`AntdImportFilterDialog` / `ShadcnImportFilterDialog`) with format auto-detection.
+
+## Query exports
+
+Compile the same `Filter` into multiple backend query formats:
+
+| Format | Function | Import path | Empty filter |
+| --- | --- | --- | --- |
+| SQL (parameterized) | `toSQL` | `@x-filter/core/sql` | `{ sql: '', params: [] }` |
+| JsonLogic | `toJsonLogic` | `@x-filter/core/jsonlogic` | `true` |
+| MongoDB Query | `toMongoQuery` | `@x-filter/core/mongodb` | `{}` |
+| Elasticsearch | `toElasticQuery` | `@x-filter/core/elasticsearch` | `{ match_all: {} }` |
+
+All exporters support nested groups, `AND`/`OR` combinators, `not` negation, and an optional `fieldMap` to remap field names.
+
+```ts
+import { toSQL } from '@x-filter/core/sql';
+
+const { sql, params } = toSQL(filter, {
+  fieldMap: { status: 'tickets.status' },
+});
+```
+
+## URL sync
+
+Persist filter state to the URL for shareable links:
+
+```tsx
+import { useFilterUrlSync } from '@x-filter/react';
+
+const { getFilterFromUrl, setFilterToUrl, error } = useFilterUrlSync({ mode: 'dsl' });
+```
+
+| Mode | URL shape | Best for |
+| --- | --- | --- |
+| `'dsl'` (default) | `?filter=status:equals:open AND priority:gt:2` | Concise, human-readable links |
+| `'json'` | `?filter=%7B%22combinator%22...%7D` | Lossless structure preservation |
+
+Options: `paramName` (default `filter`), `getSearchParams` / `setSearchParams` for custom adapters (e.g. Next.js router). Parse failures return an `error` string instead of throwing.

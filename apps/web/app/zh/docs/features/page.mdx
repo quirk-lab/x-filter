@@ -1,0 +1,165 @@
+export const metadata = {
+  title: '特性',
+  description: 'IC 模式、i18n、键盘导航、响应式、预设、撤销/重做、导入和查询导出。',
+};
+
+# 特性
+
+## IC 模式（内联组合子）
+
+IC 模式使用 `FilterGroupIC`，组合子位于子节点之间而非分组上。这产生 Notion 风格的构建器，AND/OR 显示在规则之间。
+
+```tsx
+import { AntdFilterBuilder } from '@x-filter/antd';
+
+<AntdFilterBuilder
+  schema={schema}
+  mode="ic"
+  value={filter}
+  onChange={setFilter}
+/>;
+```
+
+使用 `convertToIC` 和 `convertFromIC` 在标准和 IC 树类型之间切换。IC 变更函数（`addRuleIC`、`updateRuleIC` 等）和 `icMutationAdapter` 可从 `@x-filter/core` 导入。
+
+## 锁定节点
+
+在任意分组上设置 `locked: true` 可阻止对该子树的编辑。锁定的分组无法添加、删除或重排子节点。根分组可被锁定以创建固定结构的构建器。
+
+```ts
+import { createFilter } from '@x-filter/core';
+
+const filter = {
+  ...createFilter(),
+  locked: true, // 根被锁定 — 子节点仍可编辑
+};
+```
+
+使用 `@x-filter/core` 的 `isLocked()` 在自定义适配器中检查锁定状态。
+
+## 只读模式
+
+向任一适配器传入 `readOnly` 可渲染静态、不可交互的视图。所有变更控件（添加、删除、拖拽、DSL 编辑器）都会隐藏。键盘导航仍可用于浏览。
+
+```tsx
+<AntdFilterBuilder schema={schema} value={filter} readOnly />
+```
+
+## 国际化
+
+内置语言包覆盖所有 UI 文案。将任意语言包传入 `labels` prop：
+
+```tsx
+import { zhCN, enUS, jaJP, locales } from '@x-filter/react';
+import { ShadcnFilterBuilder } from '@x-filter/shadcn';
+
+<ShadcnFilterBuilder schema={schema} labels={zhCN} />
+```
+
+覆盖单个 key：
+
+```tsx
+<ShadcnFilterBuilder schema={schema} labels={{ ...enUS, addRule: 'Add condition' }} />
+```
+
+所有语言包都是完全类型化的（`Required<FilterBuilderLabels>`）— 缺失 key 会导致编译错误。
+
+## 键盘导航
+
+每个构建器都是带 roving tabindex 的 ARIA `tree`。无需额外配置。
+
+| 按键 | 行为 |
+| --- | --- |
+| `Tab` | 将焦点移到过滤树 |
+| `↑` / `↓` | 在规则之间移动 |
+| `Home` / `End` | 跳到第一条 / 最后一条 |
+| `Enter` | 聚焦当前行的第一个编辑控件 |
+| `Esc` | 从控件退回到所在行 |
+| `Delete` | 删除当前聚焦的规则 |
+| `Ctrl` / `Cmd`+`D` | 克隆当前聚焦的规则 |
+
+根分组不可被删除或克隆。`readOnly` 模式下所有变更快捷键被禁用，但导航仍可用。无头的 `useFilterKeyboardNav` hook 驱动此功能，可在自定义适配器中复用。
+
+## 响应式与移动端
+
+构建器自动适配窄屏：
+
+- **纵向堆叠：** 低于 `sm` 断点（640px）时，每条规则的字段/操作符/值各占一行。宽屏恢复横向布局。
+- **触摸拖拽：** 注册了 `Mouse`、`Touch`、`Keyboard` 三种 sensor。触摸使用 `TouchSensor` 延迟激活，避免干扰滚动。拖拽手柄为 44px 触摸目标，`touch-action: none`。
+- **断点 hook：** `@x-filter/react` 的 `useIsMobile(breakpoint = 640)` 是 SSR 安全的（`matchMedia` 不可用时默认桌面布局）。antd 适配器据此切换 `Space` 方向，shadcn 适配器使用 Tailwind 响应式类。
+
+## 预设
+
+使用 `useFilterPresets` 保存、加载和删除过滤器预设：
+
+```tsx
+import { useFilterPresets } from '@x-filter/react';
+
+const { presets, savePreset, loadPreset, deletePreset } = useFilterPresets({
+  storage: localStorage, // 或自定义 PresetStorage
+});
+```
+
+shadcn 适配器提供 `ShadcnPresetBar` 组件，开箱即用。
+
+## 撤销 / 重做
+
+`useFilterHistory` 为过滤器状态提供撤销/重做支持：
+
+```tsx
+import { useFilterHistory } from '@x-filter/react';
+
+const { state, setState, undo, redo, canUndo, canRedo } = useFilterHistory(initialFilter);
+```
+
+`useFilterBuilderOrchestrator` 自动集成历史 — 传入 `history: true` 即可启用。
+
+## 导入
+
+将 JSON 过滤器或 DSL 字符串解析为过滤树：
+
+```ts
+import { parseFilterInput } from '@x-filter/react';
+
+const result = parseFilterInput('{"combinator":"and","children":[]}', 'json');
+```
+
+两个适配器都提供导入对话框组件（`AntdImportFilterDialog` / `ShadcnImportFilterDialog`），支持格式自动检测。
+
+## 查询导出
+
+将同一份 `Filter` 编译为多种后端查询格式：
+
+| 格式 | 函数 | 导入路径 | 空过滤器 |
+| --- | --- | --- | --- |
+| SQL（参数化） | `toSQL` | `@x-filter/core/sql` | `{ sql: '', params: [] }` |
+| JsonLogic | `toJsonLogic` | `@x-filter/core/jsonlogic` | `true` |
+| MongoDB 查询 | `toMongoQuery` | `@x-filter/core/mongodb` | `{}` |
+| Elasticsearch | `toElasticQuery` | `@x-filter/core/elasticsearch` | `{ match_all: {} }` |
+
+所有导出器支持嵌套分组、`AND`/`OR` 组合子、`not` 取反，以及可选的 `fieldMap` 重映射字段名。
+
+```ts
+import { toSQL } from '@x-filter/core/sql';
+
+const { sql, params } = toSQL(filter, {
+  fieldMap: { status: 'tickets.status' },
+});
+```
+
+## URL 同步
+
+将过滤器状态持久化到 URL，实现可分享链接：
+
+```tsx
+import { useFilterUrlSync } from '@x-filter/react';
+
+const { getFilterFromUrl, setFilterToUrl, error } = useFilterUrlSync({ mode: 'dsl' });
+```
+
+| 模式 | URL 形态 | 适用场景 |
+| --- | --- | --- |
+| `'dsl'`（默认） | `?filter=status:equals:open AND priority:gt:2` | 简洁、人类可读的链接 |
+| `'json'` | `?filter=%7B%22combinator%22...%7D` | 无损保留全部结构 |
+
+可选项：`paramName`（默认 `filter`）、`getSearchParams` / `setSearchParams` 用于自定义适配器（如 Next.js router）。解析失败返回 `error` 字符串而非抛出异常。

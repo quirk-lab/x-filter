@@ -60,6 +60,14 @@ export const docsNav: NavItem[] = [
     },
   },
   {
+    label: { en: 'Features', zh: '特性' },
+    href: '/docs/features',
+    description: {
+      en: 'IC mode, i18n, keyboard nav, responsive, presets, undo/redo, import, and query exports.',
+      zh: 'IC 模式、i18n、键盘导航、响应式、预设、撤销/重做、导入和查询导出。',
+    },
+  },
+  {
     label: { en: 'DSL and SQL', zh: 'DSL 与 SQL' },
     href: '/docs/dsl-sql',
     description: {

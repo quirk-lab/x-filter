@@ -14,38 +14,90 @@ This reference covers the stable surface used by the web docs and examples.
 | `FieldSchema` | Field name, label, type, values, default operator, and default value. |
 | `FilterRule` | A single rule with `field`, `operator`, `value`, and optional `not`. |
 | `FilterGroup` | A group with `combinator`, optional `not`, and nested children (rules and groups). |
+| `FilterGroupIC` | Inline-combinator group where combinators sit between children. |
 | `Filter` | Alias for the root `FilterGroup`. |
+| `FilterIC` | Alias for the root `FilterGroupIC`. |
 | `ValidationResult` | `{ valid, errors }` after schema validation. |
+| `MutationAdapter` | Adapter that dispatches mutations to standard or IC tree functions. |
 
 ## Core helpers
 
 | Helper | Description |
 | --- | --- |
 | `createFilter` | Create an empty filter group. |
-| `createRule` | Create a rule with generated or provided id. |
-| `addRule`, `removeRule`, `updateRule` | Mutate rule collections immutably. |
-| `addGroup`, `removeGroup`, `updateGroup` | Mutate nested groups immutably. |
+| `createRule` / `createGroup` | Create a rule or group with generated or provided id. |
+| `addRule`, `removeRule`, `updateRule`, `moveRule`, `cloneRule` | Mutate rules immutably. |
+| `addGroup`, `removeGroup`, `updateGroup`, `cloneGroup` | Mutate nested groups immutably. |
+| `negateRule`, `negateGroup` | Toggle `not` on a rule or group. |
 | `validate` | Check fields, operators, values, combinators, and groups. |
 | `toJSON`, `fromJSON` | Serialize filters for storage and URLs. |
+| `traverse`, `walk`, `findById`, `findParent`, `getPath`, `flattenRules` | Tree traversal utilities. |
+| `mapTree`, `updateById` | Immutable tree mapping and updates. |
+| `isFilterGroup`, `isFilterRule`, `isLocked` | Type guards and lock check. |
+| `generateId` | Default ID generator. |
+
+## IC tree helpers
+
+| Helper | Description |
+| --- | --- |
+| `addRuleIC`, `removeRuleIC`, `updateRuleIC`, `moveRuleIC`, `cloneRuleIC` | IC tree rule mutations. |
+| `addGroupIC`, `removeGroupIC`, `updateGroupIC`, `cloneGroupIC` | IC tree group mutations. |
+| `setCombinatorIC` | Set the combinator between two children. |
+| `convertToIC`, `convertFromIC` | Convert between standard and IC tree types. |
+| `isFilterGroupIC` | Type guard for `FilterGroupIC`. |
+| `icMutationAdapter` | Mutation adapter for IC trees. |
+| `standardMutationAdapter` | Mutation adapter for standard trees. |
 
 ## DSL and SQL helpers
 
 | Helper | Description |
 | --- | --- |
 | `formatDSL` | Convert a `Filter` into text DSL. |
-| `tryParseDSL` | Parse text into a `Filter` with structured parse errors. |
+| `parseDSL` | Parse text into a `Filter` (throws on error). |
+| `tryParseDSL` | Parse text, returning `{ filter, errors }` instead of throwing. |
+| `tokenize` / `parse` | Tokenize and parse DSL into an AST. |
+| `filterToAst` / `astToFilter` | Convert between `Filter` and AST. |
 | `getDslCompletions` | Build completion items for DSL editors. |
-| `toSQL` | Convert a filter to `{ sql, params }`. |
+
+## Query exporters
+
+| Export | Sub-path | Output |
+| --- | --- | --- |
+| `toSQL` | `@x-filter/core/sql` | `{ sql, params }` |
+| `toJsonLogic` | `@x-filter/core/jsonlogic` | JsonLogic object |
+| `toMongoQuery` | `@x-filter/core/mongodb` | MongoDB query object |
+| `toElasticQuery` | `@x-filter/core/elasticsearch` | Elasticsearch query object |
+
+`toJsonLogic`, `toMongoQuery`, and `toElasticQuery` are also re-exported from the main entry point.
 
 ## React hooks
 
 | Hook | Description |
 | --- | --- |
 | `useFilterBuilder` | Controlled/uncontrolled mutation helpers for filters. |
+| `useFilterBuilderOrchestrator` | Orchestrate builder state, DSL, validation, and history in one hook. |
 | `useFilterViewModel` | Build accessible view models for adapter rendering. |
-| `useFilterDsl` | Manage DSL drafts, commits, and parse errors. |
+| `useFilterValidation` | Validate filters against schema, returning errors keyed by node id. |
 | `useFilterUrlSync` | Encode and decode filters through URL search params. |
+| `useFilterHistory` | Undo/redo history for filter state. |
+| `useFilterPresets` | Save, load, and delete filter presets. |
+| `useFilterKeyboardNav` | ARIA tree keyboard navigation with roving tabindex. |
+| `useDslEditor` | Manage DSL draft text, commits, and parse errors. |
+| `useDslEditorInteraction` | Interaction helpers for the DSL token editor (completion, cursor). |
 | `useReorderContract` | Shared move and drop rules for nested groups. |
+| `useIsMobile` | Responsive breakpoint hook (defaults to 640px, SSR-safe). |
+
+## React utilities
+
+| Export | Description |
+| --- | --- |
+| `enUS`, `zhCN`, `jaJP`, `locales` | Built-in locale packs for i18n. |
+| `parseFilterInput` | Parse JSON or DSL strings into a `Filter`. |
+| `findSchemaField`, `findOperator`, `getFieldOperators` | Schema lookup helpers. |
+| `resolveLabels`, `resolveRuleRender`, `resolveGroupRender` | Render decision helpers. |
+| `getDefaultRuleUpdatesForField` | Get default operator/value updates when field changes. |
+| `dslToTokenChips`, `foldPendingIntoDsl` | DSL token chip utilities. |
+| `asArrayValue`, `asPairValue`, `asStringValue`, `parseNumberInput`, `updatePairValue` | Value coercion helpers. |
 
 ## Adapter components
 
@@ -60,5 +112,32 @@ type FilterBuilderProps = {
   errors?: Record<string, ValidationError[]>;
   dsl?: boolean;
   dnd?: boolean;
+  mode?: 'standard' | 'ic';
+  labels?: FilterBuilderLabels;
+  readOnly?: boolean;
+  slots?: FilterBuilderSlots;
+  classNames?: FilterBuilderClassNames;
 };
 ```
+
+### Atomic components
+
+Both adapters export composable atomic components for custom layouts:
+
+| Antd | Shadcn | Purpose |
+| --- | --- | --- |
+| `AntdFilterGroup` | `ShadcnFilterGroup` | Render a group block |
+| `AntdFilterRule` | `ShadcnFilterRule` | Render a rule row |
+| `AntdFieldSelector` | `ShadcnFieldSelector` | Field dropdown |
+| `AntdOperatorSelector` | `ShadcnOperatorSelector` | Operator dropdown |
+| `AntdCombinatorSelector` | `ShadcnCombinatorSelector` | Combinator (AND/OR) selector |
+| `AntdValueEditor` | `ShadcnValueEditor` | Value input editor |
+| `AntdNotToggle` | `ShadcnNotToggle` | NOT toggle |
+| `AntdDslEditor` | `ShadcnDslEditor` | DSL text editor |
+| — | `ShadcnDslTokenInput` | DSL token chip input (shadcn only) |
+| `AntdCompletionMenu` | `ShadcnCompletionMenu` | DSL autocomplete menu |
+| `AntdImportFilterDialog` | `ShadcnImportFilterDialog` | Import JSON/DSL dialog |
+| — | `ShadcnPresetBar` | Preset save/load bar (shadcn only) |
+| `AntdInlineCombinator` | `ShadcnInlineCombinator` | Inline combinator for IC mode |
+| `SortableFilterContext` | `SortableFilterContext` | DnD context provider |
+| `SortableFilterItem` | `SortableFilterItem` | DnD sortable item wrapper |

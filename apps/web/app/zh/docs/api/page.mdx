@@ -14,38 +14,90 @@ export const metadata = {
 | `FieldSchema` | 字段名、标签、类型、取值、默认操作符和默认值。 |
 | `FilterRule` | 单个条件，包含 `field`、`operator`、`value` 和可选 `not`。 |
 | `FilterGroup` | 包含 `combinator`、可选 `not` 和嵌套条件的分组。 |
+| `FilterGroupIC` | 内联组合子分组，组合子位于子节点之间。 |
 | `Filter` | 根 `FilterGroup` 的别名。 |
+| `FilterIC` | 根 `FilterGroupIC` 的别名。 |
 | `ValidationResult` | schema 校验后的 `{ valid, errors }`。 |
+| `MutationAdapter` | 将变更分发到标准或 IC 树函数的适配器。 |
 
 ## 核心工具
 
 | 工具 | 说明 |
 | --- | --- |
 | `createFilter` | 创建空过滤器分组。 |
-| `createRule` | 用生成或指定的 id 创建规则。 |
-| `addRule`, `removeRule`, `updateRule` | 不可变地变更规则集合。 |
-| `addGroup`, `removeGroup`, `updateGroup` | 不可变地变更嵌套分组。 |
+| `createRule` / `createGroup` | 用生成或指定的 id 创建规则或分组。 |
+| `addRule`, `removeRule`, `updateRule`, `moveRule`, `cloneRule` | 不可变地变更规则。 |
+| `addGroup`, `removeGroup`, `updateGroup`, `cloneGroup` | 不可变地变更嵌套分组。 |
+| `negateRule`, `negateGroup` | 切换规则或分组的 `not`。 |
 | `validate` | 检查字段、操作符、值、组合器和分组。 |
 | `toJSON`, `fromJSON` | 为存储和 URL 序列化过滤器。 |
+| `traverse`, `walk`, `findById`, `findParent`, `getPath`, `flattenRules` | 树遍历工具。 |
+| `mapTree`, `updateById` | 不可变树映射和更新。 |
+| `isFilterGroup`, `isFilterRule`, `isLocked` | 类型守卫和锁定检查。 |
+| `generateId` | 默认 ID 生成器。 |
+
+## IC 树工具
+
+| 工具 | 说明 |
+| --- | --- |
+| `addRuleIC`, `removeRuleIC`, `updateRuleIC`, `moveRuleIC`, `cloneRuleIC` | IC 树规则变更。 |
+| `addGroupIC`, `removeGroupIC`, `updateGroupIC`, `cloneGroupIC` | IC 树分组变更。 |
+| `setCombinatorIC` | 设置两个子节点之间的组合子。 |
+| `convertToIC`, `convertFromIC` | 在标准和 IC 树类型之间转换。 |
+| `isFilterGroupIC` | `FilterGroupIC` 类型守卫。 |
+| `icMutationAdapter` | IC 树变更适配器。 |
+| `standardMutationAdapter` | 标准树变更适配器。 |
 
 ## DSL 与 SQL 工具
 
 | 工具 | 说明 |
 | --- | --- |
 | `formatDSL` | 把 `Filter` 转换为文本 DSL。 |
-| `tryParseDSL` | 把文本解析为 `Filter`，并提供结构化解析错误。 |
+| `parseDSL` | 把文本解析为 `Filter`（出错时抛出异常）。 |
+| `tryParseDSL` | 把文本解析为 `Filter`，返回 `{ filter, errors }` 而非抛出。 |
+| `tokenize` / `parse` | 分词和解析 DSL 为 AST。 |
+| `filterToAst` / `astToFilter` | 在 `Filter` 和 AST 之间转换。 |
 | `getDslCompletions` | 为 DSL 编辑器构建补全项。 |
-| `toSQL` | 把过滤器转换为 `{ sql, params }`。 |
+
+## 查询导出器
+
+| 导出 | 子路径 | 输出 |
+| --- | --- | --- |
+| `toSQL` | `@x-filter/core/sql` | `{ sql, params }` |
+| `toJsonLogic` | `@x-filter/core/jsonlogic` | JsonLogic 对象 |
+| `toMongoQuery` | `@x-filter/core/mongodb` | MongoDB 查询对象 |
+| `toElasticQuery` | `@x-filter/core/elasticsearch` | Elasticsearch 查询对象 |
+
+`toJsonLogic`、`toMongoQuery` 和 `toElasticQuery` 也从主入口导出。
 
 ## React hooks
 
 | Hook | 说明 |
 | --- | --- |
 | `useFilterBuilder` | 受控或非受控的过滤器变更工具。 |
+| `useFilterBuilderOrchestrator` | 一个 hook 统一管理构建器状态、DSL、校验和历史。 |
 | `useFilterViewModel` | 为适配器渲染构建可访问 view model。 |
-| `useFilterDsl` | 管理 DSL 草稿、提交和解析错误。 |
+| `useFilterValidation` | 根据 schema 校验过滤器，返回按节点 id 分组的错误。 |
 | `useFilterUrlSync` | 通过 URL search params 编码和解码过滤器。 |
+| `useFilterHistory` | 过滤器状态的撤销/重做历史。 |
+| `useFilterPresets` | 保存、加载和删除过滤器预设。 |
+| `useFilterKeyboardNav` | ARIA 树键盘导航，roving tabindex。 |
+| `useDslEditor` | 管理 DSL 草稿文本、提交和解析错误。 |
+| `useDslEditorInteraction` | DSL token 编辑器的交互辅助（补全、光标）。 |
 | `useReorderContract` | 嵌套分组的共享移动和放置规则。 |
+| `useIsMobile` | 响应式断点 hook（默认 640px，SSR 安全）。 |
+
+## React 工具函数
+
+| 导出 | 说明 |
+| --- | --- |
+| `enUS`, `zhCN`, `jaJP`, `locales` | 内置语言包。 |
+| `parseFilterInput` | 解析 JSON 或 DSL 字符串为 `Filter`。 |
+| `findSchemaField`, `findOperator`, `getFieldOperators` | Schema 查找辅助。 |
+| `resolveLabels`, `resolveRuleRender`, `resolveGroupRender` | 渲染决策辅助。 |
+| `getDefaultRuleUpdatesForField` | 字段变更时获取默认操作符/值更新。 |
+| `dslToTokenChips`, `foldPendingIntoDsl` | DSL token chip 工具。 |
+| `asArrayValue`, `asPairValue`, `asStringValue`, `parseNumberInput`, `updatePairValue` | 值类型转换辅助。 |
 
 ## 适配器组件
 
@@ -60,5 +112,32 @@ type FilterBuilderProps = {
   errors?: Record<string, ValidationError[]>;
   dsl?: boolean;
   dnd?: boolean;
+  mode?: 'standard' | 'ic';
+  labels?: FilterBuilderLabels;
+  readOnly?: boolean;
+  slots?: FilterBuilderSlots;
+  classNames?: FilterBuilderClassNames;
 };
 ```
+
+### 原子组件
+
+两个适配器都导出可组合的原子组件，用于自定义布局：
+
+| Antd | Shadcn | 用途 |
+| --- | --- | --- |
+| `AntdFilterGroup` | `ShadcnFilterGroup` | 渲染分组块 |
+| `AntdFilterRule` | `ShadcnFilterRule` | 渲染规则行 |
+| `AntdFieldSelector` | `ShadcnFieldSelector` | 字段下拉 |
+| `AntdOperatorSelector` | `ShadcnOperatorSelector` | 操作符下拉 |
+| `AntdCombinatorSelector` | `ShadcnCombinatorSelector` | 组合子（AND/OR）选择器 |
+| `AntdValueEditor` | `ShadcnValueEditor` | 值输入编辑器 |
+| `AntdNotToggle` | `ShadcnNotToggle` | NOT 切换 |
+| `AntdDslEditor` | `ShadcnDslEditor` | DSL 文本编辑器 |
+| — | `ShadcnDslTokenInput` | DSL token chip 输入（仅 shadcn） |
+| `AntdCompletionMenu` | `ShadcnCompletionMenu` | DSL 自动补全菜单 |
+| `AntdImportFilterDialog` | `ShadcnImportFilterDialog` | 导入 JSON/DSL 对话框 |
+| — | `ShadcnPresetBar` | 预设保存/加载栏（仅 shadcn） |
+| `AntdInlineCombinator` | `ShadcnInlineCombinator` | IC 模式内联组合子 |
+| `SortableFilterContext` | `SortableFilterContext` | DnD 上下文提供者 |
+| `SortableFilterItem` | `SortableFilterItem` | DnD 可排序项包装 |

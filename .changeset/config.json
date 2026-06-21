@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.1.4/schema.json",
+  "changelog": [
+    "@changesets/changelog-github",
+    {
+      "repo": "quirk-lab/x-filter"
+    }
+  ],
+  "commit": false,
+  "fixed": [["@x-filter/core", "@x-filter/react", "@x-filter/shadcn", "@x-filter/antd"]],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": []
+}
