@@ -124,6 +124,56 @@ export interface UseFilterValidationOptions {
   schema: FieldSchema[];
 }
 
+export type FilterNodeKind = 'rule' | 'group';
+
+export interface UseFilterKeyboardNavOptions {
+  /** Invoked when Delete/Backspace is pressed on a focused node row. */
+  onDeleteNode?: (id: string, kind: FilterNodeKind) => void;
+  /** Invoked when Ctrl/Cmd+D is pressed on a focused node row. */
+  onCloneNode?: (id: string, kind: FilterNodeKind) => void;
+  /** Accessible name for the tree container. Defaults to `'Filter tree'`. */
+  label?: string;
+}
+
+export interface FilterKeyboardNavItemProps {
+  role: 'treeitem';
+  tabIndex: number;
+  'data-node-id': string;
+  'data-node-kind': FilterNodeKind;
+  'aria-selected': boolean;
+  /** Accessible name for the row (omitted when no label is supplied). */
+  'aria-label'?: string;
+  /** Expanded state for group rows (omitted for leaf rows). */
+  'aria-expanded'?: boolean;
+  onFocus: (event: React.FocusEvent<HTMLElement>) => void;
+}
+
+/** Per-item options forwarded to {@link FilterKeyboardNavItemProps}. */
+export interface FilterKeyboardNavItemOptions {
+  /** Accessible name for the row. */
+  label?: string;
+  /** Expanded state — pass `true`/`false` for groups, omit for leaf rows. */
+  expanded?: boolean;
+}
+
+export interface UseFilterKeyboardNavReturn {
+  containerRef: React.RefObject<HTMLDivElement>;
+  containerProps: {
+    ref: React.RefObject<HTMLDivElement>;
+    role: 'tree';
+    'aria-label': string;
+    onKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => void;
+  };
+  /** Spread onto each treeitem wrapper. `index` is the global tree order. */
+  getItemProps: (
+    nodeId: string,
+    index: number,
+    kind: FilterNodeKind,
+    options?: FilterKeyboardNavItemOptions
+  ) => FilterKeyboardNavItemProps;
+  activeId: string | null;
+}
+
 export interface UseFilterHistoryOptions {
   /** The starting filter. Defaults to an empty `and` group. */
   initialFilter?: Filter;

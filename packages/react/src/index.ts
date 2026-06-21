@@ -8,6 +8,9 @@ export type {
   FilterBuilderSlotProps,
   FilterBuilderSlots,
   FilterGroupViewModel,
+  FilterKeyboardNavItemOptions,
+  FilterKeyboardNavItemProps,
+  FilterNodeKind,
   FilterNodeViewModel,
   FilterPreset,
   FilterRuleViewModel,
@@ -23,6 +26,8 @@ export type {
   UseFilterBuilderReturn,
   UseFilterHistoryOptions,
   UseFilterHistoryReturn,
+  UseFilterKeyboardNavOptions,
+  UseFilterKeyboardNavReturn,
   UseFilterPresetsOptions,
   UseFilterPresetsReturn,
   UseFilterUrlSyncOptions,
@@ -86,6 +91,7 @@ export { useDslEditorInteraction } from './use-dsl-editor-interaction';
 export { useFilterBuilder } from './use-filter-builder';
 export { useFilterBuilderOrchestrator } from './use-filter-builder-orchestrator';
 export { useFilterHistory } from './use-filter-history';
+export { useFilterKeyboardNav } from './use-filter-keyboard-nav';
 export { useFilterPresets } from './use-filter-presets';
 export { useFilterUrlSync } from './use-filter-url-sync';
 export { useFilterValidation } from './use-filter-validation';

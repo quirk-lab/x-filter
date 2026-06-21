@@ -133,6 +133,22 @@ const [code, setCode] = useState<'en-US' | 'zh-CN' | 'ja-JP'>('zh-CN');
 
 内置 `en-US`、`zh-CN`、`ja-JP`，均为完整 `FilterBuilderLabels`（编译期 `Required` 校验，保证 key 齐全）。仍可只覆盖部分 key：`labels={{ ...zhCN, addRule: '新增条件' }}`。
 
+## ⌨️ 键盘导航
+
+Builder 本身就是一棵 ARIA `tree`：每个条件 / 分组都是 `treeitem`，通过 roving tabindex 实现纯键盘操作，开箱即用、无需额外配置（`@x-filter/shadcn` 与 `@x-filter/antd` 一致）。
+
+| 按键              | 行为                          |
+| ----------------- | ----------------------------- |
+| `Tab`             | 将焦点移动到过滤树            |
+| `↑` / `↓`         | 在上一条 / 下一条之间移动     |
+| `Home` / `End`    | 跳到第一条 / 最后一条         |
+| `Enter`           | 聚焦当前行的第一个编辑控件    |
+| `Esc`             | 从控件退回到所在行            |
+| `Delete`          | 删除当前聚焦的条件            |
+| `Ctrl` / `Cmd`+`D`| 克隆当前聚焦的条件            |
+
+根分组不可被键盘删除 / 克隆；`readOnly` 模式下仍可用方向键浏览，但所有改动型快捷键被禁用。底层逻辑由 headless 的 `useFilterKeyboardNav` 提供，可在自定义适配层复用。
+
 ## 📖 文档
 
 每个包都有自己的 README 文档，详细说明了使用方法和 API。
