@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import type { FieldSchema, Filter } from '@x-filter/core';
+import type { FieldSchema, Filter, ValidationError } from '@x-filter/core';
 import { ShadcnFilterBuilder } from '../index';
 
 const { axe } = jest.requireActual('jest-axe') as {
@@ -87,3 +87,20 @@ test('ShadcnFilterBuilder gives ternary value inputs distinct accessible names',
   expect(screen.getAllByLabelText('End value')).toHaveLength(2);
   expect(screen.queryAllByLabelText('Value')).toHaveLength(0);
 });
+
+test('ShadcnFilterBuilder associates inline validation errors for assistive tech', async () => {
+  const errors: Record<string, ValidationError[]> = {
+    r1: [{ type: 'missingValue', message: 'Value is required' }],
+  };
+
+  const { container } = render(
+    <ShadcnFilterBuilder schema={schema} value={filter} onChange={jest.fn()} errors={errors} />
+  );
+
+  const valueInput = screen.getByRole('textbox', { name: 'Value' });
+  expect(valueInput.getAttribute('aria-invalid')).toBe('true');
+  expect(valueInput.getAttribute('aria-describedby')).toBe('r1-errors');
+  expect(screen.getByText('Value is required').getAttribute('id')).toBe('r1-errors');
+
+  expectNoAxeViolations(await axe(container));
+}, 30000);
