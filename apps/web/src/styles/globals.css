@@ -1,5 +1,38 @@
+@import "tailwindcss";
+
+/* Scan the @x-filter/shadcn package for Tailwind class names —
+   Tailwind v4 does not scan node_modules by default. */
+@source "../../../packages/shadcn/src";
+@source "../../node_modules/@x-filter/shadcn/dist";
+
+/* ─── shadcn/ui design tokens ────────────────────────────────────────────── */
+/* These CSS variables map shadcn Tailwind classes (bg-background, border-input,
+   text-foreground, etc.) to the project's color palette. Required for
+   @x-filter/shadcn components to render correctly. */
 :root {
   color-scheme: light;
+
+  /* shadcn semantic colors */
+  --background: #ffffff;
+  --foreground: #15171a;
+  --card: #ffffff;
+  --card-foreground: #15171a;
+  --popover: #ffffff;
+  --popover-foreground: #15171a;
+  --primary: #0f766e;
+  --primary-foreground: #ffffff;
+  --secondary: #eef3f1;
+  --secondary-foreground: #15171a;
+  --muted: #eef3f1;
+  --muted-foreground: #5f6673;
+  --accent: #eef3f1;
+  --accent-foreground: #15171a;
+  --destructive: #be3a2f;
+  --destructive-foreground: #ffffff;
+  --border: #d7dde4;
+  --input: #d7dde4;
+  --ring: #0f766e;
+  --radius: 0.5rem;
 
   /* ─── Color palette ────────────────────────────────────────────────────── */
   --xf-bg: #f6f7f9;
@@ -57,6 +90,35 @@
   --xf-shadow-lg: 0 18px 50px rgba(21, 23, 26, 0.1);
 
   --xf-header-height: 64px;
+}
+
+/* ─── Tailwind v4 theme mapping ───────────────────────────────────────────── */
+/* Maps shadcn semantic CSS variables to Tailwind utility classes so that
+   class="bg-background" or "border-input" resolves to the right color. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 * {

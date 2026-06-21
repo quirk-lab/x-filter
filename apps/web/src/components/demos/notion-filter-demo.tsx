@@ -60,7 +60,7 @@ export function NotionFilterDemo({ locale = 'en' }: { locale?: Locale }) {
 
   return (
     <div className="demo-shell">
-      <div className="demo-grid" style={{ gridTemplateColumns: 'minmax(320px, 420px) 1fr' }}>
+      <div className="demo-grid" style={{ gridTemplateColumns: 'minmax(480px, 560px) 1fr' }}>
         {/* Filter panel */}
         <div className="demo-panel">
           <div className="demo-panel-header">

@@ -40,7 +40,12 @@ export function ShadcnFilterGroup({
       role="group"
     >
       <div className="flex flex-col gap-4">
-        <div className={cn('flex flex-wrap items-center gap-2', locked && 'opacity-60')}>
+        <div
+          className={cn(
+            'flex flex-nowrap items-center gap-2 overflow-x-auto',
+            locked && 'opacity-60'
+          )}
+        >
           <ShadcnCombinatorSelector
             value={'combinator' in group.group ? group.group.combinator : 'and'}
             disabled={locked}
