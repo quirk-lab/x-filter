@@ -88,6 +88,34 @@ apps (依赖 UI 包)
 - **CI/CD**: GitHub Actions
 - **语言**: TypeScript 5.6+
 
+## 🔗 URL 同步 (useFilterUrlSync)
+
+`@x-filter/react` 提供 `useFilterUrlSync`，可把筛选条件持久化到页面 URL，实现「带参链接 → 自动还原筛选」的分享体验。Playground 的 **URL Sync Demo** 区块与 Storybook 的 **Hooks/URL Sync** story 均有可交互演示。
+
+```tsx
+import { useFilterUrlSync } from '@x-filter/react';
+
+function Demo() {
+  const { getFilterFromUrl, setFilterToUrl, error } = useFilterUrlSync({ mode: 'dsl' });
+  const [filter, setFilter] = useState(() => getFilterFromUrl() ?? createInitialFilter());
+
+  const onChange = (next) => {
+    setFilter(next);
+    setFilterToUrl(next); // 写入 ?filter=... (history.replaceState)
+  };
+  // ...
+}
+```
+
+**DSL mode vs JSON mode 取舍：**
+
+| mode | URL 形态 | 适用场景 |
+| --- | --- | --- |
+| `'dsl'`（默认） | `?filter=status:equals:open AND priority:gt:2` | 链接简洁、人类可读、可手写；推荐用于分享 |
+| `'json'` | `?filter=%7B%22combinator%22...%7D` | 需无损保留全部结构/边界字段、不依赖 DSL 解析时 |
+
+可选项：`paramName`（默认 `filter`）、`getSearchParams` / `setSearchParams`（自定义适配器，便于 Next.js router 或 SSR 测试注入）。解析失败时 `error` 会返回错误信息而非抛出。
+
 ## 📖 文档
 
 每个包都有自己的 README 文档，详细说明了使用方法和 API。
