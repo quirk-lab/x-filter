@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import type { FieldSchema, Filter, ValidationError } from '@x-filter/core';
+import type { FieldSchema, Filter, FilterIC, ValidationError } from '@x-filter/core';
 import { addRule, moveRule, removeRule, updateRule } from '@x-filter/core';
 import { useFilterViewModel } from '../use-filter-view-model';
 
@@ -71,6 +71,59 @@ describe('useFilterViewModel', () => {
       errors: [],
       aria: { label: 'Rule Status matches status' },
     });
+  });
+
+  it('exposes inline combinators for an IC group and keeps children combinator-free', () => {
+    const icFilter: FilterIC = {
+      id: 'root',
+      children: [
+        { id: 'r1', field: 'name', operator: 'contains', value: 'Ada' },
+        'and',
+        { id: 'r2', field: 'name', operator: 'contains', value: 'Bob' },
+        'or',
+        { id: 'r3', field: 'name', operator: 'contains', value: 'Cay' },
+      ],
+    };
+
+    const { result } = renderHook(() => useFilterViewModel({ filter: icFilter, schema }));
+
+    expect(result.current.root.children.map((child) => child.id)).toEqual(['r1', 'r2', 'r3']);
+    expect(result.current.root.children.every((child) => child.kind === 'rule')).toBe(true);
+    expect(result.current.root.combinators).toEqual(['and', 'or']);
+  });
+
+  it('omits combinators for a standard group', () => {
+    const { result } = renderHook(() => useFilterViewModel({ filter, schema }));
+
+    expect(result.current.root.combinators).toBeUndefined();
+  });
+
+  it('builds nested IC groups with their own inline combinators', () => {
+    const icFilter: FilterIC = {
+      id: 'root',
+      children: [
+        { id: 'r1', field: 'name', operator: 'contains', value: 'Ada' },
+        'or',
+        {
+          id: 'g1',
+          children: [
+            { id: 'r2', field: 'name', operator: 'contains', value: 'Bob' },
+            'and',
+            { id: 'r3', field: 'name', operator: 'contains', value: 'Cay' },
+          ],
+        },
+      ],
+    };
+
+    const { result } = renderHook(() => useFilterViewModel({ filter: icFilter, schema }));
+
+    expect(result.current.root.combinators).toEqual(['or']);
+    const nested = result.current.root.children[1];
+    if (nested.kind !== 'group') {
+      throw new Error('Expected nested group');
+    }
+    expect(nested.combinators).toEqual(['and']);
+    expect(nested.children.map((child) => child.id)).toEqual(['r2', 'r3']);
   });
 
   it('attaches validation errors and describedBy to matching rule view models', () => {

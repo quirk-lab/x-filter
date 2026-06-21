@@ -32,6 +32,7 @@ const actions: FilterBuilderActionHandlers = {
   addGroup: (_groupId, _group) => undefined,
   removeGroup: (_groupId) => undefined,
   updateGroup: (_groupId, _updates) => undefined,
+  setCombinator: (_groupId, _comboIndex, _combinator) => undefined,
   moveItem: (_operation) => undefined,
   canDrop: (dragId, targetGroupId) => dragId !== targetGroupId,
 };

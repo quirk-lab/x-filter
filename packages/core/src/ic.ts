@@ -388,3 +388,31 @@ export function moveRuleIC(
   }
   return result;
 }
+
+/**
+ * Set the inline combinator at a given combinator position within an IC group.
+ *
+ * `comboIndex` counts only combinator tokens (the separators between items), so
+ * combinator `i` sits between item `i` and item `i + 1`. Returns the same ref
+ * when the group is missing, the position is out of range, or the value is
+ * unchanged (structural sharing keeps untouched subtrees stable).
+ */
+export function setCombinatorIC(
+  filter: FilterIC,
+  groupId: string,
+  comboIndex: number,
+  combinator: Combinator
+): FilterIC {
+  return updateById(filter, groupId, (node) => {
+    const group = node as FilterGroupIC;
+    // Combinator tokens live at odd array indices: 1, 3, 5, ...
+    const arrayIdx = comboIndex * 2 + 1;
+    const current = group.children[arrayIdx];
+    if (typeof current !== 'string' || current === combinator) {
+      return group;
+    }
+    const children = [...group.children];
+    children[arrayIdx] = combinator;
+    return { ...group, children };
+  }) as FilterIC;
+}

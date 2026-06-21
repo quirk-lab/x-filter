@@ -35,6 +35,7 @@ export {
   moveRuleIC,
   removeGroupIC,
   removeRuleIC,
+  setCombinatorIC,
   updateGroupIC,
   updateRuleIC,
 } from './ic';

@@ -1,5 +1,12 @@
-import type { FieldSchema, FilterGroup, FilterRule, ValidationError } from '@x-filter/core';
-import { getOperators, isFilterGroup, isFilterRule } from '@x-filter/core';
+import type {
+  Combinator,
+  FieldSchema,
+  FilterGroup,
+  FilterGroupIC,
+  FilterRule,
+  ValidationError,
+} from '@x-filter/core';
+import { getOperators, isFilterGroup, isFilterGroupIC, isFilterRule } from '@x-filter/core';
 import { useMemo, useRef } from 'react';
 import type {
   FilterGroupViewModel,
@@ -46,7 +53,9 @@ export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilte
   const validationErrors = errors ?? EMPTY_ERRORS;
 
   const ruleCacheRef = useRef<WeakMap<FilterRule, RuleCacheEntry> | undefined>(undefined);
-  const groupCacheRef = useRef<WeakMap<FilterGroup, GroupCacheEntry> | undefined>(undefined);
+  const groupCacheRef = useRef<WeakMap<FilterGroup | FilterGroupIC, GroupCacheEntry> | undefined>(
+    undefined
+  );
   const schemaRef = useRef<FieldSchema[] | undefined>(undefined);
 
   const root = useMemo(() => {
@@ -56,10 +65,13 @@ export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilte
     if (schemaRef.current !== schema) {
       schemaRef.current = schema;
       ruleCacheRef.current = new WeakMap<FilterRule, RuleCacheEntry>();
-      groupCacheRef.current = new WeakMap<FilterGroup, GroupCacheEntry>();
+      groupCacheRef.current = new WeakMap<FilterGroup | FilterGroupIC, GroupCacheEntry>();
     }
     const ruleCache = ruleCacheRef.current as WeakMap<FilterRule, RuleCacheEntry>;
-    const groupCache = groupCacheRef.current as WeakMap<FilterGroup, GroupCacheEntry>;
+    const groupCache = groupCacheRef.current as WeakMap<
+      FilterGroup | FilterGroupIC,
+      GroupCacheEntry
+    >;
     const fieldsByName = new Map(schema.map((field) => [field.name, field]));
 
     const buildRuleViewModel = (rule: FilterRule): FilterRuleViewModel => {
@@ -94,18 +106,45 @@ export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilte
       return vm;
     };
 
-    const buildGroupViewModel = (group: FilterGroup, depth: number): FilterGroupViewModel => {
-      const children = group.children.flatMap((child): FilterNodeViewModel[] => {
-        if (isFilterRule(child)) {
-          return [buildRuleViewModel(child)];
-        }
+    const buildGroupViewModel = (
+      group: FilterGroup | FilterGroupIC,
+      depth: number
+    ): FilterGroupViewModel => {
+      let children: FilterNodeViewModel[];
+      let combinators: Combinator[] | undefined;
 
-        if (isFilterGroup(child)) {
-          return [buildGroupViewModel(child, depth + 1)];
+      // `isFilterGroupIC`'s negative does not narrow the union (a standard
+      // FilterGroup is structurally assignable to FilterGroupIC), so branch on a
+      // plain boolean and cast explicitly.
+      const isIC = isFilterGroupIC(group);
+      if (isIC) {
+        // IC groups inline their combinators as string tokens between items.
+        const icChildren: FilterNodeViewModel[] = [];
+        const icCombinators: Combinator[] = [];
+        for (const child of (group as FilterGroupIC).children) {
+          if (typeof child === 'string') {
+            icCombinators.push(child);
+          } else if (isFilterRule(child)) {
+            icChildren.push(buildRuleViewModel(child));
+          } else if (isFilterGroupIC(child)) {
+            icChildren.push(buildGroupViewModel(child, depth + 1));
+          }
         }
+        children = icChildren;
+        combinators = icCombinators;
+      } else {
+        children = (group as FilterGroup).children.flatMap((child): FilterNodeViewModel[] => {
+          if (isFilterRule(child)) {
+            return [buildRuleViewModel(child)];
+          }
 
-        return [];
-      });
+          if (isFilterGroup(child)) {
+            return [buildGroupViewModel(child, depth + 1)];
+          }
+
+          return [];
+        });
+      }
 
       const cached = groupCache.get(group);
       if (
@@ -114,6 +153,8 @@ export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilte
         cached.childRefs.length === children.length &&
         cached.childRefs.every((ref, index) => ref === children[index])
       ) {
+        // An unchanged group ref implies unchanged inline combinators too, so the
+        // cached vm (built with the same combinators) is safe to reuse.
         return cached.vm;
       }
 
@@ -123,6 +164,7 @@ export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilte
         group,
         depth,
         children,
+        ...(combinators ? { combinators } : {}),
         aria: {
           label: `Filter group ${group.id}`,
         },

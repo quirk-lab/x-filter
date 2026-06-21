@@ -1,7 +1,8 @@
-import type { FieldSchema, Filter, ValidationError } from '@x-filter/core';
+import type { FieldSchema, Filter, FilterAny, ValidationError } from '@x-filter/core';
 import type {
   FilterBuilderClassNames,
   FilterBuilderLabels,
+  FilterBuilderMode,
   FilterBuilderSlots,
   FilterGroupViewModel,
   FilterNodeViewModel,
@@ -15,10 +16,12 @@ import {
   resolveLabels,
   useFilterBuilderOrchestrator,
 } from '@x-filter/react';
+import type { ReactNode } from 'react';
 import { ShadcnCombinatorSelector } from './combinator-selector';
 import { ShadcnDslEditor } from './dsl-editor';
 import { ShadcnFieldSelector } from './field-selector';
 import { ShadcnFilterGroup } from './group-block';
+import { ShadcnInlineCombinator } from './inline-combinator';
 import { ShadcnNotToggle } from './not-toggle';
 import { ShadcnOperatorSelector } from './operator-selector';
 import { Button, Card, cn } from './primitives';
@@ -28,8 +31,8 @@ import { ShadcnValueEditor } from './value-editor';
 
 export interface ShadcnFilterBuilderProps {
   schema: FieldSchema[];
-  value?: Filter;
-  defaultValue?: Filter;
+  value?: FilterAny;
+  defaultValue?: FilterAny;
   onChange?: (filter: Filter) => void;
   slots?: FilterBuilderSlots;
   labels?: FilterBuilderLabels;
@@ -37,6 +40,8 @@ export interface ShadcnFilterBuilderProps {
   errors?: Record<string, ValidationError[]>;
   dsl?: boolean;
   dnd?: boolean;
+  /** `'ic'` renders editable inline combinators between rules. Defaults to `'standard'`. */
+  mode?: FilterBuilderMode;
 }
 
 export function ShadcnFilterBuilder({
@@ -50,9 +55,10 @@ export function ShadcnFilterBuilder({
   errors,
   dsl,
   dnd,
+  mode,
 }: ShadcnFilterBuilderProps) {
   const { builder, viewModel, actions, slotProps, canMoveChild, moveChild, handleSortableMove } =
-    useFilterBuilderOrchestrator({ value, defaultValue, onChange, schema, errors });
+    useFilterBuilderOrchestrator({ value, defaultValue, onChange, schema, errors, mode });
   const resolvedLabels = resolveLabels(labels);
 
   const renderRule = (rule: FilterRuleViewModel) => {
@@ -148,6 +154,29 @@ export function ShadcnFilterBuilder({
   };
 
   const renderGroup = (group: FilterGroupViewModel) => {
+    // IC groups carry per-position combinators; render them interleaved between
+    // rules (and skip DnD, which is a standard-mode concern).
+    const isIC = group.combinators !== undefined;
+    if (isIC) {
+      const combinators = group.combinators ?? [];
+      const interleaved: ReactNode[] = [];
+      group.children.forEach((child, index) => {
+        if (index > 0) {
+          const comboIndex = index - 1;
+          interleaved.push(
+            <ShadcnInlineCombinator
+              key={`combinator-${child.id}`}
+              label={labels?.combinator}
+              value={combinators[comboIndex] ?? 'and'}
+              onChange={(combinator) => actions.setCombinator(group.id, comboIndex, combinator)}
+            />
+          );
+        }
+        interleaved.push(<div key={child.id}>{renderNode(child)}</div>);
+      });
+      return renderGroupShell(group, interleaved, group.children.length > 0);
+    }
+
     const children = group.children.map((child, index) =>
       dnd ? (
         <SortableFilterItem key={child.id} id={child.id}>
@@ -178,13 +207,23 @@ export function ShadcnFilterBuilder({
       children
     );
 
+    return renderGroupShell(group, orderedChildren, children.length > 0);
+  };
+
+  const renderGroupShell = (
+    group: FilterGroupViewModel,
+    orderedChildren: ReactNode,
+    hasChildren: boolean
+  ) => {
+    const isIC = group.combinators !== undefined;
+
     if (slots?.Group) {
       return slots.Group({ ...slotProps, group, children: orderedChildren });
     }
 
     const isRoot = group.id === viewModel.root.id;
 
-    if (canUseAtomicGroup(resolvedLabels, classNames)) {
+    if (!isIC && canUseAtomicGroup(resolvedLabels, classNames)) {
       return (
         <ShadcnFilterGroup
           className={classNames?.group}
@@ -209,11 +248,13 @@ export function ShadcnFilterBuilder({
       >
         <div className="flex flex-col gap-4">
           <div className={cn('flex flex-wrap items-center gap-2', classNames?.actions)}>
-            <ShadcnCombinatorSelector
-              label={labels?.combinator}
-              value={group.group.combinator}
-              onChange={(combinator) => actions.updateGroup(group.id, { combinator })}
-            />
+            {isIC ? null : (
+              <ShadcnCombinatorSelector
+                label={labels?.combinator}
+                value={'combinator' in group.group ? group.group.combinator : 'and'}
+                onChange={(combinator) => actions.updateGroup(group.id, { combinator })}
+              />
+            )}
             <ShadcnNotToggle
               checked={Boolean(group.group.not)}
               label={labels?.not}
@@ -231,9 +272,7 @@ export function ShadcnFilterBuilder({
               </Button>
             )}
           </div>
-          {children.length > 0 ? (
-            <div className="flex flex-col gap-3">{orderedChildren}</div>
-          ) : null}
+          {hasChildren ? <div className="flex flex-col gap-3">{orderedChildren}</div> : null}
         </div>
       </Card>
     );

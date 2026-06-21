@@ -37,7 +37,7 @@ export function AntdFilterGroup({
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <Space wrap>
           <AntdCombinatorSelector
-            value={group.group.combinator}
+            value={'combinator' in group.group ? group.group.combinator : 'and'}
             onChange={(combinator) => onCombinatorChange(group.id, combinator)}
           />
           <AntdNotToggle
