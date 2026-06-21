@@ -49,7 +49,7 @@ type GroupCacheEntry = {
  * memoize `errors` equivalently.
  */
 export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilterViewModelReturn {
-  const { filter, schema, errors } = options;
+  const { filter, schema, errors, readOnly = false } = options;
   const validationErrors = errors ?? EMPTY_ERRORS;
 
   const ruleCacheRef = useRef<WeakMap<FilterRule, RuleCacheEntry> | undefined>(undefined);
@@ -57,13 +57,17 @@ export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilte
     undefined
   );
   const schemaRef = useRef<FieldSchema[] | undefined>(undefined);
+  const readOnlyRef = useRef<boolean | undefined>(undefined);
 
   const root = useMemo(() => {
     // Schema identity changed → resolved field/operator metadata changes for
     // every node, so drop both caches. (Per ADR 0001; module-level caches would
     // leak across instances and concurrent renders, hence useRef scoping.)
-    if (schemaRef.current !== schema) {
+    // `readOnly` flips the projected `locked` flag on every node, so a change
+    // must invalidate the caches too.
+    if (schemaRef.current !== schema || readOnlyRef.current !== readOnly) {
       schemaRef.current = schema;
+      readOnlyRef.current = readOnly;
       ruleCacheRef.current = new WeakMap<FilterRule, RuleCacheEntry>();
       groupCacheRef.current = new WeakMap<FilterGroup | FilterGroupIC, GroupCacheEntry>();
     }
@@ -96,7 +100,7 @@ export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilte
         rule,
         field,
         operator,
-        locked: rule.locked === true,
+        locked: readOnly || rule.locked === true,
         errors: ruleErrors,
         aria: {
           label: `Rule ${fieldLabel} ${operatorLabel}`,
@@ -164,7 +168,7 @@ export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilte
         id: group.id,
         group,
         depth,
-        locked: group.locked === true,
+        locked: readOnly || group.locked === true,
         children,
         ...(combinators ? { combinators } : {}),
         aria: {
@@ -176,7 +180,7 @@ export function useFilterViewModel(options: UseFilterViewModelOptions): UseFilte
     };
 
     return buildGroupViewModel(filter, 0);
-  }, [filter, schema, validationErrors]);
+  }, [filter, schema, validationErrors, readOnly]);
 
   return {
     root,

@@ -14,13 +14,14 @@ import { useReorderContract } from './use-reorder-contract';
 export function useFilterBuilderOrchestrator(
   options: UseFilterBuilderOrchestratorOptions
 ): UseFilterBuilderOrchestratorReturn {
-  const { value, defaultValue, onChange, schema, errors, mode } = options;
+  const { value, defaultValue, onChange, schema, errors, mode, readOnly } = options;
 
   const builder = useFilterBuilder({ value, defaultValue, onChange, schema, mode });
   const viewModel = useFilterViewModel({
     filter: builder.filter,
     schema: builder.schema,
     errors,
+    readOnly,
   });
   const reorder = useReorderContract({ filter: builder.filter, onReorder: builder.setFilter });
 

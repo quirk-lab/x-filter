@@ -37,6 +37,12 @@ export interface AntdFilterBuilderProps {
   errors?: Record<string, ValidationError[]>;
   dsl?: boolean;
   dnd?: boolean;
+  /**
+   * Renders a read-only view: every control is disabled, action buttons and the
+   * DSL editor are hidden, and drag-and-drop is turned off. Useful for showing a
+   * saved filter without allowing edits.
+   */
+  readOnly?: boolean;
 }
 
 export function AntdFilterBuilder({
@@ -50,10 +56,13 @@ export function AntdFilterBuilder({
   errors,
   dsl,
   dnd,
+  readOnly,
 }: AntdFilterBuilderProps) {
   const { builder, viewModel, actions, slotProps, canMoveChild, moveChild, handleSortableMove } =
-    useFilterBuilderOrchestrator({ value, defaultValue, onChange, schema, errors });
+    useFilterBuilderOrchestrator({ value, defaultValue, onChange, schema, errors, readOnly });
   const resolvedLabels = resolveLabels(labels);
+  // Drag-and-drop is an editing affordance; suppress it entirely in read-only.
+  const dndEnabled = dnd && !readOnly;
 
   const renderRule = (rule: FilterRuleViewModel) => {
     if (slots?.Rule) {
@@ -160,13 +169,13 @@ export function AntdFilterBuilder({
 
   const renderGroup = (group: FilterGroupViewModel) => {
     const children = group.children.map((child, index) =>
-      dnd ? (
+      dndEnabled ? (
         <SortableFilterItem key={child.id} id={child.id}>
           <div>
             <MoveControls
               canMoveChild={canMoveChild}
               child={child}
-              dnd={dnd}
+              dnd={dndEnabled}
               group={group}
               index={index}
               moveChild={moveChild}
@@ -178,7 +187,7 @@ export function AntdFilterBuilder({
         <div key={child.id}>{renderNode(child)}</div>
       )
     );
-    const orderedChildren = dnd ? (
+    const orderedChildren = dndEnabled ? (
       <SortableFilterContext
         items={group.children.map((child) => child.id)}
         onMove={(activeId, overId) => handleSortableMove(group, activeId, overId)}
@@ -262,16 +271,17 @@ export function AntdFilterBuilder({
   };
 
   const tree = renderGroup(viewModel.root);
-  const dslEditor = dsl ? (
-    <AntdDslEditor
-      className={classNames?.dslEditor}
-      completionMenuClassName={classNames?.completionMenu}
-      filter={builder.filter}
-      labels={labels}
-      schema={builder.schema}
-      onCommit={builder.setFilter}
-    />
-  ) : null;
+  const dslEditor =
+    dsl && !readOnly ? (
+      <AntdDslEditor
+        className={classNames?.dslEditor}
+        completionMenuClassName={classNames?.completionMenu}
+        filter={builder.filter}
+        labels={labels}
+        schema={builder.schema}
+        onCommit={builder.setFilter}
+      />
+    ) : null;
   const children = dslEditor ? (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       {dslEditor}

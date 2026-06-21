@@ -106,6 +106,12 @@ export interface UseFilterViewModelOptions {
   filter: FilterAny;
   schema: FieldSchema[];
   errors?: Record<string, ValidationError[]>;
+  /**
+   * When `true`, every node's `locked` flag is forced on, projecting a fully
+   * read-only view regardless of per-node `locked`. UI adapters use this to
+   * disable controls and hide actions across the whole tree.
+   */
+  readOnly?: boolean;
 }
 
 export interface UseFilterViewModelReturn {
@@ -242,6 +248,8 @@ export interface UseFilterBuilderOrchestratorOptions {
   errors?: Record<string, ValidationError[]>;
   /** `'ic'` drives an inline-combinator (FilterGroupIC) tree. Defaults to `'standard'`. */
   mode?: FilterBuilderMode;
+  /** When `true`, projects a read-only view (forces `locked` on all nodes). */
+  readOnly?: boolean;
 }
 
 export interface UseFilterBuilderOrchestratorReturn {
