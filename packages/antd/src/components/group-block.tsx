@@ -14,6 +14,7 @@ export interface AntdFilterGroupProps {
   onAddRule: (groupId: string) => void;
   onAddGroup: (groupId: string) => void;
   onRemove?: (groupId: string) => void;
+  onClone?: (groupId: string) => void;
 }
 
 export function AntdFilterGroup({
@@ -25,6 +26,7 @@ export function AntdFilterGroup({
   onAddRule,
   onAddGroup,
   onRemove,
+  onClone,
 }: AntdFilterGroupProps) {
   return (
     <Card
@@ -46,6 +48,7 @@ export function AntdFilterGroup({
           />
           <Button onClick={() => onAddRule(group.id)}>Add rule</Button>
           <Button onClick={() => onAddGroup(group.id)}>Add group</Button>
+          {onClone ? <Button onClick={() => onClone(group.id)}>Clone group</Button> : null}
           {onRemove ? (
             <Button danger onClick={() => onRemove(group.id)}>
               Remove group

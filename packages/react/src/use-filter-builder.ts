@@ -10,8 +10,12 @@ import type {
 import {
   addGroupIC,
   addRuleIC,
+  cloneGroupIC,
+  cloneRuleIC,
   addGroup as coreAddGroup,
   addRule as coreAddRule,
+  cloneGroup as coreCloneGroup,
+  cloneRule as coreCloneRule,
   moveRule as coreMoveRule,
   removeGroup as coreRemoveGroup,
   removeRule as coreRemoveRule,
@@ -164,6 +168,24 @@ export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBui
     [applyMutation, isIC]
   );
 
+  const cloneRule = useCallback(
+    (ruleId: string) => {
+      applyMutation((prev) =>
+        isIC ? cloneRuleIC(prev as FilterIC, ruleId) : coreCloneRule(prev as Filter, ruleId)
+      );
+    },
+    [applyMutation, isIC]
+  );
+
+  const cloneGroup = useCallback(
+    (groupId: string) => {
+      applyMutation((prev) =>
+        isIC ? cloneGroupIC(prev as FilterIC, groupId) : coreCloneGroup(prev as Filter, groupId)
+      );
+    },
+    [applyMutation, isIC]
+  );
+
   return {
     filter: filter as Filter,
     setFilter,
@@ -175,6 +197,8 @@ export function useFilterBuilder(options: UseFilterBuilderOptions): UseFilterBui
     updateGroup: updateGroupFn,
     moveRule: moveRuleFn,
     setCombinator: setCombinatorFn,
+    cloneRule,
+    cloneGroup,
     schema,
   };
 }

@@ -73,6 +73,7 @@ export function ShadcnFilterBuilder({
           rule={rule}
           schema={builder.schema}
           onChange={actions.updateRule}
+          onClone={actions.cloneRule}
           onRemove={actions.removeRule}
         />
       );
@@ -137,6 +138,9 @@ export function ShadcnFilterBuilder({
           />
         )}
         <span className={classNames?.actions}>
+          <Button variant="outline" onClick={() => actions.cloneRule(rule.id)}>
+            {resolvedLabels.cloneRule}
+          </Button>
           <Button variant="destructive" onClick={() => actions.removeRule(rule.id)}>
             {resolvedLabels.removeRule}
           </Button>
@@ -230,6 +234,7 @@ export function ShadcnFilterBuilder({
           group={group}
           onAddGroup={actions.addGroup}
           onAddRule={actions.addRule}
+          onClone={isRoot ? undefined : actions.cloneGroup}
           onCombinatorChange={(groupId, combinator) => actions.updateGroup(groupId, { combinator })}
           onNotChange={(groupId, not) => actions.updateGroup(groupId, { not })}
           onRemove={isRoot ? undefined : actions.removeGroup}
@@ -266,6 +271,11 @@ export function ShadcnFilterBuilder({
             <Button variant="outline" onClick={() => actions.addGroup(group.id)}>
               {resolvedLabels.addGroup}
             </Button>
+            {isRoot ? null : (
+              <Button variant="outline" onClick={() => actions.cloneGroup(group.id)}>
+                {resolvedLabels.cloneGroup}
+              </Button>
+            )}
             {isRoot ? null : (
               <Button variant="destructive" onClick={() => actions.removeGroup(group.id)}>
                 {resolvedLabels.removeGroup}

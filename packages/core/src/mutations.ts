@@ -1,7 +1,9 @@
+import { deepCloneWithNewIds } from './clone';
 import { generateId, type IdGenerator } from './id';
 import { findById, findParent } from './traverse';
 import { mapTree, updateById } from './tree-map';
 import type { Filter, FilterAny, FilterGroup, FilterGroupIC, FilterIC, FilterRule } from './types';
+import { isFilterGroup, isFilterRule } from './types';
 
 export interface MutationOptions {
   idGenerator?: IdGenerator;
@@ -171,6 +173,61 @@ export function updateGroup(
     const g = node as FilterGroup;
     return { ...g, ...updates };
   }) as Filter;
+}
+
+/** Inserts `clone` immediately after the node identified by `sourceId`. */
+function insertAfter(
+  filter: Filter,
+  parentId: string,
+  sourceId: string,
+  clone: FilterRule | FilterGroup
+): Filter {
+  return updateById(filter, parentId, (node) => {
+    const g = node as FilterGroup;
+    const idx = g.children.findIndex((c) => 'id' in c && c.id === sourceId);
+    const children = [...g.children];
+    children.splice(idx + 1, 0, clone);
+    return { ...g, children };
+  }) as Filter;
+}
+
+/**
+ * Deep-copies the rule with `ruleId` (fresh id, deep-copied value) and inserts it
+ * immediately after the source within its parent group. Throws if the id is
+ * missing or points to a group.
+ */
+export function cloneRule(filter: Filter, ruleId: string, options?: MutationOptions): Filter {
+  const source = findById(filter, ruleId);
+  if (!source || isFilterGroup(source) || !isFilterRule(source)) {
+    throw new Error(`Rule not found: ${ruleId}`);
+  }
+  const parent = findParent(filter, ruleId) as FilterGroup | undefined;
+  if (!parent) {
+    throw new Error(`Rule not found: ${ruleId}`);
+  }
+  const clone = deepCloneWithNewIds(source, options?.idGenerator) as FilterRule;
+  return insertAfter(filter, parent.id, ruleId, clone);
+}
+
+/**
+ * Recursively deep-copies the group with `groupId` (fresh ids for the group and
+ * every descendant) and inserts it immediately after the source. Throws when
+ * targeting the root or a missing/non-group id.
+ */
+export function cloneGroup(filter: Filter, groupId: string, options?: MutationOptions): Filter {
+  if (filter.id === groupId) {
+    throw new Error('Cannot clone root group');
+  }
+  const source = findById(filter, groupId);
+  if (!source || !isFilterGroup(source)) {
+    throw new Error(`Group not found: ${groupId}`);
+  }
+  const parent = findParent(filter, groupId) as FilterGroup | undefined;
+  if (!parent) {
+    throw new Error(`Group not found: ${groupId}`);
+  }
+  const clone = deepCloneWithNewIds(source, options?.idGenerator) as FilterGroup;
+  return insertAfter(filter, parent.id, groupId, clone);
 }
 
 // negate works for both standard and IC trees: it only toggles the `not` flag on

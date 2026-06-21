@@ -5,8 +5,13 @@ const DEFAULT_LABELS = {
   addGroup: 'Add group',
   removeRule: 'Remove rule',
   removeGroup: 'Remove group',
+  cloneRule: 'Clone rule',
+  cloneGroup: 'Clone group',
 } satisfies Required<
-  Pick<FilterBuilderLabels, 'addRule' | 'addGroup' | 'removeRule' | 'removeGroup'>
+  Pick<
+    FilterBuilderLabels,
+    'addRule' | 'addGroup' | 'removeRule' | 'removeGroup' | 'cloneRule' | 'cloneGroup'
+  >
 >;
 
 export type ResolvedLabels = {
@@ -14,6 +19,8 @@ export type ResolvedLabels = {
   addGroup: string;
   removeRule: string;
   removeGroup: string;
+  cloneRule: string;
+  cloneGroup: string;
 };
 
 /**
@@ -26,6 +33,8 @@ export function resolveLabels(labels?: FilterBuilderLabels): ResolvedLabels {
     addGroup: labels?.addGroup ?? DEFAULT_LABELS.addGroup,
     removeRule: labels?.removeRule ?? DEFAULT_LABELS.removeRule,
     removeGroup: labels?.removeGroup ?? DEFAULT_LABELS.removeGroup,
+    cloneRule: labels?.cloneRule ?? DEFAULT_LABELS.cloneRule,
+    cloneGroup: labels?.cloneGroup ?? DEFAULT_LABELS.cloneGroup,
   };
 }
 

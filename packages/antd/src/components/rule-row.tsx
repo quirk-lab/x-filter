@@ -14,6 +14,7 @@ export interface AntdFilterRuleProps {
   className?: string;
   onChange: (ruleId: string, updates: Partial<Omit<FilterRule, 'id'>>) => void;
   onRemove: (ruleId: string) => void;
+  onClone?: (ruleId: string) => void;
 }
 
 /**
@@ -29,6 +30,7 @@ export const AntdFilterRule = memo(function AntdFilterRule({
   className,
   onChange,
   onRemove,
+  onClone,
 }: AntdFilterRuleProps) {
   return (
     <Space
@@ -60,6 +62,7 @@ export const AntdFilterRule = memo(function AntdFilterRule({
         rule={rule.rule}
         onChange={(value) => onChange(rule.id, { value })}
       />
+      {onClone ? <Button onClick={() => onClone(rule.id)}>Clone rule</Button> : null}
       <Button danger onClick={() => onRemove(rule.id)}>
         Remove rule
       </Button>

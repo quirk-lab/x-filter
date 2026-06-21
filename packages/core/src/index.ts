@@ -1,3 +1,4 @@
+export { cloneValue, deepCloneWithNewIds } from './clone';
 export type { CreateFilterOptions, CreateGroupOptions, CreateRuleOptions } from './create';
 export { createFilter, createGroup, createRule } from './create';
 export type {
@@ -29,6 +30,8 @@ export {
 export {
   addGroupIC,
   addRuleIC,
+  cloneGroupIC,
+  cloneRuleIC,
   convertFromIC,
   convertToIC,
   isFilterGroupIC,
@@ -48,6 +51,8 @@ export type { MutationOptions } from './mutations';
 export {
   addGroup,
   addRule,
+  cloneGroup,
+  cloneRule,
   moveRule,
   negateGroup,
   negateRule,

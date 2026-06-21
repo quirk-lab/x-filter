@@ -14,6 +14,7 @@ export interface ShadcnFilterGroupProps {
   onAddRule: (groupId: string) => void;
   onAddGroup: (groupId: string) => void;
   onRemove?: (groupId: string) => void;
+  onClone?: (groupId: string) => void;
 }
 
 export function ShadcnFilterGroup({
@@ -25,6 +26,7 @@ export function ShadcnFilterGroup({
   onAddRule,
   onAddGroup,
   onRemove,
+  onClone,
 }: ShadcnFilterGroupProps) {
   return (
     <Card
@@ -49,6 +51,11 @@ export function ShadcnFilterGroup({
           <Button variant="outline" onClick={() => onAddGroup(group.id)}>
             Add group
           </Button>
+          {onClone ? (
+            <Button variant="outline" onClick={() => onClone(group.id)}>
+              Clone group
+            </Button>
+          ) : null}
           {onRemove ? (
             <Button variant="destructive" onClick={() => onRemove(group.id)}>
               Remove group

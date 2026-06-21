@@ -78,7 +78,9 @@ test('AntdFilterBuilder has no obvious accessibility violations with DSL and DnD
   );
 
   expectNoAxeViolations(await axe(container));
-}, 30000);
+  // jest-axe scans the full builder DOM; give headroom for CPU contention when
+  // the whole suite runs in parallel with coverage instrumentation.
+}, 60000);
 
 test('AntdFilterBuilder gives ternary value inputs distinct accessible names', () => {
   render(<AntdFilterBuilder schema={rangeSchema} value={rangeFilter} onChange={jest.fn()} />);

@@ -67,6 +67,7 @@ export function AntdFilterBuilder({
           rule={rule}
           schema={builder.schema}
           onChange={actions.updateRule}
+          onClone={actions.cloneRule}
           onRemove={actions.removeRule}
         />
       );
@@ -131,6 +132,7 @@ export function AntdFilterBuilder({
           />
         )}
         <span className={classNames?.actions}>
+          <Button onClick={() => actions.cloneRule(rule.id)}>{resolvedLabels.cloneRule}</Button>
           <Button danger onClick={() => actions.removeRule(rule.id)}>
             {resolvedLabels.removeRule}
           </Button>
@@ -191,6 +193,7 @@ export function AntdFilterBuilder({
           group={group}
           onAddGroup={actions.addGroup}
           onAddRule={actions.addRule}
+          onClone={isRoot ? undefined : actions.cloneGroup}
           onCombinatorChange={(groupId, combinator) => actions.updateGroup(groupId, { combinator })}
           onNotChange={(groupId, not) => actions.updateGroup(groupId, { not })}
           onRemove={isRoot ? undefined : actions.removeGroup}
@@ -222,6 +225,11 @@ export function AntdFilterBuilder({
             />
             <Button onClick={() => actions.addRule(group.id)}>{resolvedLabels.addRule}</Button>
             <Button onClick={() => actions.addGroup(group.id)}>{resolvedLabels.addGroup}</Button>
+            {isRoot ? null : (
+              <Button onClick={() => actions.cloneGroup(group.id)}>
+                {resolvedLabels.cloneGroup}
+              </Button>
+            )}
             {isRoot ? null : (
               <Button danger onClick={() => actions.removeGroup(group.id)}>
                 {resolvedLabels.removeGroup}

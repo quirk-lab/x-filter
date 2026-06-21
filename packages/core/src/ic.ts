@@ -1,5 +1,6 @@
+import { deepCloneWithNewIds } from './clone';
 import { generateId, type IdGenerator } from './id';
-import { findById } from './traverse';
+import { findById, findParent } from './traverse';
 import { mapTree, updateById } from './tree-map';
 import type { Combinator, Filter, FilterGroup, FilterGroupIC, FilterIC, FilterRule } from './types';
 import { isFilterGroup, isFilterRule } from './types';
@@ -387,6 +388,83 @@ export function moveRuleIC(
     result = removeOneChildICFromGroup(result, ruleId, sourceGroupId);
   }
   return result;
+}
+
+/**
+ * Inserts `clone` (plus a separating combinator) immediately after the node
+ * `sourceId` inside the IC group `parentId`. The combinator reuses whichever
+ * inline combinator already sits next to the source, falling back to
+ * `defaultCombinator` for a single-child group.
+ */
+function insertAfterIC(
+  filter: FilterIC,
+  parentId: string,
+  sourceId: string,
+  clone: FilterRule | FilterGroupIC,
+  defaultCombinator: Combinator
+): FilterIC {
+  return updateById(filter, parentId, (node) => {
+    const group = node as FilterGroupIC;
+    const idx = group.children.findIndex(
+      (c) => typeof c !== 'string' && 'id' in c && c.id === sourceId
+    );
+    if (idx === -1) return group;
+    const children = [...group.children];
+    const after = children[idx + 1];
+    const before = children[idx - 1];
+    const combinator: Combinator =
+      typeof after === 'string' ? after : typeof before === 'string' ? before : defaultCombinator;
+    children.splice(idx + 1, 0, combinator, clone);
+    return { ...group, children };
+  }) as FilterIC;
+}
+
+/**
+ * Deep-copies the rule with `ruleId` (fresh id, deep-copied value) and inserts it
+ * after the source in the IC tree, joined by an inline combinator.
+ */
+export function cloneRuleIC(
+  filter: FilterIC,
+  ruleId: string,
+  defaultCombinator: Combinator = 'and',
+  options?: { idGenerator?: IdGenerator }
+): FilterIC {
+  const source = findById(filter, ruleId);
+  if (!source || !isFilterRule(source)) {
+    throw new Error(`Rule not found: ${ruleId}`);
+  }
+  const parent = findParent(filter, ruleId) as FilterGroupIC | undefined;
+  if (!parent) {
+    throw new Error(`Rule not found: ${ruleId}`);
+  }
+  const clone = deepCloneWithNewIds(source, options?.idGenerator) as FilterRule;
+  return insertAfterIC(filter, parent.id, ruleId, clone, defaultCombinator);
+}
+
+/**
+ * Recursively deep-copies the IC group with `groupId` (fresh ids for the group
+ * and every descendant; inline combinators preserved) and inserts it after the
+ * source, joined by an inline combinator.
+ */
+export function cloneGroupIC(
+  filter: FilterIC,
+  groupId: string,
+  defaultCombinator: Combinator = 'and',
+  options?: { idGenerator?: IdGenerator }
+): FilterIC {
+  if (filter.id === groupId) {
+    throw new Error('Cannot clone root group');
+  }
+  const source = findById(filter, groupId);
+  if (!source || !isFilterGroupIC(source)) {
+    throw new Error(`Group not found: ${groupId}`);
+  }
+  const parent = findParent(filter, groupId) as FilterGroupIC | undefined;
+  if (!parent) {
+    throw new Error(`Group not found: ${groupId}`);
+  }
+  const clone = deepCloneWithNewIds(source, options?.idGenerator) as FilterGroupIC;
+  return insertAfterIC(filter, parent.id, groupId, clone, defaultCombinator);
 }
 
 /**

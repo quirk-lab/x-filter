@@ -112,6 +112,8 @@ describe('resolveLabels', () => {
       addGroup: 'Add group',
       removeRule: 'Remove rule',
       removeGroup: 'Remove group',
+      cloneRule: 'Clone rule',
+      cloneGroup: 'Clone group',
     });
   });
 
