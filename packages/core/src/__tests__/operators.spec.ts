@@ -35,6 +35,21 @@ describe('getOperators', () => {
     expect(names).toContain('between');
   });
 
+  it.each([
+    'time',
+    'dateTime',
+  ] as const)("getOperators('%s') mirrors the date operator set (before/after/between)", (fieldType) => {
+    const ops = getOperators(fieldType);
+    expect(ops).toHaveLength(7);
+    const names = ops.map((o) => o.name);
+    expect(names).toContain('before');
+    expect(names).toContain('after');
+    expect(names).toContain('between');
+    expect(ops.find((o) => o.name === 'between')?.arity).toBe('ternary');
+    // Identical semantics to `date`.
+    expect(names).toEqual(getOperators('date').map((o) => o.name));
+  });
+
   it("getOperators('select') returns 4 operators", () => {
     const ops = getOperators('select');
     expect(ops).toHaveLength(4);
@@ -81,8 +96,17 @@ describe('getOperators', () => {
 });
 
 describe('defaultOperators', () => {
-  it('has all 6 field types', () => {
-    const fieldTypes = ['text', 'number', 'date', 'select', 'multiSelect', 'boolean'] as const;
+  it('has all 8 field types', () => {
+    const fieldTypes = [
+      'text',
+      'number',
+      'date',
+      'time',
+      'dateTime',
+      'select',
+      'multiSelect',
+      'boolean',
+    ] as const;
     for (const ft of fieldTypes) {
       expect(defaultOperators[ft]).toBeDefined();
       expect(Array.isArray(defaultOperators[ft])).toBe(true);

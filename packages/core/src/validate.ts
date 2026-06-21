@@ -277,11 +277,11 @@ function validateValue(
       }
     }
 
-    if (fieldType === 'date') {
+    if (fieldType === 'date' || fieldType === 'time' || fieldType === 'dateTime') {
       if (typeof value[0] !== 'string' || typeof value[1] !== 'string') {
         return {
           type: 'invalidValue',
-          message: 'Expected array of 2 strings for "between" on date field',
+          message: `Expected array of 2 strings for "between" on ${fieldType} field`,
         };
       }
     }
@@ -302,6 +302,8 @@ function validateValue(
       break;
     case 'text':
     case 'date':
+    case 'time':
+    case 'dateTime':
     case 'select':
       if (typeof value !== 'string') {
         return { type: 'invalidValue', message: `Expected a string value for ${fieldType} field` };

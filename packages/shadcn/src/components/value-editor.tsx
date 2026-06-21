@@ -1,4 +1,10 @@
-import type { FieldSchema, FilterRule, OperatorDef, ValidationError } from '@x-filter/core';
+import type {
+  FieldSchema,
+  FieldType,
+  FilterRule,
+  OperatorDef,
+  ValidationError,
+} from '@x-filter/core';
 import {
   asArrayValue,
   asPairValue,
@@ -31,6 +37,14 @@ function asNumberInputValue(value: unknown): number | string {
   return typeof value === 'number' ? value : '';
 }
 
+// Temporal field types map to native HTML input types. Values are kept as the
+// input's string representation (`yyyy-mm-dd`, `HH:mm`, `yyyy-mm-ddTHH:mm`).
+const temporalInputType: Partial<Record<FieldType, 'date' | 'time' | 'datetime-local'>> = {
+  date: 'date',
+  time: 'time',
+  dateTime: 'datetime-local',
+};
+
 function selectedValues(select: HTMLSelectElement): string[] {
   return Array.from(select.selectedOptions, (option) => option.value);
 }
@@ -53,6 +67,7 @@ export function ShadcnValueEditor({
   const selectedField = field ?? findSchemaField(schema, rule.field);
   const selectedOperator = operator ?? findOperator(selectedField, rule.operator);
   const isDisabled = disabled || selectedOperator?.arity === 'unary';
+  const temporalType = selectedField ? temporalInputType[selectedField.type] : undefined;
 
   const errorList = errors ?? [];
   const hasError = errorList.length > 0;
@@ -110,7 +125,7 @@ export function ShadcnValueEditor({
         );
       }
 
-      if (selectedField?.type === 'date') {
+      if (temporalType) {
         return (
           <div className={cn('flex gap-2', className)}>
             <Input
@@ -120,7 +135,7 @@ export function ShadcnValueEditor({
               className={errorClass}
               disabled={disabled}
               onChange={(event) => onChange(updatePairValue(rule.value, 0, event.target.value))}
-              type="date"
+              type={temporalType}
               value={asStringValue(firstValue)}
             />
             <Input
@@ -130,7 +145,7 @@ export function ShadcnValueEditor({
               className={errorClass}
               disabled={disabled}
               onChange={(event) => onChange(updatePairValue(rule.value, 1, event.target.value))}
-              type="date"
+              type={temporalType}
               value={asStringValue(secondValue)}
             />
           </div>
@@ -207,7 +222,7 @@ export function ShadcnValueEditor({
       );
     }
 
-    if (selectedField?.type === 'date') {
+    if (temporalType) {
       return (
         <Input
           aria-describedby={describedBy}
@@ -216,7 +231,7 @@ export function ShadcnValueEditor({
           className={cn(className, errorClass)}
           disabled={isDisabled}
           onChange={(event) => onChange(event.target.value)}
-          type="date"
+          type={temporalType}
           value={asStringValue(rule.value)}
         />
       );

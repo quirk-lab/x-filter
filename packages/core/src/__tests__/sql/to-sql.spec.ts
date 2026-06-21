@@ -204,6 +204,25 @@ describe('toSQL', () => {
     expect(result.params).toEqual(['2020-01-01']);
   });
 
+  it('time / dateTime values pass through as parameters (after / between)', () => {
+    const filter: FilterAny = {
+      id: 'root',
+      combinator: 'and',
+      children: [
+        { id: 'r1', field: 'start_time', operator: 'after', value: '09:00' },
+        {
+          id: 'r2',
+          field: 'created_at',
+          operator: 'between',
+          value: ['2026-01-01T00:00', '2026-12-31T23:59'],
+        },
+      ],
+    };
+    const result = toSQL(filter);
+    expect(result.sql).toBe('(start_time > ? AND created_at BETWEEN ? AND ?)');
+    expect(result.params).toEqual(['09:00', '2026-01-01T00:00', '2026-12-31T23:59']);
+  });
+
   it('isEmpty: name IS NULL with params []', () => {
     const filter: FilterAny = {
       id: 'root',

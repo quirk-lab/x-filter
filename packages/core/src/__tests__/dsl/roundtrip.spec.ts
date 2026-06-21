@@ -169,6 +169,60 @@ describe('roundtrip: Filter -> formatDSL -> parseDSL -> Filter', () => {
     });
   });
 
+  it('time value (quoted, survives roundtrip)', () => {
+    const dsl = formatDSL({
+      id: 'x',
+      combinator: 'and',
+      children: [{ id: 'y', field: 'startTime', operator: 'after', value: '14:30' }],
+    });
+    expect(dsl).toContain('"14:30"');
+    resetIds();
+    const result = parseDSL(dsl, testIdGen);
+    expect(result.children[0]).toMatchObject({
+      field: 'startTime',
+      operator: 'after',
+      value: '14:30',
+    });
+  });
+
+  it('dateTime value (quoted, survives roundtrip)', () => {
+    const dsl = formatDSL({
+      id: 'x',
+      combinator: 'and',
+      children: [{ id: 'y', field: 'createdAt', operator: 'before', value: '2026-01-01T14:30' }],
+    });
+    expect(dsl).toContain('"2026-01-01T14:30"');
+    resetIds();
+    const result = parseDSL(dsl, testIdGen);
+    expect(result.children[0]).toMatchObject({
+      field: 'createdAt',
+      operator: 'before',
+      value: '2026-01-01T14:30',
+    });
+  });
+
+  it('dateTime between range (quoted strings) survives roundtrip', () => {
+    const dsl = formatDSL({
+      id: 'x',
+      combinator: 'and',
+      children: [
+        {
+          id: 'y',
+          field: 'createdAt',
+          operator: 'between',
+          value: ['2026-01-01T00:00', '2026-12-31T23:59'],
+        },
+      ],
+    });
+    resetIds();
+    const result = parseDSL(dsl, testIdGen);
+    expect(result.children[0]).toMatchObject({
+      field: 'createdAt',
+      operator: 'between',
+      value: ['2026-01-01T00:00', '2026-12-31T23:59'],
+    });
+  });
+
   it('nested groups (3 levels)', () => {
     const filter: Filter = {
       id: testIdGen(),

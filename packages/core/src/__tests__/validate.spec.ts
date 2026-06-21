@@ -7,6 +7,8 @@ const schema: FieldSchema[] = [
   { name: 'name', label: 'Name', type: 'text' },
   { name: 'age', label: 'Age', type: 'number' },
   { name: 'birthday', label: 'Birthday', type: 'date' },
+  { name: 'startTime', label: 'Start time', type: 'time' },
+  { name: 'createdAt', label: 'Created at', type: 'dateTime' },
   {
     name: 'status',
     label: 'Status',
@@ -397,6 +399,66 @@ describe('validate', () => {
     };
     const result = validate(filter, schema);
     expect(result.valid).toBe(true);
+  });
+
+  it('valid time / dateTime string values pass', () => {
+    const filter: FilterAny = {
+      id: 'root',
+      combinator: 'and',
+      children: [
+        { id: 'r1', field: 'startTime', operator: 'after', value: '09:00' },
+        { id: 'r2', field: 'createdAt', operator: 'before', value: '2026-01-01T14:30' },
+      ],
+    };
+    const result = validate(filter, schema);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toEqual({});
+  });
+
+  it('time / dateTime field with non-string value → invalidValue', () => {
+    const filter: FilterAny = {
+      id: 'root',
+      combinator: 'and',
+      children: [
+        { id: 'r1', field: 'startTime', operator: 'equals', value: 900 },
+        { id: 'r2', field: 'createdAt', operator: 'equals', value: 900 },
+      ],
+    };
+    const result = validate(filter, schema);
+    expect(result.valid).toBe(false);
+    expect(result.errors.r1[0].type).toBe('invalidValue');
+    expect(result.errors.r1[0].message).toContain('time');
+    expect(result.errors.r2[0].message).toContain('dateTime');
+  });
+
+  it('valid between on time / dateTime fields passes', () => {
+    const filter: FilterAny = {
+      id: 'root',
+      combinator: 'and',
+      children: [
+        { id: 'r1', field: 'startTime', operator: 'between', value: ['09:00', '17:00'] },
+        {
+          id: 'r2',
+          field: 'createdAt',
+          operator: 'between',
+          value: ['2026-01-01T00:00', '2026-12-31T23:59'],
+        },
+      ],
+    };
+    const result = validate(filter, schema);
+    expect(result.valid).toBe(true);
+  });
+
+  it('between on dateTime field with non-string elements → invalidValue', () => {
+    const filter: FilterAny = {
+      id: 'root',
+      combinator: 'and',
+      children: [{ id: 'r1', field: 'createdAt', operator: 'between', value: [1, 2] }],
+    };
+    const result = validate(filter, schema);
+    expect(result.valid).toBe(false);
+    expect(result.errors.r1[0].type).toBe('invalidValue');
+    expect(result.errors.r1[0].message).toContain('dateTime');
   });
 
   it('validates IC mode filter', () => {
