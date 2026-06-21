@@ -185,7 +185,7 @@ export function Select({
         <SelectPrimitive.Content className={selectContentClass}>
           <SelectPrimitive.Viewport className={selectViewportClass}>
             {placeholder ? (
-              <SelectPrimitive.Item className={selectItemClass} value="__placeholder__">
+              <SelectPrimitive.Item className={selectItemClass} disabled value="__placeholder__">
                 <span className="text-muted-foreground">{placeholder}</span>
                 <SelectPrimitive.ItemIndicator>
                   <CheckIcon />
@@ -229,12 +229,13 @@ export function Checkbox({
   checked,
   disabled,
   onChange,
+  'aria-label': ariaLabelProp,
   ...props
 }: CheckboxProps) {
   // Ensure the button has an accessible name even when a visible label is
   // provided via the wrapping <label> element — axe requires discernible text
   // on the button itself.
-  const ariaLabel = props['aria-label'] ?? (typeof label === 'string' ? label : undefined);
+  const ariaLabel = ariaLabelProp ?? (typeof label === 'string' ? label : undefined);
   const checkbox = (
     <CheckboxPrimitive.Root
       aria-label={ariaLabel}
