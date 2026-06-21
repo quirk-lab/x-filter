@@ -59,9 +59,16 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@radix-ui/react-checkbox": "^1.3.5",
+    "@radix-ui/react-dialog": "^1.1.17",
+    "@radix-ui/react-label": "^2.1.10",
+    "@radix-ui/react-popover": "^1.1.17",
+    "@radix-ui/react-select": "^2.3.1",
+    "@radix-ui/react-tooltip": "^1.2.10",
     "@x-filter/core": "workspace:*",
     "@x-filter/react": "workspace:*",
-    "clsx": "^2.1.1"
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.6.0"
   },
   "peerDependencies": {
     "react": "^18.3.1",

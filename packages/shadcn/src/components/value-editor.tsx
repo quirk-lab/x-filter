@@ -14,7 +14,7 @@ import {
   parseNumberInput,
   updatePairValue,
 } from '@x-filter/react';
-import type { ChangeEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Checkbox, cn, Input, Select } from './primitives';
 
 export interface ShadcnValueEditorProps {
@@ -44,10 +44,6 @@ const temporalInputType: Partial<Record<FieldType, 'date' | 'time' | 'datetime-l
   time: 'time',
   dateTime: 'datetime-local',
 };
-
-function selectedValues(select: HTMLSelectElement): string[] {
-  return Array.from(select.selectedOptions, (option) => option.value);
-}
 
 export function ShadcnValueEditor({
   schema,
@@ -176,7 +172,7 @@ export function ShadcnValueEditor({
           aria-label={label}
           className={cn(className, errorClass)}
           disabled={isDisabled}
-          onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange(event.target.value)}
+          onChange={(val) => onChange(val)}
           options={(selectedField.values ?? []).map((option) => ({
             value: option.value,
             label: option.label,
@@ -196,9 +192,7 @@ export function ShadcnValueEditor({
           className={cn(className, errorClass)}
           disabled={isDisabled}
           multiple
-          onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-            onChange(selectedValues(event.target))
-          }
+          onChange={(val) => onChange(val)}
           options={(selectedField.values ?? []).map((option) => ({
             value: option.value,
             label: option.label,
@@ -217,7 +211,7 @@ export function ShadcnValueEditor({
           checked={Boolean(rule.value)}
           className={cn(className, errorClass)}
           disabled={isDisabled}
-          onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(event.target.checked)}
+          onChange={onChange}
         />
       );
     }

@@ -1,6 +1,6 @@
 import type { Filter } from '@x-filter/core';
 import type { FilterPreset } from '@x-filter/react';
-import { type ChangeEvent, useState } from 'react';
+import { useState } from 'react';
 import { Button, cn, Input, Select } from './primitives';
 
 export interface ShadcnPresetBarLabels {
@@ -66,11 +66,6 @@ export function ShadcnPresetBar({
     setName('');
   };
 
-  const handleSelect = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelected(event.target.value);
-    setConfirming(false);
-  };
-
   const handleLoad = () => {
     if (hasSelection) onLoad(selectedIndex);
   };
@@ -103,7 +98,10 @@ export function ShadcnPresetBar({
         aria-label={text.loadPlaceholder}
         className="w-44"
         disabled={isEmpty}
-        onChange={handleSelect}
+        onChange={(val) => {
+          setSelected(val as string);
+          setConfirming(false);
+        }}
         options={presets.map((preset, index) => ({
           value: String(index),
           label: preset.name,

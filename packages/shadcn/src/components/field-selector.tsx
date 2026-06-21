@@ -1,5 +1,4 @@
 import type { FieldSchema, FilterRule } from '@x-filter/core';
-import type { ChangeEvent } from 'react';
 import { Select, type SelectOption } from './primitives';
 
 export interface ShadcnFieldSelectorProps {
@@ -38,7 +37,7 @@ export function ShadcnFieldSelector({
       aria-label={label}
       className={className}
       disabled={disabled}
-      onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange(event.target.value)}
+      onChange={(val) => onChange(val as string)}
       options={options}
       placeholder={label}
       value={selectedValue}

@@ -1,6 +1,5 @@
 import type { FieldSchema, FilterRule } from '@x-filter/core';
 import { findSchemaField, getFieldOperators } from '@x-filter/react';
-import type { ChangeEvent } from 'react';
 import { Select, type SelectOption } from './primitives';
 
 export interface ShadcnOperatorSelectorProps {
@@ -43,7 +42,7 @@ export function ShadcnOperatorSelector({
       aria-label={label}
       className={className}
       disabled={disabled || operators.length === 0}
-      onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange(event.target.value)}
+      onChange={(val) => onChange(val as string)}
       options={options}
       placeholder={label}
       value={selectedValue}

@@ -1,5 +1,4 @@
 import type { Combinator } from '@x-filter/core';
-import type { ChangeEvent } from 'react';
 import { Select } from './primitives';
 
 export interface ShadcnCombinatorSelectorProps {
@@ -22,9 +21,7 @@ export function ShadcnCombinatorSelector({
       aria-label={label}
       className={className}
       disabled={disabled}
-      onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-        onChange(event.target.value as Combinator)
-      }
+      onChange={(val) => onChange(val as Combinator)}
       options={[
         { value: 'and', label: 'AND' },
         { value: 'or', label: 'OR' },

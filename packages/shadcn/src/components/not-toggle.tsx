@@ -1,4 +1,4 @@
-import type { ChangeEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Checkbox } from './primitives';
 
 export interface ShadcnNotToggleProps {
@@ -22,7 +22,7 @@ export function ShadcnNotToggle({
       className={className}
       disabled={disabled}
       label={label}
-      onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(event.target.checked)}
+      onChange={onChange}
     />
   );
 }

@@ -28,10 +28,23 @@ export type {
   ButtonProps,
   CardProps,
   CheckboxProps,
+  DialogProps,
   InputProps,
   SelectProps,
 } from './primitives';
-export { Badge, Button, Card, Checkbox, cn, Input, Select } from './primitives';
+export {
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  cn,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+  Input,
+  Select,
+} from './primitives';
 export type { ShadcnFilterRuleProps } from './rule-row';
 export { ShadcnFilterRule } from './rule-row';
 export type { SortableFilterContextProps, SortableFilterItemProps } from './sortable-context';

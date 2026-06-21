@@ -54,8 +54,11 @@ describe('ShadcnPresetBar', () => {
       />
     );
 
-    expect((screen.getByLabelText('Load preset…') as HTMLSelectElement).disabled).toBe(true);
-    expect(screen.getByRole('option', { name: 'No saved presets' })).not.toBeNull();
+    // Radix Select trigger is disabled when there are no presets
+    const trigger = screen.getByLabelText('Load preset…');
+    expect(trigger.hasAttribute('disabled')).toBe(true);
+    // The trigger shows the placeholder text
+    expect(trigger.textContent).toContain('No saved presets');
     expect((screen.getByRole('button', { name: 'Load' }) as HTMLButtonElement).disabled).toBe(true);
     expect((screen.getByRole('button', { name: 'Delete' }) as HTMLButtonElement).disabled).toBe(
       true
@@ -74,7 +77,9 @@ describe('ShadcnPresetBar', () => {
       />
     );
 
-    fireEvent.change(screen.getByLabelText('Load preset…'), { target: { value: '1' } });
+    // Open the Radix Select and pick the second option
+    fireEvent.click(screen.getByLabelText('Load preset…'));
+    fireEvent.click(screen.getByRole('option', { name: 'Second' }));
     fireEvent.click(screen.getByRole('button', { name: 'Load' }));
     expect(onLoad).toHaveBeenCalledWith(1);
   });
@@ -91,7 +96,8 @@ describe('ShadcnPresetBar', () => {
       />
     );
 
-    fireEvent.change(screen.getByLabelText('Load preset…'), { target: { value: '0' } });
+    fireEvent.click(screen.getByLabelText('Load preset…'));
+    fireEvent.click(screen.getByRole('option', { name: 'First' }));
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
     // Armed, not yet deleted.
     expect(onDelete).not.toHaveBeenCalled();
@@ -114,7 +120,8 @@ describe('ShadcnPresetBar', () => {
       />
     );
 
-    fireEvent.change(screen.getByLabelText('Load preset…'), { target: { value: '0' } });
+    fireEvent.click(screen.getByLabelText('Load preset…'));
+    fireEvent.click(screen.getByRole('option', { name: 'First' }));
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 

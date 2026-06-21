@@ -10,6 +10,7 @@ import {
   ShadcnValueEditor,
   ValidatedInput,
 } from '../index';
+import { selectOption, selectOptionWithin } from './radix-test-helpers';
 
 const schema: FieldSchema[] = [
   {
@@ -69,7 +70,7 @@ describe('shadcn atomic components', () => {
     const onChange = jest.fn();
     render(<ShadcnFieldSelector schema={schema} rule={rule} onChange={onChange} />);
 
-    fireEvent.change(screen.getByLabelText(/field/i), { target: { value: 'age' } });
+    selectOption(/field/i, 'Age');
 
     expect(onChange).toHaveBeenCalledWith('age');
   });
@@ -83,15 +84,15 @@ describe('shadcn atomic components', () => {
       />
     );
 
-    const fieldSelect = screen.getByLabelText(/field/i) as HTMLSelectElement;
-    expect(fieldSelect.selectedOptions[0]?.textContent).toBe('segment');
+    // Radix Select displays the selected value text in the trigger
+    expect(screen.getByLabelText(/field/i).textContent).toContain('segment');
   });
 
   test('ShadcnOperatorSelector renders operators for selected field', () => {
     const onChange = jest.fn();
     render(<ShadcnOperatorSelector schema={schema} rule={rule} onChange={onChange} />);
 
-    fireEvent.change(screen.getByLabelText(/operator/i), { target: { value: 'contains' } });
+    selectOption(/operator/i, 'contains');
 
     expect(onChange).toHaveBeenCalledWith('contains');
   });
@@ -105,8 +106,7 @@ describe('shadcn atomic components', () => {
       />
     );
 
-    const operatorSelect = screen.getByLabelText(/operator/i) as HTMLSelectElement;
-    expect(operatorSelect.selectedOptions[0]?.textContent).toBe('startsWith');
+    expect(screen.getByLabelText(/operator/i).textContent).toContain('startsWith');
   });
 
   test('ShadcnValueEditor emits text value changes', () => {
@@ -139,7 +139,7 @@ describe('shadcn atomic components', () => {
         onChange={onSelectChange}
       />
     );
-    fireEvent.change(screen.getByLabelText(/value/i), { target: { value: 'inactive' } });
+    selectOption(/value/i, 'Inactive');
     expect(onSelectChange).toHaveBeenCalledWith('inactive');
 
     const onMultiSelectChange = jest.fn();
@@ -150,6 +150,7 @@ describe('shadcn atomic components', () => {
         onChange={onMultiSelectChange}
       />
     );
+    // multiSelect still uses native <select multiple>
     const multiSelect = screen.getByLabelText(/value/i) as HTMLSelectElement;
     multiSelect.options[0].selected = true;
     multiSelect.options[1].selected = true;
@@ -308,7 +309,7 @@ describe('shadcn atomic components', () => {
       </>
     );
 
-    fireEvent.change(screen.getByLabelText(/combinator/i), { target: { value: 'or' } });
+    selectOption(/combinator/i, 'OR');
     fireEvent.click(screen.getByRole('checkbox', { name: 'Not' }));
 
     expect(onCombinatorChange).toHaveBeenCalledWith('or');
@@ -367,9 +368,7 @@ describe('shadcn atomic components', () => {
     expect(screen.getByLabelText('Rule')).not.toBeNull();
 
     const groupControls = screen.getByLabelText('Group');
-    fireEvent.change(within(groupControls).getByLabelText(/combinator/i), {
-      target: { value: 'or' },
-    });
+    selectOptionWithin(groupControls, /combinator/i, 'OR');
     fireEvent.click(within(groupControls).getAllByRole('checkbox', { name: 'Not' })[0]);
     fireEvent.click(within(groupControls).getByRole('button', { name: 'Add rule' }));
     fireEvent.click(within(groupControls).getByRole('button', { name: 'Add group' }));
@@ -382,10 +381,8 @@ describe('shadcn atomic components', () => {
 
     const ruleControls = screen.getByLabelText('Rule');
     fireEvent.click(within(ruleControls).getByRole('checkbox', { name: 'Not' }));
-    fireEvent.change(within(ruleControls).getByLabelText(/field/i), { target: { value: 'age' } });
-    fireEvent.change(within(ruleControls).getByLabelText(/operator/i), {
-      target: { value: 'contains' },
-    });
+    selectOptionWithin(ruleControls, /field/i, 'Age');
+    selectOptionWithin(ruleControls, /operator/i, 'contains');
     fireEvent.change(within(ruleControls).getByDisplayValue('Ada'), {
       target: { value: 'Katherine' },
     });
@@ -430,6 +427,7 @@ describe('shadcn atomic components', () => {
         onChange={onChange}
       />
     );
+    // Radix Select trigger is a combobox
     expect(screen.getByRole('combobox', { name: 'Value' })).not.toBeNull();
 
     rerender(
@@ -439,6 +437,7 @@ describe('shadcn atomic components', () => {
         onChange={onChange}
       />
     );
+    // multiSelect uses native <select multiple> which renders as listbox
     expect(screen.getByRole('listbox', { name: 'Value' })).not.toBeNull();
 
     const group: FilterGroup = { id: 'g2', combinator: 'or', children: [] };

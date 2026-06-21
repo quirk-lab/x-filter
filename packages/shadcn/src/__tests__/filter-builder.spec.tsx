@@ -18,6 +18,7 @@ import {
   ShadcnValueEditor,
   ValidatedInput,
 } from '../index';
+import { selectOption, selectOptionWithin } from './radix-test-helpers';
 
 const schema: FieldSchema[] = [
   {
@@ -218,21 +219,18 @@ test('ShadcnFilterBuilder applies classNames and custom action labels', () => {
   expect(screen.getByRole('button', { name: 'Delete condition' })).not.toBeNull();
 
   fireEvent.click(screen.getAllByRole('checkbox', { name: 'Not' })[0]);
-  fireEvent.change(screen.getAllByRole('combobox', { name: 'Combinator' })[0], {
-    target: { value: 'or' },
-  });
+  // Two combinator selects exist (root + nested group); target the first
+  const combinatorTriggers = screen.getAllByLabelText('Combinator');
+  fireEvent.click(combinatorTriggers[0]);
+  fireEvent.click(screen.getByRole('option', { name: 'OR' }));
   fireEvent.click(screen.getAllByRole('button', { name: 'New condition' })[0]);
   fireEvent.click(screen.getAllByRole('button', { name: 'New group' })[0]);
   fireEvent.click(screen.getAllByRole('button', { name: 'Remove group' })[0]);
 
   const ruleControls = screen.getByRole('group', { name: 'Rule Age >' });
   fireEvent.click(within(ruleControls).getByRole('checkbox', { name: 'Not' }));
-  fireEvent.change(within(ruleControls).getByRole('combobox', { name: 'Field' }), {
-    target: { value: 'name' },
-  });
-  fireEvent.change(within(ruleControls).getByRole('combobox', { name: 'Operator' }), {
-    target: { value: 'equals' },
-  });
+  selectOptionWithin(ruleControls, 'Field', 'Name');
+  selectOptionWithin(ruleControls, 'Operator', 'equals');
   fireEvent.change(within(ruleControls).getByRole('textbox', { name: 'Value' }), {
     target: { value: '42' },
   });
@@ -407,9 +405,7 @@ test('ShadcnFilterBuilder renders default value editors for supported field type
       onChange={onChange}
     />
   );
-  fireEvent.change(screen.getByRole('combobox', { name: 'Value' }), {
-    target: { value: 'inactive' },
-  });
+  selectOption('Value', 'Inactive');
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({
       children: [expect.objectContaining({ id: 'status', value: 'inactive' })],
@@ -589,30 +585,32 @@ describe('ShadcnFilterBuilder IC (inline combinator) mode', () => {
     const onChange = jest.fn();
     render(<ShadcnInlineCombinator value="and" onChange={onChange} />);
 
-    const select = screen.getByRole('combobox', { name: 'Inline combinator' });
-    expect((select as HTMLSelectElement).value).toBe('and');
+    const trigger = screen.getByLabelText('Inline combinator');
+    expect(trigger.textContent).toContain('AND');
 
-    fireEvent.change(select, { target: { value: 'or' } });
+    fireEvent.click(trigger);
+    fireEvent.click(screen.getByRole('option', { name: 'OR' }));
     expect(onChange).toHaveBeenCalledWith('or');
   });
 
   test('renders one inline combinator per gap and hides the group-level combinator', () => {
     render(<ShadcnFilterBuilder schema={schema} mode="ic" value={icFilter} onChange={jest.fn()} />);
 
-    const combinators = screen.getAllByRole('combobox', { name: 'Inline combinator' });
+    const combinators = screen.getAllByLabelText('Inline combinator');
     expect(combinators).toHaveLength(2);
-    expect((combinators[0] as HTMLSelectElement).value).toBe('and');
-    expect((combinators[1] as HTMLSelectElement).value).toBe('or');
+    expect(combinators[0].textContent).toContain('AND');
+    expect(combinators[1].textContent).toContain('OR');
     // group-level combinator selector should be absent in IC mode
-    expect(screen.queryByRole('combobox', { name: 'Combinator' })).toBeNull();
+    expect(screen.queryByLabelText('Combinator')).toBeNull();
   });
 
   test('changing one inline combinator emits an IC filter with only that slot updated', () => {
     const onChange = jest.fn();
     render(<ShadcnFilterBuilder schema={schema} mode="ic" value={icFilter} onChange={onChange} />);
 
-    const combinators = screen.getAllByRole('combobox', { name: 'Inline combinator' });
-    fireEvent.change(combinators[1], { target: { value: 'and' } });
+    const combinators = screen.getAllByLabelText('Inline combinator');
+    fireEvent.click(combinators[1]);
+    fireEvent.click(screen.getByRole('option', { name: 'AND' }));
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const next = asIC(onChange.mock.calls[0][0]);
@@ -624,12 +622,12 @@ describe('ShadcnFilterBuilder IC (inline combinator) mode', () => {
     const emptyIC: FilterIC = { id: 'root', children: [] };
     render(<ShadcnFilterBuilder schema={schema} mode="ic" defaultValue={emptyIC} />);
 
-    expect(screen.queryAllByRole('combobox', { name: 'Inline combinator' })).toHaveLength(0);
+    expect(screen.queryAllByLabelText('Inline combinator')).toHaveLength(0);
 
     const addRule = screen.getByRole('button', { name: 'Add rule' });
     fireEvent.click(addRule);
     fireEvent.click(addRule);
 
-    expect(screen.getAllByRole('combobox', { name: 'Inline combinator' })).toHaveLength(1);
+    expect(screen.getAllByLabelText('Inline combinator')).toHaveLength(1);
   });
 });
