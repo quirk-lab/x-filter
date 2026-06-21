@@ -9,8 +9,10 @@ export type {
   FilterBuilderSlots,
   FilterGroupViewModel,
   FilterNodeViewModel,
+  FilterPreset,
   FilterRuleViewModel,
   MoveOperation,
+  PresetStorage,
   UseDslEditorInteractionOptions,
   UseDslEditorInteractionReturn,
   UseDslEditorOptions,
@@ -19,6 +21,8 @@ export type {
   UseFilterBuilderOrchestratorOptions,
   UseFilterBuilderOrchestratorReturn,
   UseFilterBuilderReturn,
+  UseFilterPresetsOptions,
+  UseFilterPresetsReturn,
   UseFilterUrlSyncOptions,
   UseFilterUrlSyncReturn,
   UseFilterValidationOptions,
@@ -75,6 +79,7 @@ export { useDslEditor } from './use-dsl-editor';
 export { useDslEditorInteraction } from './use-dsl-editor-interaction';
 export { useFilterBuilder } from './use-filter-builder';
 export { useFilterBuilderOrchestrator } from './use-filter-builder-orchestrator';
+export { useFilterPresets } from './use-filter-presets';
 export { useFilterUrlSync } from './use-filter-url-sync';
 export { useFilterValidation } from './use-filter-validation';
 export { useFilterViewModel } from './use-filter-view-model';

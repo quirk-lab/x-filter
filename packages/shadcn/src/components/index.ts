@@ -18,6 +18,8 @@ export type { ShadcnNotToggleProps } from './not-toggle';
 export { ShadcnNotToggle } from './not-toggle';
 export type { ShadcnOperatorSelectorProps } from './operator-selector';
 export { ShadcnOperatorSelector } from './operator-selector';
+export type { ShadcnPresetBarLabels, ShadcnPresetBarProps } from './preset-bar';
+export { ShadcnPresetBar } from './preset-bar';
 export type {
   BadgeProps,
   BadgeVariant,

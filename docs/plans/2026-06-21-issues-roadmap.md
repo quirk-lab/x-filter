@@ -55,7 +55,7 @@
 - [x] #15 IC 行级 Combinator → PR #31
 - [x] #14 DSL 单行 Token 输入 → ShadcnDslTokenInput + dsl-token-utils（defer: 点击编辑 popover / Tab 导航）
 - [x] #19 Clone Rule/Group → core cloneRule/cloneGroup(+IC) + hook + shadcn/antd clone 按钮
-- [ ] #18 Presets / Saved Searches
+- [x] #18 Presets / Saved Searches → useFilterPresets hook（localStorage + FIFO + serialize/deserialize）+ ShadcnPresetBar（save/load/二次确认删除）
 - [ ] #17 URL 同步 Demo
 - [ ] #20 Lock/Disable
 - [ ] #16 Notion/GitHub Storybook Demo
